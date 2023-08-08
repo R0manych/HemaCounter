@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32929.385
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HEMACounter", "HEMACounter\HEMACounter.csproj", "{F38BE2CE-FE6F-4F11-9EC7-261E82C5E98D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F38BE2CE-FE6F-4F11-9EC7-261E82C5E98D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F38BE2CE-FE6F-4F11-9EC7-261E82C5E98D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F38BE2CE-FE6F-4F11-9EC7-261E82C5E98D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F38BE2CE-FE6F-4F11-9EC7-261E82C5E98D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E295EE06-9ED0-4EA9-A64C-73F29C9611A0}
+	EndGlobalSection
+EndGlobal
