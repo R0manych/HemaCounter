@@ -282,7 +282,7 @@ namespace HEMACounter.ViewModels
             {
                 nextFighter1 = value;
                 if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextFighterRed"));
+                    propertyChanged(this, new PropertyChangedEventArgs("NextFighter1"));
             }
         }
         private string nextFighter2;
@@ -293,7 +293,7 @@ namespace HEMACounter.ViewModels
             {
                 nextFighter2 = value;
                 if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextFighterBlue"));
+                    propertyChanged(this, new PropertyChangedEventArgs("NextFighter2"));
             }
         }
         private string nextFighter3;

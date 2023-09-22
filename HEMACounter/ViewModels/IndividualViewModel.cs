@@ -171,6 +171,8 @@ namespace HEMACounter.ViewModels
         //TODO: заполнять где-то
         private int _currentTurn;
 
+        //TODO: Вернуть ScorePerResult?
+
         private PropertyChangedEventHandler? propertyChanged;
         event PropertyChangedEventHandler? INotifyPropertyChanged.PropertyChanged
         {
@@ -306,7 +308,8 @@ namespace HEMACounter.ViewModels
 
         private void Initialize()
         {
-            battlePairs = _getBattlePairsHandler.Execute("Круг 1");
+            _currentTurn = 1;
+            battlePairs = _getBattlePairsHandler.Execute($"Круг {_currentTurn}");
             Participants = _getParticipantsHandler.Execute();
             Fighters = new ObservableCollection<string>(Participants.Select(p => p.Name));
             IsCovered = true;
@@ -316,12 +319,10 @@ namespace HEMACounter.ViewModels
             timer.Interval = 1000;
             Time = elapsedTime.ToString(@"mm\:ss");
             StartButtonText = timer.Enabled ? "Стоп" : "Старт";
-            _currentTurn = 1;
 
             //TODO: убрать
             nextBattlePair = battlePairs.First();
             selectedBattlePair = battlePairs.Skip(1).Take(1).First();
-
         }
 
         public void StartStopTimer()
