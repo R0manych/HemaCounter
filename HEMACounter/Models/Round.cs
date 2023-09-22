@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HEMACounter
+namespace HEMACounter.Models
 {
     public class Round : INotifyPropertyChanged
     {
@@ -83,20 +83,20 @@ namespace HEMACounter
         }
 
 
-        public Round(string redFighter, string blueFighter, int maxScore, string order)
+        public Round(string redFighter, string blueFighter, int maxScore, string order = "1")
         {
             MaxScore = maxScore;
             Order = order;
             RedFighter = redFighter;
             BlueFighter = blueFighter;
             Fighters = $"{RedFighter} - {BlueFighter}";
-        }   
+        }
 
         private PropertyChangedEventHandler? propertyChanged;
         event PropertyChangedEventHandler? INotifyPropertyChanged.PropertyChanged
         {
-            add { this.propertyChanged += value; }
-            remove { this.propertyChanged -= value; }
+            add { propertyChanged += value; }
+            remove { propertyChanged -= value; }
         }
     }
 }

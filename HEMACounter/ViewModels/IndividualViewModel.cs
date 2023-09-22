@@ -3,39 +3,19 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
 using System.Windows.Input;
+using TournamentBuilderLib.Participants.Handlers;
+using TournamentBuilderLib.Participants.Models;
 
-namespace HEMACounter
+namespace HEMACounter.ViewModels
 {
     internal class IndividualViewModel : INotifyPropertyChanged
     {
         #region Parameters
 
-        private int backupRedScore;
-        private int backupBlueScore;
-        private int backupDoubles;
-        private int currentRoundIndex = 0;
-
-        private List<(int, int)> matches = new List<(int, int)>() { (3,6), (1,5), (2,4), (1,6), (3,4), (2,5), (1,4), (2,6), (3,5) };
-        private Dictionary<int, string> currentBlueTeam = new Dictionary<int, string>();
-        private Dictionary<int, string> currentRedTeam = new Dictionary<int, string>();
-
-        private ObservableCollection<Round> rounds = new ObservableCollection<Round>();
-        public ObservableCollection<Round> Rounds
-        {
-            get => rounds;
-            set
-            {
-                rounds = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("Rounds"));
-            }
-        }
+        private IEnumerable<BattlePair> battlePairs = new List<BattlePair>();
 
         private ObservableCollection<string> fighters = new ObservableCollection<string>();
         public ObservableCollection<string> Fighters
@@ -61,43 +41,68 @@ namespace HEMACounter
             }
         }
 
-        private string selectedBlueFighter;
-        public string SelectedBlueFighter
+        private BattlePair selectedBattlePair;
+
+        public BattlePair SelectedBattlePair
         {
-            get => selectedBlueFighter;
+            get => selectedBattlePair;
             set
             {
-                selectedBlueFighter = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("SelectedBlueFighter"));
-
-                NextTeamBlue = selectedBlueFighter;
+                selectedBattlePair = value;
             }
         }
 
-        private string selectedRedFighter;
-        public string SelectedRedFighter
+        private BattlePair currentBattlePair;
+
+        public BattlePair CurrentBattlePair
         {
-            get => selectedRedFighter;
+            get => currentBattlePair;
             set
             {
-                selectedRedFighter = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("SelectedRedFighter"));
-
-                NextTeamRed = selectedRedFighter;
+                currentBattlePair = value;
+                CurrentRedFighter = value.FighterRedName;
+                CurrentBlueFighter = value.FighterBlueName;
             }
         }
 
-        private bool isTeamCompetition;
-        public bool IsTeamCompetition
+        private string currentRedFighter;
+
+        public string CurrentRedFighter
         {
-            get => isTeamCompetition;
+            get { return currentRedFighter; }
             set
             {
-                isTeamCompetition = value;
+                currentRedFighter = value;
                 if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("IsTeamCompetition"));
+                    propertyChanged(this, new PropertyChangedEventArgs(nameof(CurrentRedFighter)));
+            }
+        }
+
+        private string currentBlueFighter;
+
+        public string CurrentBlueFighter
+        {
+            get { return currentBlueFighter; }
+            set
+            {
+                currentBlueFighter = value;
+                if (propertyChanged != null)
+                    propertyChanged(this, new PropertyChangedEventArgs(nameof(CurrentBlueFighter)));
+            }
+        }
+
+        private BattlePair nextBattlePair;
+
+        public BattlePair NextBattlePair
+        {
+            get => nextBattlePair;
+            set
+            {
+                nextBattlePair = value;
+                if (propertyChanged != null)
+                    propertyChanged(this, new PropertyChangedEventArgs("NextBattlePair.FighterBlueName"));
+                if (propertyChanged != null)
+                    propertyChanged(this, new PropertyChangedEventArgs("NextBattlePair.FighterRedName"));
             }
         }
 
@@ -110,30 +115,6 @@ namespace HEMACounter
                 isCovered = value;
                 if (propertyChanged != null)
                     propertyChanged(this, new PropertyChangedEventArgs("IsCovered"));
-            }
-        }
-
-        private string blueTeamName;
-        public string BlueTeamName
-        {
-            get => blueTeamName; 
-            set 
-            { 
-                blueTeamName = value; 
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("BlueTeamName")); 
-            }
-        }
-
-        private string redTeamName;
-        public string RedTeamName
-        {
-            get => redTeamName;
-            set
-            {
-                redTeamName = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("RedTeamName"));
             }
         }
 
@@ -161,54 +142,6 @@ namespace HEMACounter
             }
         }
 
-        private string currentRedFighter;
-        public string CurrentRedFighter
-        {
-            get => currentRedFighter;
-            set
-            {
-                currentRedFighter = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("CurrentRedFighter"));
-            }
-        }
-
-        private string currentBlueFighter;
-        public string CurrentBlueFighter
-        {
-            get => currentBlueFighter;
-            set
-            {
-                currentBlueFighter = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("CurrentBlueFighter"));
-            }
-        }
-
-        private string nextRedFighter;
-        public string NextRedFighter
-        {
-            get => nextRedFighter;
-            set
-            {
-                nextRedFighter = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextRedFighter"));
-            }
-        }
-
-        private string nextBlueFighter;
-        public string NextBlueFighter
-        {
-            get => nextBlueFighter;
-            set
-            {
-                nextBlueFighter = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextBlueFighter"));
-            }
-        }
-
         private string time;
         public string Time
         {
@@ -233,114 +166,11 @@ namespace HEMACounter
             }
         }
 
-        private string nextTeamRed;
-        public string NextTeamRed
-        {
-            get => nextTeamRed;
-            set
-            {
-                nextTeamRed = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextTeamRed"));
-            }
-        }
-
-        private string nextTeamBlue;
-        public string NextTeamBlue
-        {
-            get => nextTeamBlue;
-            set
-            {
-                nextTeamBlue = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextTeamBlue"));
-            }
-        }
-
-        private string nextFighter1;
-        public string NextFighter1
-        {
-            get => nextFighter1;
-            set
-            {
-                nextFighter1 = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextFighter1"));
-            }
-        }
-        private string nextFighter2;
-        public string NextFighter2
-        {
-            get => nextFighter2;
-            set
-            {
-                nextFighter2 = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextFighter2"));
-            }
-        }
-        private string nextFighter3;
-        public string NextFighter3
-        {
-            get => nextFighter3;
-            set
-            {
-                nextFighter3 = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextFighter3"));
-            }
-        }
-        private string nextFighter4;
-        public string NextFighter4
-        {
-            get => nextFighter4;
-            set
-            {
-                nextFighter4 = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextFighter4"));
-            }
-        }
-        private string nextFighter5;
-        public string NextFighter5
-        {
-            get => nextFighter5;
-            set
-            {
-                nextFighter5 = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextFighter5"));
-            }
-        }
-        private string nextFighter6;
-        public string NextFighter6
-        {
-            get => nextFighter6;
-            set
-            {
-                nextFighter6 = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextFighter6"));
-            }
-        }
-
-        private int scorePerRound;
-        public int ScorePerRound
-        {
-            get => scorePerRound;
-            set
-            {
-                scorePerRound = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("ScorePerRound"));
-            }
-        }
-
         private PropertyChangedEventHandler? propertyChanged;
         event PropertyChangedEventHandler? INotifyPropertyChanged.PropertyChanged
         {
-            add { this.propertyChanged += value; }
-            remove { this.propertyChanged -= value; }
+            add { propertyChanged += value; }
+            remove { propertyChanged -= value; }
         }
 
         #endregion
@@ -458,20 +288,28 @@ namespace HEMACounter
 
         #endregion
 
-
+        private readonly IGetBattlePairsHandler _getBattlePairsHandler = new GetBattlePairsHandler();
+        private readonly IGetParticipantsHandler _getParticipantsHandler = new GetParticipantsHandler();
+        private readonly IWriteBattlePairHandler _writeBattlePairHandler = new WriteBattlePairHandler();
 
         public IndividualViewModel()
         {
-            Fighters = new ObservableCollection<string>(ParticipantsExport.ExportIndividuals());
+            Initialize();
+        }
+
+        private void Initialize()
+        {
+            battlePairs = _getBattlePairsHandler.Execute("Круг 1");
+            Fighters = new ObservableCollection<string>(_getParticipantsHandler.Execute().Select(p => p.Name));
             IsCovered = true;
-            IsTeamCompetition = false;
-            ScorePerRound = 7;
             elapsedTime = new TimeSpan();
             timer = new System.Timers.Timer();
             timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
             timer.Interval = 1000;
             Time = elapsedTime.ToString(@"mm\:ss");
             StartButtonText = timer.Enabled ? "Стоп" : "Старт";
+            nextBattlePair = battlePairs.First();
+            selectedBattlePair = battlePairs.Skip(1).Take(1).First();
         }
 
         public void StartStopTimer()
@@ -481,22 +319,29 @@ namespace HEMACounter
             else
                 timer.Start();
 
-            if (!timer.Enabled)
-            {
-                backupBlueScore = BlueScore;
-                backupRedScore = RedScore;
-                backupDoubles = Doubles;
-            }
-
             StartButtonText = timer.Enabled ? "Стоп" : "Старт";
-
         }
 
-        public void SetRound(int roundIndex)
+        public void NewFight()
         {
-            if (roundIndex >= Rounds.Count || roundIndex < 0) 
+            if (MessageBox.Show("Вы действительно хотите завершить текущий бой и начать новый?",
+                "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Hand, MessageBoxResult.No) == MessageBoxResult.No) 
                 return;
+            if (currentBattlePair is not null)
+                FinishRound();
+            SetRound();
+        }
 
+        private void FinishRound()
+        {
+            currentBattlePair.FighterRedScore = RedScore;
+            currentBattlePair.FighterBlueScore = BlueScore;
+            _writeBattlePairHandler.Execute(currentBattlePair);
+        }
+
+        public void SetRound()
+        {
+            ClearScore();
             elapsedTime = new TimeSpan();
             timer.Stop();
             timer = new System.Timers.Timer();
@@ -504,61 +349,16 @@ namespace HEMACounter
             timer.Interval = 1000;
             Time = elapsedTime.ToString(@"mm\:ss");
 
-            foreach (var round in Rounds)
-                round.IsCurrent = false;
-
-            Rounds[roundIndex].IsCurrent = true;
-            
-            CurrentBlueFighter = Rounds[roundIndex].BlueFighter;
-            CurrentRedFighter = Rounds[roundIndex].RedFighter;
-
-            if (roundIndex + 1 < Rounds.Count)
-            {
-                NextBlueFighter = Rounds[roundIndex + 1].BlueFighter;
-                NextRedFighter = Rounds[roundIndex + 1].RedFighter;
-            }
-            else 
-            {
-                NextBlueFighter = "";
-                NextRedFighter = "";
-            }
+            CurrentBattlePair = nextBattlePair;
 
             StartButtonText = timer.Enabled ? "Стоп" : "Старт";
-
         }
 
-        public void NewFight()
+        private void ClearScore()
         {
-            if (MessageBox.Show("Вы действительно хотите завершить текущий бой и начать новый?", "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Hand, MessageBoxResult.No) == MessageBoxResult.No) return;
-
-            timer.Stop();
-
-            currentRoundIndex = 0;
-
-            BlueTeamName = nextTeamBlue;
-            RedTeamName = nextTeamRed;
-
-            currentRedTeam = new Dictionary<int, string>();
-            currentRedTeam.Add(1, nextFighter1);
-            currentRedTeam.Add(2, nextFighter2);
-            currentRedTeam.Add(3, nextFighter3);
-
-            currentBlueTeam = new Dictionary<int, string>();
-            currentBlueTeam.Add(4, nextFighter4);
-            currentBlueTeam.Add(5, nextFighter5);
-            currentBlueTeam.Add(6, nextFighter6);
-
-            Rounds = new ObservableCollection<Round>(matches.Select((x, i) => new Round(currentRedTeam[x.Item1], currentBlueTeam[x.Item2], (i + 1) * ScorePerRound, $"({x.Item1} - {x.Item2})")));
-
             RedScore = 0;
             BlueScore = 0;
             Doubles = 0;
-
-            backupBlueScore = 0;
-            backupRedScore = 0;
-            backupDoubles = 0;
-
-            SetRound(currentRoundIndex);
         }
 
         public void PlusOneBlue()
@@ -587,10 +387,9 @@ namespace HEMACounter
         }
         public void Cancel()
         {
-            RedScore = backupRedScore;
-            BlueScore = backupBlueScore;
-            Doubles = backupDoubles;
+            ClearScore();
         }
+
         public void Cover()
         {
             IsCovered = !IsCovered;
@@ -598,8 +397,7 @@ namespace HEMACounter
 
         public void GetReady()
         {
-            NextRedFighter = NextTeamRed;
-            NextBlueFighter = NextTeamBlue;
+            nextBattlePair = selectedBattlePair;
         }
     }
 }

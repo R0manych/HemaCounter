@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HEMACounter.Models;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -10,7 +11,7 @@ using System.Timers;
 using System.Windows;
 using System.Windows.Input;
 
-namespace HEMACounter
+namespace HEMACounter.ViewModels
 {
     internal class EggsViewModel : INotifyPropertyChanged
     {
@@ -21,7 +22,7 @@ namespace HEMACounter
         private int backupDoubles;
         private int currentRoundIndex = 0;
 
-        private List<(int, int)> matches = new List<(int, int)>() { (3,6), (1,5), (2,4), (1,6), (3,4), (2,5), (1,4), (2,6), (3,5) };
+        private List<(int, int)> matches = new List<(int, int)>() { (3, 6), (1, 5), (2, 4), (1, 6), (3, 4), (2, 5), (1, 4), (2, 6), (3, 5) };
         private Dictionary<int, string> currentBlueTeam = new Dictionary<int, string>();
         private Dictionary<int, string> currentRedTeam = new Dictionary<int, string>();
 
@@ -116,12 +117,12 @@ namespace HEMACounter
         private string blueTeamName;
         public string BlueTeamName
         {
-            get => blueTeamName; 
-            set 
-            { 
-                blueTeamName = value; 
+            get => blueTeamName;
+            set
+            {
+                blueTeamName = value;
                 if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("BlueTeamName")); 
+                    propertyChanged(this, new PropertyChangedEventArgs("BlueTeamName"));
             }
         }
 
@@ -281,7 +282,7 @@ namespace HEMACounter
             {
                 nextFighter1 = value;
                 if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextFighter1"));
+                    propertyChanged(this, new PropertyChangedEventArgs("NextFighterRed"));
             }
         }
         private string nextFighter2;
@@ -292,7 +293,7 @@ namespace HEMACounter
             {
                 nextFighter2 = value;
                 if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextFighter2"));
+                    propertyChanged(this, new PropertyChangedEventArgs("NextFighterBlue"));
             }
         }
         private string nextFighter3;
@@ -355,8 +356,8 @@ namespace HEMACounter
         private PropertyChangedEventHandler? propertyChanged;
         event PropertyChangedEventHandler? INotifyPropertyChanged.PropertyChanged
         {
-            add { this.propertyChanged += value; }
-            remove { this.propertyChanged -= value; }
+            add { propertyChanged += value; }
+            remove { propertyChanged -= value; }
         }
 
         #endregion
@@ -510,7 +511,7 @@ namespace HEMACounter
 
         public void SetRound(int roundIndex)
         {
-            if (roundIndex >= Rounds.Count || roundIndex < 0) 
+            if (roundIndex >= Rounds.Count || roundIndex < 0)
                 return;
 
             elapsedTime = new TimeSpan();
@@ -524,7 +525,7 @@ namespace HEMACounter
                 round.IsCurrent = false;
 
             Rounds[roundIndex].IsCurrent = true;
-            
+
             CurrentBlueFighter = Rounds[roundIndex].BlueFighter;
             CurrentRedFighter = Rounds[roundIndex].RedFighter;
 
@@ -533,7 +534,7 @@ namespace HEMACounter
                 NextBlueFighter = Rounds[roundIndex + 1].BlueFighter;
                 NextRedFighter = Rounds[roundIndex + 1].RedFighter;
             }
-            else 
+            else
             {
                 NextBlueFighter = "";
                 NextRedFighter = "";
