@@ -6,8 +6,8 @@ using System.Linq;
 using System.Timers;
 using System.Windows;
 using System.Windows.Input;
-using TournamentBuilderLib.Participants.Handlers;
-using TournamentBuilderLib.Participants.Models;
+using TournamentBuilderLib.Handlers;
+using TournamentBuilderLib.Models;
 
 namespace HEMACounter.ViewModels
 {
@@ -16,6 +16,7 @@ namespace HEMACounter.ViewModels
         #region Parameters
 
         private IEnumerable<BattlePair> battlePairs = new List<BattlePair>();
+        private IEnumerable<IParticipant> Participants = new List<ParticipantWithClub>();
 
         private ObservableCollection<string> fighters = new ObservableCollection<string>();
         public ObservableCollection<string> Fighters
@@ -41,6 +42,7 @@ namespace HEMACounter.ViewModels
             }
         }
 
+        //TODO: сделать селектор на интерфейсе
         private BattlePair selectedBattlePair;
 
         public BattlePair SelectedBattlePair
@@ -165,6 +167,9 @@ namespace HEMACounter.ViewModels
                     propertyChanged(this, new PropertyChangedEventArgs("Doubles"));
             }
         }
+
+        //TODO: заполнять где-то
+        private int _currentTurn;
 
         private PropertyChangedEventHandler? propertyChanged;
         event PropertyChangedEventHandler? INotifyPropertyChanged.PropertyChanged
@@ -291,6 +296,8 @@ namespace HEMACounter.ViewModels
         private readonly IGetBattlePairsHandler _getBattlePairsHandler = new GetBattlePairsHandler();
         private readonly IGetParticipantsHandler _getParticipantsHandler = new GetParticipantsHandler();
         private readonly IWriteBattlePairHandler _writeBattlePairHandler = new WriteBattlePairHandler();
+        private readonly IBattleResultBuilder _battleResultBuilder = new BattleResultBuilder();
+        private readonly IWriteBattleResultHandler _writeBattleResultHandler = new WriteBattleResultHandler();
 
         public IndividualViewModel()
         {
@@ -300,7 +307,8 @@ namespace HEMACounter.ViewModels
         private void Initialize()
         {
             battlePairs = _getBattlePairsHandler.Execute("Круг 1");
-            Fighters = new ObservableCollection<string>(_getParticipantsHandler.Execute().Select(p => p.Name));
+            Participants = _getParticipantsHandler.Execute();
+            Fighters = new ObservableCollection<string>(Participants.Select(p => p.Name));
             IsCovered = true;
             elapsedTime = new TimeSpan();
             timer = new System.Timers.Timer();
@@ -308,8 +316,12 @@ namespace HEMACounter.ViewModels
             timer.Interval = 1000;
             Time = elapsedTime.ToString(@"mm\:ss");
             StartButtonText = timer.Enabled ? "Стоп" : "Старт";
+            _currentTurn = 1;
+
+            //TODO: убрать
             nextBattlePair = battlePairs.First();
             selectedBattlePair = battlePairs.Skip(1).Take(1).First();
+
         }
 
         public void StartStopTimer()
@@ -337,6 +349,10 @@ namespace HEMACounter.ViewModels
             currentBattlePair.FighterRedScore = RedScore;
             currentBattlePair.FighterBlueScore = BlueScore;
             _writeBattlePairHandler.Execute(currentBattlePair);
+            var winnerResult = _battleResultBuilder.BuildWinner(currentBattlePair, Participants, _currentTurn);
+            var loserResult = _battleResultBuilder.BuildLoser(currentBattlePair, Participants, _currentTurn);
+            _writeBattleResultHandler.Execute(winnerResult);
+            _writeBattleResultHandler.Execute(loserResult);
         }
 
         public void SetRound()

@@ -1,0 +1,12 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="TournamentBuilderLib" GeneratedClassName="GoogleSheet">
+  <Profiles />
+  <Settings>
+    <Setting Name="SHEET_ID" Type="System.String" Scope="User">
+      <Value Profile="(Default)">1Q7oySMjF3tiB-dlPkiIur9dyyqyGQz7qd3SKtarqS2Q</Value>
+    </Setting>
+    <Setting Name="RESULT_SHEET_NAME" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Итоги</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

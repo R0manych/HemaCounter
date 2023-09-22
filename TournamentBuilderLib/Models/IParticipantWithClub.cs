@@ -1,6 +1,6 @@
-﻿namespace TournamentBuilderLib.Participants.Models;
+﻿namespace TournamentBuilderLib.Models;
 
-internal interface IParticipantWithClub : IParticipant
+public interface IParticipantWithClub : IParticipant
 {
     public string? ClubName { get; set; }
 }

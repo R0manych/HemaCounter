@@ -1,4 +1,4 @@
-﻿namespace TournamentBuilderLib.Participants.Models;
+﻿namespace TournamentBuilderLib.Models;
 
 public interface IParticipant
 {

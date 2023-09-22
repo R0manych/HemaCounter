@@ -1,7 +1,7 @@
 ﻿using ExcelLib;
-using TournamentBuilderLib.Participants.Models;
+using TournamentBuilderLib.Models;
 
-namespace TournamentBuilderLib.Participants.Handlers;
+namespace TournamentBuilderLib.Handlers;
 
 public interface IGetParticipantsHandler
 {
@@ -11,7 +11,7 @@ public interface IGetParticipantsHandler
 public class GetParticipantsHandler : IGetParticipantsHandler
 {
     private const string SHEET_NAME = "Список участников";
-    private const string SHEET_ID = "1Q7oySMjF3tiB-dlPkiIur9dyyqyGQz7qd3SKtarqS2Q";
+    private string SHEET_ID = GoogleSheet.Default.SHEET_ID;
 
     public GetParticipantsHandler()
     {

@@ -1,7 +1,7 @@
 ﻿using ExcelLib;
-using TournamentBuilderLib.Participants.Models;
+using TournamentBuilderLib.Models;
 
-namespace TournamentBuilderLib.Participants.Handlers;
+namespace TournamentBuilderLib.Handlers;
 
 public interface IGetBattlePairsHandler
 {
@@ -10,7 +10,7 @@ public interface IGetBattlePairsHandler
 
 public class GetBattlePairsHandler : IGetBattlePairsHandler
 {
-    private const string SHEET_ID = "1Q7oySMjF3tiB-dlPkiIur9dyyqyGQz7qd3SKtarqS2Q";
+    private readonly string SHEET_ID = GoogleSheet.Default.SHEET_ID;
 
     public IEnumerable<BattlePair> Execute(string sheetName)
     {
@@ -23,13 +23,9 @@ public class GetBattlePairsHandler : IGetBattlePairsHandler
             BattlePair item = new()
             {
                 FighterRedName = value[0]?.ToString(),
-                FighterRedNameAddress = $"D{i}",
                 FighterRedScore = string.IsNullOrEmpty(value[1].ToString()) ? 0 : Convert.ToInt32(value[1]),
-                FighterRedScoreAddress = $"E{i}",
                 FighterBlueScore = string.IsNullOrEmpty(value[2].ToString()) ? 0 : Convert.ToInt32(value[2]),
-                FighterBlueScoreAddress = $"F{i}",
                 FighterBlueName = value[3]?.ToString(),
-                FighterBlueNameAddress = $"G{i}",
                 Range = $"{sheetName}!D{i}:G{i}",
             };
             battlePairs.Add(item);

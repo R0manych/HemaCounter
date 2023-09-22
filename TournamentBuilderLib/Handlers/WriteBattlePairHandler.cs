@@ -1,7 +1,7 @@
 ﻿using ExcelLib;
-using TournamentBuilderLib.Participants.Models;
+using TournamentBuilderLib.Models;
 
-namespace TournamentBuilderLib.Participants.Handlers;
+namespace TournamentBuilderLib.Handlers;
 
 public interface IWriteBattlePairHandler
 {
@@ -10,16 +10,16 @@ public interface IWriteBattlePairHandler
 
 public class WriteBattlePairHandler : IWriteBattlePairHandler
 {
-    private const string SHEET_ID = "1Q7oySMjF3tiB-dlPkiIur9dyyqyGQz7qd3SKtarqS2Q";
+    private readonly string SHEET_ID = GoogleSheet.Default.SHEET_ID;
 
     public void Execute(BattlePair battlePair)
     {
         var objectList = new List<object>()
-        { 
-            battlePair.FighterRedName, 
+        {
+            battlePair.FighterRedName,
             battlePair.FighterRedScore,
             battlePair.FighterBlueScore,
-            battlePair.FighterBlueName 
+            battlePair.FighterBlueName
         };
         var rangeData = new List<IList<object>> { objectList };
         ExcelWriter.Write(SHEET_ID, battlePair.Range, rangeData);

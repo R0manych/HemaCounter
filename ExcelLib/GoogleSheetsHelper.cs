@@ -21,7 +21,7 @@ public class GoogleSheetsHelper
 
     private GoogleSheetsHelper()
     {
-        InitializeService("D:\\Projects\\HEMACounter\\HEMACounter\\Secrets\\hemacounterapi-20a1e98718e8.json", "HemaCounter");
+        InitializeService("Secrets\\hemacounterapi-20a1e98718e8.json", "HemaCounter");
     }
 
     private GoogleSheetsHelper(string fileName, string appName)
