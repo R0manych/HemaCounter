@@ -14,6 +14,7 @@ public class GetBattlePairsHandler : IGetBattlePairsHandler
 
     public IEnumerable<BattlePair> Execute(string sheetName)
     {
+        //TODO: получить диапазон из конфига
         var range = $"{sheetName}!D1:G18";
         var values = ExcelReader.Read(SHEET_ID, range);
         var battlePairs = new List<BattlePair>();

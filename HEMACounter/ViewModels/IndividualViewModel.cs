@@ -169,9 +169,10 @@ namespace HEMACounter.ViewModels
         }
 
         //TODO: заполнять где-то
+        //При смене - загрузить пары с нового круга.
         private int _currentTurn;
 
-        //TODO: Вернуть ScorePerResult?
+        //TODO: Список из кругов: номер круга, время на круга, макс баллов.
 
         private PropertyChangedEventHandler? propertyChanged;
         event PropertyChangedEventHandler? INotifyPropertyChanged.PropertyChanged
@@ -349,7 +350,10 @@ namespace HEMACounter.ViewModels
         {
             currentBattlePair.FighterRedScore = RedScore;
             currentBattlePair.FighterBlueScore = BlueScore;
+            //Запись в файл текущего круга
             _writeBattlePairHandler.Execute(currentBattlePair);
+
+            //Запись в файл итога
             var winnerResult = _battleResultBuilder.BuildWinner(currentBattlePair, Participants, _currentTurn);
             var loserResult = _battleResultBuilder.BuildLoser(currentBattlePair, Participants, _currentTurn);
             _writeBattleResultHandler.Execute(winnerResult);

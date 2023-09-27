@@ -46,5 +46,17 @@ namespace TournamentBuilderLib {
                 this["RESULT_SHEET_NAME"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Рейтинг")]
+        public string SCORE_SHEET_NAME {
+            get {
+                return ((string)(this["SCORE_SHEET_NAME"]));
+            }
+            set {
+                this["SCORE_SHEET_NAME"] = value;
+            }
+        }
     }
 }

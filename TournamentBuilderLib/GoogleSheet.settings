@@ -8,5 +8,8 @@
     <Setting Name="RESULT_SHEET_NAME" Type="System.String" Scope="User">
       <Value Profile="(Default)">Итоги</Value>
     </Setting>
+    <Setting Name="SCORE_SHEET_NAME" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Рейтинг</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
