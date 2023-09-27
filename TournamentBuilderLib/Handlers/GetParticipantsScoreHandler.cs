@@ -1,9 +1,4 @@
 ﻿using ExcelLib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TournamentBuilderLib.Models;
 
 namespace TournamentBuilderLib.Handlers
@@ -20,8 +15,7 @@ namespace TournamentBuilderLib.Handlers
 
         public IEnumerable<ParticipantScore> Execute()
         {
-            //TODO: получить диапазон из конфига
-            var range = $"{SHEET_NAME}!A1:C36";
+            var range = $"{SHEET_NAME}";
             var values = ExcelReader.Read(SHEET_ID, range);
             var participantScores = new List<ParticipantScore>();
             foreach (var value in values)

@@ -59,15 +59,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Page Update="DisplayEggs.xaml">
+    <Page Update="Views\DisplayEggs.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="IndividualControl.xaml">
+    <Page Update="Views\IndividualControl.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="TeamControl.xaml">
+    <Page Update="Views\TeamControl.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>

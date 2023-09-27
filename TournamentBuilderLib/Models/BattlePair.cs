@@ -2,6 +2,23 @@
 
 public class BattlePair
 {
+    public BattlePair(string fighter1Name, string fighter2Name)
+    {
+        if (DateTime.Now.Ticks % 2 == 0)
+        {
+            FighterRedName = fighter1Name;
+            FighterBlueName = fighter2Name;
+        }
+        else
+        {
+            FighterRedName = fighter2Name;
+            FighterBlueName = fighter1Name;
+        }
+    }
+
+    public BattlePair()
+    {}
+
     public string FighterRedName { get; set; }
 
     public int FighterRedScore { get; set; }

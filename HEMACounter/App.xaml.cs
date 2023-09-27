@@ -1,4 +1,5 @@
 ﻿using HEMACounter.ViewModels;
+using HEMACounter.Views;
 using System.Windows;
 
 namespace HEMACounter
@@ -8,13 +9,19 @@ namespace HEMACounter
     /// </summary>
     public partial class App : Application
     {
-        protected override void OnStartup(StartupEventArgs e) //you need to add this.
+        private Startup? _startupView;
+        protected override void OnStartup(StartupEventArgs e) 
         {
             base.OnStartup(e);
+            _startupView = new Startup(RunTournament);
+            _startupView.Show();
+        }
 
-            switch (MessageBox.Show("Для проведения командных соревнований нажмите Yes, для индивидуальных - No, Stahlkugeln - Cancel", "Внимание", MessageBoxButton.YesNoCancel, MessageBoxImage.Information))
+        private void RunTournament(TournamentType type)
+        { 
+            switch (type)
             {
-                case MessageBoxResult.Yes:
+                case TournamentType.RubilnikTeam:
                 {
                     var commonContext = new TeamViewModel();
                     MainWindow = new Display();
@@ -26,7 +33,7 @@ namespace HEMACounter
                     control.Show();
                     break;
                 }
-                case MessageBoxResult.No:
+                case TournamentType.RubilnikIndividual:
                 {
                     var commonContext = new IndividualViewModel();
                     MainWindow = new Display();
@@ -38,7 +45,7 @@ namespace HEMACounter
                     control.Show();
                     break;
                 }
-                case MessageBoxResult.Cancel:
+                case TournamentType.Stahlkugeln:
                 {
                     var commonContext = new EggsViewModel();
                     MainWindow = new DisplayEggs();
@@ -50,7 +57,20 @@ namespace HEMACounter
                     control.Show();
                     break;
                 }
+                case TournamentType.Dante:
+                {
+                    var commonContext = new IndividualViewModel();
+                    MainWindow = new Display();
+                    MainWindow.DataContext = commonContext;
+                    MainWindow.Show();
+
+                    var control = new IndividualControl();
+                    control.DataContext = commonContext;
+                    control.Show();
+                    break;
+                }
             }
+            _startupView.Close();
         }
     }
 }

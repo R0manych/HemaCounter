@@ -1,13 +1,16 @@
-﻿using System;
+﻿using HEMACounter.Models;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Timers;
 using System.Windows;
 using System.Windows.Input;
 using TournamentBuilderLib.Handlers;
 using TournamentBuilderLib.Models;
+using TournamentBuilderLib.Utils;
 
 namespace HEMACounter.ViewModels
 {
@@ -168,6 +171,31 @@ namespace HEMACounter.ViewModels
             }
         }
 
+        private Stage currentStage;
+        public Stage CurrentStage
+        {
+            get => currentStage;
+            set
+            {
+                currentStage = value;
+                if (propertyChanged != null)
+                    propertyChanged(this, new PropertyChangedEventArgs("CurrentStage"));
+            }
+        }
+
+        private ObservableCollection<Stage> stages = new ObservableCollection<Stage>();
+        public ObservableCollection<Stage> Stages
+        {
+            get => stages;
+            set
+            {
+                stages = value;
+                if (propertyChanged != null)
+                    propertyChanged(this, new PropertyChangedEventArgs("Stages"));
+            }
+        }
+
+
         //TODO: заполнять где-то
         //При смене - загрузить пары с нового круга.
         private int _currentTurn;
@@ -294,6 +322,15 @@ namespace HEMACounter.ViewModels
             }
         }
 
+        private ICommand startStageNCommand;
+        public ICommand StartStageNCommand
+        {
+            get
+            {
+                return startStageNCommand ?? (startStageNCommand = new CommandHandler(() => StartStageN(), () => { return true; })); ;
+            }
+        }
+
         #endregion
 
         private readonly IGetBattlePairsHandler _getBattlePairsHandler = new GetBattlePairsHandler();
@@ -301,6 +338,9 @@ namespace HEMACounter.ViewModels
         private readonly IWriteBattlePairHandler _writeBattlePairHandler = new WriteBattlePairHandler();
         private readonly IBattleResultBuilder _battleResultBuilder = new BattleResultBuilder();
         private readonly IWriteBattleResultHandler _writeBattleResultHandler = new WriteBattleResultHandler();
+        private readonly IGetParticipantsScoreHandler _getParticipantsScoreHandler = new GetParticipantsScoreHandler();
+
+
 
         public IndividualViewModel()
         {
@@ -321,9 +361,25 @@ namespace HEMACounter.ViewModels
             Time = elapsedTime.ToString(@"mm\:ss");
             StartButtonText = timer.Enabled ? "Стоп" : "Старт";
 
+            GenerateDanteStages();
+
+            StartStageN();
+
             //TODO: убрать
             nextBattlePair = battlePairs.First();
             selectedBattlePair = battlePairs.Skip(1).Take(1).First();
+        }
+
+        private void GenerateDanteStages()
+        {
+            Stages.Clear();
+            Enumerable.Range(1, 9).Select(x => new Stage()
+            {
+                Id = x,
+                MaxScore = 12 - x,
+                MaxDoubles = (9 - x) / 3,
+                Duration = TimeSpan.FromSeconds(60 + (9-x)*5)
+            }).ToList().ForEach(Stages.Add);
         }
 
         public void StartStopTimer()
@@ -342,11 +398,11 @@ namespace HEMACounter.ViewModels
                 "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Hand, MessageBoxResult.No) == MessageBoxResult.No) 
                 return;
             if (currentBattlePair is not null)
-                FinishRound();
+                FinishStage();
             SetRound();
         }
 
-        private void FinishRound()
+        private void FinishStage()
         {
             currentBattlePair.FighterRedScore = RedScore;
             currentBattlePair.FighterBlueScore = BlueScore;
@@ -419,6 +475,30 @@ namespace HEMACounter.ViewModels
         public void GetReady()
         {
             nextBattlePair = selectedBattlePair;
+        }
+
+        public void StartStageN()
+        {
+            var current = 2;// currentStage.Id;
+
+            battlePairs = _getBattlePairsHandler.Execute($"Круг {_currentTurn}");
+
+            Participants = _getParticipantsHandler.Execute();
+
+            var participantScores = _getParticipantsScoreHandler.Execute();
+
+            var tmp = PairGenerator.GenerateBattlePairs(GenerationMode.Random, battlePairs.ToList(), participantScores.ToList());
+
+            tmp.AddRange(battlePairs);
+
+            var tmp2 = PairGenerator.GenerateBattlePairs(GenerationMode.Random, tmp.ToList(), participantScores.ToList());
+
+            tmp2.AddRange(battlePairs);
+
+            var tmp3 = PairGenerator.GenerateBattlePairs(GenerationMode.Random, tmp2.ToList(), participantScores.ToList());
+
+
+
         }
     }
 }
