@@ -177,6 +177,12 @@ namespace HEMACounter.ViewModels
             }
         }
 
+        private int blueParam;
+        public string BlueParam => $"{blueParam}";
+       
+        private int redParam;
+        public string RedParam => $"{redParam}";
+
         private string time;
         public string Time
         {
@@ -197,9 +203,11 @@ namespace HEMACounter.ViewModels
             {
                 doubles = value;
                 if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("Doubles"));
+                    propertyChanged(this, new PropertyChangedEventArgs("DoublesCaption"));
             }
         }
+
+        public string DoublesCaption => $"{doubles} / {currentStage.MaxDoubles}";
 
         private Stage currentStage;
         public Stage CurrentStage
@@ -219,30 +227,15 @@ namespace HEMACounter.ViewModels
             }
         }
 
-        public string StageCaption
-        {
-            get => $"Круг: {currentStage.Id}";
-        }
+        public string StageCaption => $"Круг: {currentStage.Id}";
 
-        public string MaxScoreCaption
-        {
-            get => $"Макс. баллов: {currentStage.MaxScore}";
-        }
+        public string MaxScoreCaption => $"Макс. баллов: {currentStage.MaxScore}";
 
-        public string MaxDoublesCaption
-        {
-            get => $"Макс. обоюдок: {currentStage.MaxDoubles}";
-        }
+        public string MaxDoublesCaption => $"Макс. обоюдок: {currentStage.MaxDoubles}";
 
-        public string DurationCaption
-        {
-            get => $"Время боя: " + currentStage.Duration.ToString(@"mm\:ss");
-        }
+        public string DurationCaption => $"Время боя: " + currentStage.Duration.ToString(@"mm\:ss");
 
-        public string? NextBattlePairCaption
-        {
-            get => nextBattlePair?.Caption;
-        }
+        public string? NextBattlePairCaption => nextBattlePair?.Caption;
 
         private ObservableCollection<Stage> stages = new ObservableCollection<Stage>();
         public ObservableCollection<Stage> Stages
@@ -317,6 +310,18 @@ namespace HEMACounter.ViewModels
         private ICommand loadStageNCommand;
         public ICommand LoadStageNCommand => loadStageNCommand ??= new CommandHandler(ReloadStageN, () => true);
 
+        private ICommand plusOneParamBlueCommand;
+        public ICommand PlusOneParamBlueCommand => plusOneParamBlueCommand ??= new CommandHandler(PlusOneParamBlue, () => true);
+
+        private ICommand minusOneParamBlueCommand;
+        public ICommand MinusOneParamBlueCommand => minusOneParamBlueCommand ??= new CommandHandler(MinusOneParamBlue, () => true);
+
+        private ICommand plusOneParamRedCommand;
+        public ICommand PlusOneParamRedCommand => plusOneParamRedCommand ??= new CommandHandler(PlusOneParamRed, () => true);
+
+        private ICommand minusOneParamRedCommand;
+        public ICommand MinusOneParamRedCommand => minusOneParamRedCommand ??= new CommandHandler(MinusOneParamRed, () => true);
+
         #endregion
 
         private readonly IGetBattlePairsHandler _getBattlePairsHandler = new GetBattlePairsHandler();
@@ -325,7 +330,8 @@ namespace HEMACounter.ViewModels
         private readonly IBattleResultBuilder _battleResultBuilder = new BattleResultBuilder();
         private readonly IWriteBattleResultHandler _writeBattleResultHandler = new WriteBattleResultHandler();
         private readonly IGetParticipantsScoreHandler _getParticipantsScoreHandler = new GetParticipantsScoreHandler();
-        private readonly IUpdateIndulgenciaHandler _updateIndulgenciaHandler = new UpdateIndulgenciaHandler();
+        private readonly IGetParamHandler _getParamHandler = new GetParamHandler();
+        private readonly IUpdateParamHandler _updateParamHandler = new UpdateParamHandler();
 
         public IndividualViewModel()
         {
@@ -380,10 +386,17 @@ namespace HEMACounter.ViewModels
         public void NewFight()
         {
             if (currentBattlePair is not null)
-            {   
+            {
                 if (MessageBox.Show("Вы действительно хотите завершить текущий бой и начать новый?",
-                    "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Hand, MessageBoxResult.No) == MessageBoxResult.No) 
+                    "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.No) 
                     return;
+
+                if (doubles > currentStage.MaxDoubles)
+                {
+                    if (MessageBox.Show("Счётчик обоюдных поражений превышает допустимое значение! \n Бой будет завершён техническим поражение обоих бойцов! \n Продолжить?",
+                        "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Hand, MessageBoxResult.No) == MessageBoxResult.No)
+                        return;
+                }
 
                 FinishFight();
             }
@@ -398,13 +411,22 @@ namespace HEMACounter.ViewModels
             //Запись в файл текущего круга
             _writeBattlePairHandler.Execute(currentBattlePair);
 
-            if (currentBattlePair.IsDraw)
+
+            if (doubles > currentStage.MaxDoubles) //техническое поражение обоим
+            {
+                var (resultRed, resultBlue) = _battleResultBuilder.BuildTechnicalDefeat(currentBattlePair, participants, currentStage.Id);
+                _writeBattleResultHandler.Execute(resultRed);
+                _writeBattleResultHandler.Execute(resultBlue);
+                UpdateParam(currentBattlePair.FighterBlueName, 2);
+                UpdateParam(currentBattlePair.FighterRedName, 2);
+            }
+            else if (currentBattlePair.IsDraw)
             {
                 var (resultRed, resultBlue) = _battleResultBuilder.BuildDraws(currentBattlePair, participants, currentStage.Id);
                 _writeBattleResultHandler.Execute(resultRed);
                 _writeBattleResultHandler.Execute(resultBlue);
-                UpdateIndulgencia(currentBattlePair.FighterBlueName, 1);
-                UpdateIndulgencia(currentBattlePair.FighterRedName, 1);
+                UpdateParam(currentBattlePair.FighterBlueName, 1);
+                UpdateParam(currentBattlePair.FighterRedName, 1);
             }
             else 
             { 
@@ -412,19 +434,43 @@ namespace HEMACounter.ViewModels
                 var loserResult = _battleResultBuilder.BuildLoser(currentBattlePair, participants, currentStage.Id);
                 _writeBattleResultHandler.Execute(winnerResult);
                 _writeBattleResultHandler.Execute(loserResult);
-                UpdateIndulgencia(currentBattlePair.LooserName, 2);
+                UpdateParam(currentBattlePair.LooserName, 2);
             }
         }
 
-        //todo: список участников можно брать из глобальной переменной participants
-        private void UpdateIndulgencia(string? fighterName, int diff)
+        private void UpdateParam(string? fighterName, int diff)
         {
             if (fighterName is null)
                 return;
+
             var participant = participants.FirstOrDefault(p => p.Name == fighterName);
             if (participant is not null)
             {
-                _updateIndulgenciaHandler.Execute(participant, diff);
+                _updateParamHandler.Execute(participant, diff);
+            }
+
+            ReloadParams();
+        }
+
+        private void ReloadParams()
+        {
+            if (currentBattlePair is null)
+                return;
+
+            var participantBlue = participants.FirstOrDefault(p => p.Name == currentBattlePair.FighterBlueName);
+            if (participantBlue is not null)
+            {
+                blueParam = _getParamHandler.Execute(participantBlue);
+                if (propertyChanged != null)
+                    propertyChanged(this, new PropertyChangedEventArgs("BlueParam"));
+            }
+
+            var participantRed = participants.FirstOrDefault(p => p.Name == currentBattlePair.FighterRedName);
+            if (participantRed is not null)
+            {
+                redParam = _getParamHandler.Execute(participantRed);
+                if (propertyChanged != null)
+                    propertyChanged(this, new PropertyChangedEventArgs("RedParam"));
             }
         }
 
@@ -448,6 +494,8 @@ namespace HEMACounter.ViewModels
             NextBattlePair = null;
 
             StartButtonText = timer.Enabled ? "Стоп" : "Старт";
+
+            ReloadParams();
         }
 
         private void ClearScore()
@@ -468,7 +516,25 @@ namespace HEMACounter.ViewModels
         public void PlusOneDouble() => Doubles++;
         
         public void MinusOneDouble() => Doubles--;
-        
+
+        public void PlusOneParamBlue()
+        { 
+            if (MessageBox.Show("Обычно мы не добавляем индульгенции таким образом. Вы уверены?", 
+                "Подтвердите действие", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                UpdateParam(currentBattlePair?.FighterBlueName, 1);
+        }
+
+        public void MinusOneParamBlue() => UpdateParam(currentBattlePair?.FighterBlueName, -1);
+
+        public void PlusOneParamRed()
+        {
+            if (MessageBox.Show("Обычно мы не добавляем индульгенции таким образом. Вы уверены?",
+                "Подтвердите действие", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                UpdateParam(currentBattlePair?.FighterRedName, 1);
+        }
+
+        public void MinusOneParamRed() => UpdateParam(currentBattlePair?.FighterRedName, -1);
+
         public void Cover() => IsCovered = !IsCovered;
 
         //Это супер кнопка "Галя, отмена!"

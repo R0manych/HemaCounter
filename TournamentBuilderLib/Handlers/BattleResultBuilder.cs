@@ -9,6 +9,8 @@ namespace TournamentBuilderLib.Handlers
         BattleResult BuildLoser(BattlePair pair, IEnumerable<IParticipant> participantsWithClub, int turn);
 
         (BattleResult, BattleResult) BuildDraws(BattlePair pair, IEnumerable<IParticipant> participantsWithClub, int turn);
+
+        (BattleResult, BattleResult) BuildTechnicalDefeat(BattlePair pair, IEnumerable<IParticipant> participantsWithClub, int turn);
     }
 
     public class BattleResultBuilder : IBattleResultBuilder
@@ -66,18 +68,29 @@ namespace TournamentBuilderLib.Handlers
             return (resultRed, resultBlue);
         }
 
-        public BattleResult BuildDrawBlue(BattlePair pair, IEnumerable<IParticipant> participantsWithClub, int turn)
+        public (BattleResult, BattleResult) BuildTechnicalDefeat(BattlePair pair, IEnumerable<IParticipant> participantsWithClub, int turn)
         {
-            var loser = pair.FighterRedScore < pair.FighterBlueScore ? pair.FighterRedName : pair.FighterBlueName;
-            var loserId = participantsWithClub.FirstOrDefault(p => p.Name == loser)?.Id + 1;
-            var adressRange = ResultAddressMap[turn];
-            var result = new BattleResult
+            var fighterRed = pair.FighterRedName;
+            var fighterRedId = participantsWithClub.FirstOrDefault(p => p.Name == fighterRed)?.Id + 1;
+            var adressRedRange = ResultAddressMap[turn];
+            var resultRed = new BattleResult
             {
                 Result = 0,
-                Score = Math.Abs(pair.FighterRedScore - pair.FighterBlueScore) * -1,
-                Range = $"{adressRange.Item1}{loserId}:{adressRange.Item2}{loserId}"
+                Score = pair.FighterRedScore - pair.FighterBlueScore,
+                Range = $"{adressRedRange.Item1}{fighterRedId}:{adressRedRange.Item2}{fighterRedId}"
             };
-            return result;
+
+            var fighterBlue = pair.FighterBlueName;
+            var fighterBlueId = participantsWithClub.FirstOrDefault(p => p.Name == fighterBlue)?.Id + 1;
+            var adressBlueRange = ResultAddressMap[turn];
+            var resultBlue = new BattleResult
+            {
+                Result = 0,
+                Score = pair.FighterBlueScore - pair.FighterRedScore,
+                Range = $"{adressBlueRange.Item1}{fighterBlueId}:{adressBlueRange.Item2}{fighterBlueId}"
+            };
+
+            return (resultRed, resultBlue);
         }
 
         private Dictionary<int, (string, string)> ResultAddressMap = new Dictionary<int, (string, string)>()

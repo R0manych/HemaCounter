@@ -3,12 +3,12 @@ using TournamentBuilderLib.Models;
 
 namespace TournamentBuilderLib.Handlers;
 
-public interface IUpdateIndulgenciaHandler
+public interface IUpdateParamHandler
 {
     public void Execute(IParticipant participant, int diff);
 }
 
-public class UpdateIndulgenciaHandler : IUpdateIndulgenciaHandler
+public class UpdateParamHandler : IUpdateParamHandler
 {
     private readonly string SHEET_ID = GoogleSheet.Default.SHEET_ID;
     private const string SHEET_NAME = "Список участников";
