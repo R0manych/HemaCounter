@@ -34,4 +34,6 @@ public class BattlePair
     public string Caption => $"{FighterRedName} - {FighterBlueName}";
 
     public bool IsDraw => FighterBlueScore == FighterRedScore;
+
+    public string? LooserName => IsDraw ? null : FighterBlueScore > FighterRedScore ? FighterRedName : FighterBlueName;
 }

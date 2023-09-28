@@ -325,6 +325,7 @@ namespace HEMACounter.ViewModels
         private readonly IBattleResultBuilder _battleResultBuilder = new BattleResultBuilder();
         private readonly IWriteBattleResultHandler _writeBattleResultHandler = new WriteBattleResultHandler();
         private readonly IGetParticipantsScoreHandler _getParticipantsScoreHandler = new GetParticipantsScoreHandler();
+        private readonly IUpdateIndulgenciaHandler _updateIndulgenciaHandler = new UpdateIndulgenciaHandler();
 
         public IndividualViewModel()
         {
@@ -397,14 +398,13 @@ namespace HEMACounter.ViewModels
             //Запись в файл текущего круга
             _writeBattlePairHandler.Execute(currentBattlePair);
 
-            //Запись в файл итога
-            var participants = _getParticipantsHandler.Execute();
-
             if (currentBattlePair.IsDraw)
             {
                 var (resultRed, resultBlue) = _battleResultBuilder.BuildDraws(currentBattlePair, participants, currentStage.Id);
                 _writeBattleResultHandler.Execute(resultRed);
                 _writeBattleResultHandler.Execute(resultBlue);
+                UpdateIndulgencia(currentBattlePair.FighterBlueName, 1);
+                UpdateIndulgencia(currentBattlePair.FighterRedName, 1);
             }
             else 
             { 
@@ -412,6 +412,19 @@ namespace HEMACounter.ViewModels
                 var loserResult = _battleResultBuilder.BuildLoser(currentBattlePair, participants, currentStage.Id);
                 _writeBattleResultHandler.Execute(winnerResult);
                 _writeBattleResultHandler.Execute(loserResult);
+                UpdateIndulgencia(currentBattlePair.LooserName, 2);
+            }
+        }
+
+        //todo: список участников можно брать из глобальной переменной participants
+        private void UpdateIndulgencia(string? fighterName, int diff)
+        {
+            if (fighterName is null)
+                return;
+            var participant = participants.FirstOrDefault(p => p.Name == fighterName);
+            if (participant is not null)
+            {
+                _updateIndulgenciaHandler.Execute(participant, diff);
             }
         }
 
