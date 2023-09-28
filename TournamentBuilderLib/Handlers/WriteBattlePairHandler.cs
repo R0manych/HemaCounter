@@ -19,7 +19,8 @@ public class WriteBattlePairHandler : IWriteBattlePairHandler
             battlePair.FighterRedName,
             battlePair.FighterRedScore,
             battlePair.FighterBlueScore,
-            battlePair.FighterBlueName
+            battlePair.FighterBlueName,
+            battlePair.IsStarted ? 1 : 0
         };
         var rangeData = new List<IList<object>> { objectList };
         ExcelWriter.Write(SHEET_ID, battlePair.Range, rangeData);

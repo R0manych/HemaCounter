@@ -27,5 +27,11 @@ public class BattlePair
 
     public int FighterBlueScore { get; set; }
 
+    public bool IsStarted { get; set; }
+
     public string Range { get; set; }
+
+    public string Caption => $"{FighterRedName} - {FighterBlueName}";
+
+    public bool IsDraw => FighterBlueScore == FighterRedScore;
 }

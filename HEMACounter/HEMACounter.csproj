@@ -13,6 +13,8 @@
     <None Remove="Images\blue2.png" />
     <None Remove="Images\blue3.png" />
     <None Remove="Images\cover.jpg" />
+    <None Remove="Images\dante.png" />
+    <None Remove="Images\dante_back.png" />
     <None Remove="Images\red0.png" />
     <None Remove="Images\red1.png" />
     <None Remove="Images\red2.png" />
@@ -38,6 +40,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Content Include="Images\cover.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\dante.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\dante_back.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Images\stahlkugeln.png">

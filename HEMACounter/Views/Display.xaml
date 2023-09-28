@@ -34,7 +34,7 @@
             <RowDefinition Height="140"/>
         </Grid.RowDefinitions>
 
-        <Image Grid.ColumnSpan="10" Grid.RowSpan="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Source="/Images/cover.jpg">
+        <Image Grid.ColumnSpan="10" Grid.RowSpan="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Source="/Images/dante.png">
         </Image>
         <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.RowSpan="6" Opacity="1" Background="#242424"></Grid>
         <Grid Grid.Column="3" Grid.ColumnSpan="2" Grid.RowSpan="6" Opacity="1" Background="#242424"></Grid>
@@ -82,7 +82,7 @@
         </Grid>
 
         <Image Grid.ColumnSpan="10" Grid.RowSpan="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-               Visibility="{Binding IsCovered, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BooleanToVisibilityConverter }}" Source="/Images/cover.jpg">
+               Visibility="{Binding IsCovered, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BooleanToVisibilityConverter }}" Source="/Images/dante.png">
         </Image>
 
     </Grid>

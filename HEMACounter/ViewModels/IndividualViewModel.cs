@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Timers;
@@ -18,21 +19,48 @@ namespace HEMACounter.ViewModels
     {
         #region Parameters
 
-        private IEnumerable<BattlePair> battlePairs = new List<BattlePair>();
-        private IEnumerable<IParticipant> Participants = new List<ParticipantWithClub>();
+        private int backupRedScore;
+        private int backupBlueScore;
+        private int backupDoubles;
 
-        private ObservableCollection<string> fighters = new ObservableCollection<string>();
-        public ObservableCollection<string> Fighters
+        private IEnumerable<IParticipant> participants = new List<IParticipant>();
+
+        private ObservableCollection<BattlePair> battlePairs = new ObservableCollection<BattlePair>();
+        public ObservableCollection<BattlePair> BattlePairs
         {
-            get => fighters;
+            get => battlePairs;
             set
             {
-                fighters = value;
+                battlePairs = value;
                 if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("Fighters"));
+                    propertyChanged(this, new PropertyChangedEventArgs("BattlePairs"));
             }
         }
 
+        private BattlePair? selectedBattlePair;
+        public BattlePair? SelectedBattlePair
+        {
+            get => selectedBattlePair;
+            set
+            {
+                selectedBattlePair = value;
+                if (propertyChanged != null)
+                    propertyChanged(this, new PropertyChangedEventArgs("SelectedBattlePair"));
+            }
+        }
+
+        private BattlePair? currentBattlePair;
+        public BattlePair? CurrentBattlePair
+        {
+            get => currentBattlePair;
+            set
+            {
+                currentBattlePair = value;
+                CurrentRedFighter = value?.FighterRedName;
+                CurrentBlueFighter = value?.FighterBlueName;
+            }
+        }
+        
         private string startButtonText;
         public string StartButtonText
         {
@@ -45,34 +73,8 @@ namespace HEMACounter.ViewModels
             }
         }
 
-        //TODO: сделать селектор на интерфейсе
-        private BattlePair selectedBattlePair;
-
-        public BattlePair SelectedBattlePair
-        {
-            get => selectedBattlePair;
-            set
-            {
-                selectedBattlePair = value;
-            }
-        }
-
-        private BattlePair currentBattlePair;
-
-        public BattlePair CurrentBattlePair
-        {
-            get => currentBattlePair;
-            set
-            {
-                currentBattlePair = value;
-                CurrentRedFighter = value.FighterRedName;
-                CurrentBlueFighter = value.FighterBlueName;
-            }
-        }
-
-        private string currentRedFighter;
-
-        public string CurrentRedFighter
+        private string? currentRedFighter;
+        public string? CurrentRedFighter
         {
             get { return currentRedFighter; }
             set
@@ -83,9 +85,8 @@ namespace HEMACounter.ViewModels
             }
         }
 
-        private string currentBlueFighter;
-
-        public string CurrentBlueFighter
+        private string? currentBlueFighter;
+        public string? CurrentBlueFighter
         {
             get { return currentBlueFighter; }
             set
@@ -96,18 +97,47 @@ namespace HEMACounter.ViewModels
             }
         }
 
-        private BattlePair nextBattlePair;
+        private string? nextRedFighter;
+        public string? NextRedFighter
+        {
+            get { return nextRedFighter; }
+            set
+            {
+                nextRedFighter = value;
+                if (propertyChanged != null)
+                    propertyChanged(this, new PropertyChangedEventArgs(nameof(NextRedFighter)));
+            }
+        }
 
-        public BattlePair NextBattlePair
+        private string? nextBlueFighter;
+        public string? NextBlueFighter
+        {
+            get { return nextBlueFighter; }
+            set
+            {
+                nextBlueFighter = value;
+                if (propertyChanged != null)
+                    propertyChanged(this, new PropertyChangedEventArgs(nameof(NextBlueFighter)));
+            }
+        }
+
+        private BattlePair? nextBattlePair;
+        public BattlePair? NextBattlePair
         {
             get => nextBattlePair;
             set
             {
                 nextBattlePair = value;
+                NextRedFighter = value?.FighterRedName;
+                NextBlueFighter = value?.FighterBlueName;
                 if (propertyChanged != null)
+                {
                     propertyChanged(this, new PropertyChangedEventArgs("NextBattlePair.FighterBlueName"));
-                if (propertyChanged != null)
                     propertyChanged(this, new PropertyChangedEventArgs("NextBattlePair.FighterRedName"));
+                    propertyChanged(this, new PropertyChangedEventArgs("NextBattlePairCaption"));
+                    propertyChanged(this, new PropertyChangedEventArgs("NextRedFighter"));
+                    propertyChanged(this, new PropertyChangedEventArgs("NextBlueFighter"));
+                }
             }
         }
 
@@ -179,8 +209,39 @@ namespace HEMACounter.ViewModels
             {
                 currentStage = value;
                 if (propertyChanged != null)
+                {
                     propertyChanged(this, new PropertyChangedEventArgs("CurrentStage"));
+                    propertyChanged(this, new PropertyChangedEventArgs("StageCaption"));
+                    propertyChanged(this, new PropertyChangedEventArgs("MaxScoreCaption"));
+                    propertyChanged(this, new PropertyChangedEventArgs("DurationCaption"));
+                    propertyChanged(this, new PropertyChangedEventArgs("MaxDoublesCaption"));
+                }
             }
+        }
+
+        public string StageCaption
+        {
+            get => $"Круг: {currentStage.Id}";
+        }
+
+        public string MaxScoreCaption
+        {
+            get => $"Макс. баллов: {currentStage.MaxScore}";
+        }
+
+        public string MaxDoublesCaption
+        {
+            get => $"Макс. обоюдок: {currentStage.MaxDoubles}";
+        }
+
+        public string DurationCaption
+        {
+            get => $"Время боя: " + currentStage.Duration.ToString(@"mm\:ss");
+        }
+
+        public string? NextBattlePairCaption
+        {
+            get => nextBattlePair?.Caption;
         }
 
         private ObservableCollection<Stage> stages = new ObservableCollection<Stage>();
@@ -194,13 +255,6 @@ namespace HEMACounter.ViewModels
                     propertyChanged(this, new PropertyChangedEventArgs("Stages"));
             }
         }
-
-
-        //TODO: заполнять где-то
-        //При смене - загрузить пары с нового круга.
-        private int _currentTurn;
-
-        //TODO: Список из кругов: номер круга, время на круга, макс баллов.
 
         private PropertyChangedEventHandler? propertyChanged;
         event PropertyChangedEventHandler? INotifyPropertyChanged.PropertyChanged
@@ -216,7 +270,7 @@ namespace HEMACounter.ViewModels
         private TimeSpan elapsedTime;
         private void OnTimedEvent(object? sender, ElapsedEventArgs e)
         {
-            elapsedTime = elapsedTime.Add(TimeSpan.FromSeconds(1));
+            elapsedTime = elapsedTime.Add(TimeSpan.FromSeconds(-1));
             Time = elapsedTime.ToString(@"mm\:ss");
         }
 
@@ -225,111 +279,43 @@ namespace HEMACounter.ViewModels
         #region Commands
 
         private ICommand startStopCommand;
-        public ICommand StartStopCommand
-        {
-            get
-            {
-                return startStopCommand ?? (startStopCommand = new CommandHandler(() => StartStopTimer(), () => { return true; })); ;
-            }
-        }
+        public ICommand StartStopCommand => startStopCommand ??= new CommandHandler(StartStopTimer, () => true);
 
         private ICommand newFightCommand;
-        public ICommand NewFightCommand
-        {
-            get
-            {
-                return newFightCommand ?? (newFightCommand = new CommandHandler(() => NewFight(), () => { return true; })); ;
-            }
-        }
+        public ICommand NewFightCommand => newFightCommand ??= new CommandHandler(NewFight, () => true);
 
         private ICommand plusOneBlueCommand;
-        public ICommand PlusOneBlueCommand
-        {
-            get
-            {
-                return plusOneBlueCommand ?? (plusOneBlueCommand = new CommandHandler(() => PlusOneBlue(), () => { return true; })); ;
-            }
-        }
-        private ICommand minusOneBlueCommand;
-        public ICommand MinusOneBlueCommand
-        {
-            get
-            {
-                return minusOneBlueCommand ?? (minusOneBlueCommand = new CommandHandler(() => MinusOneBlue(), () => { return true; })); ;
-            }
-        }
+        public ICommand PlusOneBlueCommand => plusOneBlueCommand ??= new CommandHandler(PlusOneBlue, () => true);
 
+        private ICommand minusOneBlueCommand;
+        public ICommand MinusOneBlueCommand => minusOneBlueCommand ??= new CommandHandler(MinusOneBlue, () => true);
 
         private ICommand plusOneRedCommand;
-        public ICommand PlusOneRedCommand
-        {
-            get
-            {
-                return plusOneRedCommand ?? (plusOneRedCommand = new CommandHandler(() => PlusOneRed(), () => { return true; })); ;
-            }
-        }
+        public ICommand PlusOneRedCommand => plusOneRedCommand ??= new CommandHandler(PlusOneRed, () => true);
+
         private ICommand minusOneRedCommand;
-        public ICommand MinusOneRedCommand
-        {
-            get
-            {
-                return minusOneRedCommand ?? (minusOneRedCommand = new CommandHandler(() => MinusOneRed(), () => { return true; })); ;
-            }
-        }
+        public ICommand MinusOneRedCommand =>  minusOneRedCommand ??= new CommandHandler(MinusOneRed, () => true);
 
         private ICommand plusOneDoubleCommand;
-        public ICommand PlusOneDoubleCommand
-        {
-            get
-            {
-                return plusOneDoubleCommand ?? (plusOneDoubleCommand = new CommandHandler(() => PlusOneDouble(), () => { return true; })); ;
-            }
-        }
+        public ICommand PlusOneDoubleCommand => plusOneDoubleCommand ??= new CommandHandler(PlusOneDouble, () => true);
 
         private ICommand minusOneDoubleCommand;
-        public ICommand MinusOneDoubleCommand
-        {
-            get
-            {
-                return minusOneDoubleCommand ?? (minusOneDoubleCommand = new CommandHandler(() => MinusOneDouble(), () => { return true; })); ;
-            }
-        }
+        public ICommand MinusOneDoubleCommand =>  minusOneDoubleCommand ??= new CommandHandler(MinusOneDouble, () => true);
 
         private ICommand cancelCommand;
-        public ICommand CancelCommand
-        {
-            get
-            {
-                return cancelCommand ?? (cancelCommand = new CommandHandler(() => Cancel(), () => { return true; })); ;
-            }
-        }
+        public ICommand CancelCommand => cancelCommand ??= new CommandHandler(Cancel, () => true);
 
         private ICommand coverCommand;
-        public ICommand CoverCommand
-        {
-            get
-            {
-                return coverCommand ?? (coverCommand = new CommandHandler(() => Cover(), () => { return true; })); ;
-            }
-        }
+        public ICommand CoverCommand => coverCommand ??= new CommandHandler(Cover, () => true);
 
         private ICommand getReadyCommand;
-        public ICommand GetReadyCommand
-        {
-            get
-            {
-                return getReadyCommand ?? (getReadyCommand = new CommandHandler(() => GetReady(), () => { return true; })); ;
-            }
-        }
+        public ICommand GetReadyCommand => getReadyCommand ??= new CommandHandler(GetReady, () => true);
 
-        private ICommand startStageNCommand;
-        public ICommand StartStageNCommand
-        {
-            get
-            {
-                return startStageNCommand ?? (startStageNCommand = new CommandHandler(() => StartStageN(), () => { return true; })); ;
-            }
-        }
+        private ICommand generateStageNCommand;
+        public ICommand GenerateStageNCommand => generateStageNCommand ??= new CommandHandler(GenerateStageN, () => true);
+
+        private ICommand loadStageNCommand;
+        public ICommand LoadStageNCommand => loadStageNCommand ??= new CommandHandler(ReloadStageN, () => true);
 
         #endregion
 
@@ -340,8 +326,6 @@ namespace HEMACounter.ViewModels
         private readonly IWriteBattleResultHandler _writeBattleResultHandler = new WriteBattleResultHandler();
         private readonly IGetParticipantsScoreHandler _getParticipantsScoreHandler = new GetParticipantsScoreHandler();
 
-
-
         public IndividualViewModel()
         {
             Initialize();
@@ -349,10 +333,8 @@ namespace HEMACounter.ViewModels
 
         private void Initialize()
         {
-            _currentTurn = 1;
-            battlePairs = _getBattlePairsHandler.Execute($"Круг {_currentTurn}");
-            Participants = _getParticipantsHandler.Execute();
-            Fighters = new ObservableCollection<string>(Participants.Select(p => p.Name));
+            participants = _getParticipantsHandler.Execute();
+
             IsCovered = true;
             elapsedTime = new TimeSpan();
             timer = new System.Timers.Timer();
@@ -362,12 +344,7 @@ namespace HEMACounter.ViewModels
             StartButtonText = timer.Enabled ? "Стоп" : "Старт";
 
             GenerateDanteStages();
-
-            StartStageN();
-
-            //TODO: убрать
-            nextBattlePair = battlePairs.First();
-            selectedBattlePair = battlePairs.Skip(1).Take(1).First();
+            currentStage = Stages.First();
         }
 
         private void GenerateDanteStages()
@@ -390,43 +367,72 @@ namespace HEMACounter.ViewModels
                 timer.Start();
 
             StartButtonText = timer.Enabled ? "Стоп" : "Старт";
+
+            if (!timer.Enabled)
+            {
+                backupBlueScore = BlueScore;
+                backupRedScore = RedScore;
+                backupDoubles = Doubles;
+            }
         }
 
         public void NewFight()
         {
-            if (MessageBox.Show("Вы действительно хотите завершить текущий бой и начать новый?",
-                "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Hand, MessageBoxResult.No) == MessageBoxResult.No) 
-                return;
             if (currentBattlePair is not null)
-                FinishStage();
+            {   
+                if (MessageBox.Show("Вы действительно хотите завершить текущий бой и начать новый?",
+                    "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Hand, MessageBoxResult.No) == MessageBoxResult.No) 
+                    return;
+
+                FinishFight();
+            }
             SetRound();
         }
 
-        private void FinishStage()
+        private void FinishFight()
         {
-            currentBattlePair.FighterRedScore = RedScore;
-            currentBattlePair.FighterBlueScore = BlueScore;
+            currentBattlePair!.FighterRedScore = RedScore;
+            currentBattlePair!.FighterBlueScore = BlueScore;
+
             //Запись в файл текущего круга
             _writeBattlePairHandler.Execute(currentBattlePair);
 
             //Запись в файл итога
-            var winnerResult = _battleResultBuilder.BuildWinner(currentBattlePair, Participants, _currentTurn);
-            var loserResult = _battleResultBuilder.BuildLoser(currentBattlePair, Participants, _currentTurn);
-            _writeBattleResultHandler.Execute(winnerResult);
-            _writeBattleResultHandler.Execute(loserResult);
+            var participants = _getParticipantsHandler.Execute();
+
+            if (currentBattlePair.IsDraw)
+            {
+                var (resultRed, resultBlue) = _battleResultBuilder.BuildDraws(currentBattlePair, participants, currentStage.Id);
+                _writeBattleResultHandler.Execute(resultRed);
+                _writeBattleResultHandler.Execute(resultBlue);
+            }
+            else 
+            { 
+                var winnerResult = _battleResultBuilder.BuildWinner(currentBattlePair, participants, currentStage.Id);
+                var loserResult = _battleResultBuilder.BuildLoser(currentBattlePair, participants, currentStage.Id);
+                _writeBattleResultHandler.Execute(winnerResult);
+                _writeBattleResultHandler.Execute(loserResult);
+            }
         }
 
         public void SetRound()
         {
+            ReloadStageN();
+
             ClearScore();
-            elapsedTime = new TimeSpan();
+            backupRedScore = 0;
+            backupBlueScore = 0;
+            backupDoubles = 0;
+
+            elapsedTime = CurrentStage.Duration;
             timer.Stop();
-            timer = new System.Timers.Timer();
+            timer = new Timer();
             timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
             timer.Interval = 1000;
             Time = elapsedTime.ToString(@"mm\:ss");
 
             CurrentBattlePair = nextBattlePair;
+            NextBattlePair = null;
 
             StartButtonText = timer.Enabled ? "Стоп" : "Старт";
         }
@@ -438,67 +444,89 @@ namespace HEMACounter.ViewModels
             Doubles = 0;
         }
 
-        public void PlusOneBlue()
-        {
-            BlueScore++;
-        }
-        public void MinusOneBlue()
-        {
-            BlueScore--;
-        }
-        public void PlusOneRed()
-        {
-            RedScore++;
-        }
-        public void MinusOneRed()
-        {
-            RedScore--;
-        }
-        public void PlusOneDouble()
-        {
-            Doubles++;
-        }
-        public void MinusOneDouble()
-        {
-            Doubles--;
-        }
+        public void PlusOneBlue() => BlueScore++;
+
+        public void MinusOneBlue() => BlueScore--;
+
+        public void PlusOneRed() => RedScore++;
+
+        public void MinusOneRed() => RedScore--;
+
+        public void PlusOneDouble() => Doubles++;
+        
+        public void MinusOneDouble() => Doubles--;
+        
+        public void Cover() => IsCovered = !IsCovered;
+
+        //Это супер кнопка "Галя, отмена!"
         public void Cancel()
         {
-            ClearScore();
-        }
-
-        public void Cover()
-        {
-            IsCovered = !IsCovered;
+            RedScore = backupRedScore;
+            BlueScore = backupBlueScore;
+            Doubles = backupDoubles;
         }
 
         public void GetReady()
         {
-            nextBattlePair = selectedBattlePair;
+            if (NextBattlePair is not null)
+            {
+                NextBattlePair.IsStarted = false;
+                _writeBattlePairHandler.Execute(NextBattlePair);
+            }
+
+            NextBattlePair = selectedBattlePair;
+            SelectedBattlePair = null;
+
+            if (NextBattlePair is null) 
+                return;
+
+            NextBattlePair.IsStarted = true;
+            _writeBattlePairHandler.Execute(NextBattlePair);
         }
 
-        public void StartStageN()
+        public void ReloadStageN()
         {
-            var current = 2;// currentStage.Id;
+            var current = currentStage.Id;
+            var currentPairs = _getBattlePairsHandler.Execute($"Круг {current}", participants.Count())
+                .Where(x => !x.IsStarted).ToList();
 
-            battlePairs = _getBattlePairsHandler.Execute($"Круг {_currentTurn}");
+            BattlePairs.Clear();
+            currentPairs.ForEach(BattlePairs.Add);
+        }
 
-            Participants = _getParticipantsHandler.Execute();
+        public void GenerateStageN()
+        {
+            var current = currentStage.Id;
 
+            if (_getBattlePairsHandler.Execute($"Круг {current}", participants.Count())
+                .Where(x => x.IsStarted).Any())
+            {
+                MessageBox.Show("Круг уже начался!");
+                return;
+            }
+
+            var restrictedPairs = new List<BattlePair>();
+
+            for (int turn = 1; turn < current; turn++)
+            {
+                restrictedPairs.AddRange(_getBattlePairsHandler.Execute($"Круг {turn}", participants.Count()));
+            }
+            
             var participantScores = _getParticipantsScoreHandler.Execute();
 
-            var tmp = PairGenerator.GenerateBattlePairs(GenerationMode.Random, battlePairs.ToList(), participantScores.ToList());
+            var generatedPairs = PairGenerator.GenerateBattlePairs(current > 3 ? GenerationMode.Swiss : GenerationMode.Random, 
+                restrictedPairs.ToList(), participantScores.ToList());
 
-            tmp.AddRange(battlePairs);
+            int i = 1;
+            foreach (var pair in generatedPairs)
+            {
+                pair.Range = $"Круг {current}!D{i}:H{i}";
+                _writeBattlePairHandler.Execute(pair);
+                i++;
+            }
 
-            var tmp2 = PairGenerator.GenerateBattlePairs(GenerationMode.Random, tmp.ToList(), participantScores.ToList());
-
-            tmp2.AddRange(battlePairs);
-
-            var tmp3 = PairGenerator.GenerateBattlePairs(GenerationMode.Random, tmp2.ToList(), participantScores.ToList());
-
-
-
+            BattlePairs.Clear();
+            generatedPairs.ForEach(BattlePairs.Add);
         }
     }
 }

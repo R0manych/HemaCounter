@@ -5,18 +5,21 @@ namespace TournamentBuilderLib.Handlers;
 
 public interface IGetBattlePairsHandler
 {
-    public IEnumerable<BattlePair> Execute(string sheetName);
+    public IEnumerable<BattlePair> Execute(string sheetName, int participantsCount);
 }
 
 public class GetBattlePairsHandler : IGetBattlePairsHandler
 {
     private readonly string SHEET_ID = GoogleSheet.Default.SHEET_ID;
 
-    public IEnumerable<BattlePair> Execute(string sheetName)
+    public IEnumerable<BattlePair> Execute(string sheetName, int participantsCount)
     {
-        //TODO: получить диапазон из конфига
-        var range = $"{sheetName}!D1:G18";
+        var range = $"{sheetName}!D1:H{participantsCount/2}";
+
         var values = ExcelReader.Read(SHEET_ID, range);
+        if (values == null)
+            return new List<BattlePair>();
+
         var battlePairs = new List<BattlePair>();
         int i = 1;
         foreach (var value in values)
@@ -27,7 +30,8 @@ public class GetBattlePairsHandler : IGetBattlePairsHandler
                 FighterRedScore = string.IsNullOrEmpty(value[1].ToString()) ? 0 : Convert.ToInt32(value[1]),
                 FighterBlueScore = string.IsNullOrEmpty(value[2].ToString()) ? 0 : Convert.ToInt32(value[2]),
                 FighterBlueName = value[3]?.ToString(),
-                Range = $"{sheetName}!D{i}:G{i}",
+                IsStarted = value[4]?.ToString() == "1",
+                Range = $"{sheetName}!D{i}:H{i}",
             };
             battlePairs.Add(item);
             i++;

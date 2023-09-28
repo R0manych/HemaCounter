@@ -11,10 +11,11 @@
             TextWrapping="Wrap" Foreground="Red" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontSize="20"/>
         <Label Content="Раунд" HorizontalAlignment="Left" Margin="10,219,0,0" VerticalAlignment="Top" FontSize="20"/>
         <ComboBox HorizontalAlignment="Left" Margin="79,221,0,0" VerticalAlignment="Top" Width="79" FontSize="20"
-                   ItemsSource="{Binding Rounds, UpdateSourceTrigger=PropertyChanged}" 
-                          SelectedItem="{Binding CurrentRound, UpdateSourceTrigger=PropertyChanged}">
+            ItemsSource="{Binding Stages, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Id"
+            SelectedItem="{Binding CurrentStage, UpdateSourceTrigger=PropertyChanged}">
         </ComboBox>
-        <Button Content="Сгенерировать" HorizontalAlignment="Left" Margin="176,221,0,0" VerticalAlignment="Top" FontSize="22" Width="183"/>
+        <Button Content="Сгенерировать" HorizontalAlignment="Left" Margin="176,221,0,0" VerticalAlignment="Top" FontSize="22" Width="183"
+            Command="{Binding GenerateStageNCommand}"/>
 
     </Grid>
 </Window>

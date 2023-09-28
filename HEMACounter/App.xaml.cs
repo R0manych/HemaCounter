@@ -60,6 +60,7 @@ namespace HEMACounter
                 case TournamentType.Dante:
                 {
                     var commonContext = new IndividualViewModel();
+
                     MainWindow = new Display();
                     MainWindow.DataContext = commonContext;
                     MainWindow.Show();
@@ -67,10 +68,15 @@ namespace HEMACounter
                     var control = new IndividualControl();
                     control.DataContext = commonContext;
                     control.Show();
+
+                    var admin = new Admin();
+                    admin.DataContext = commonContext;
+                    admin.Show();
+
                     break;
                 }
             }
-            _startupView.Close();
+            _startupView?.Close();
         }
     }
 }
