@@ -39,21 +39,21 @@
         <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.RowSpan="6" Opacity="0" Background="#242424"></Grid>
         <Grid Grid.Column="3" Grid.ColumnSpan="2" Grid.RowSpan="6" Opacity="0" Background="#242424"></Grid>
 
-        <TextBlock Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="0" Grid.RowSpan="3"  Margin="0, 90,0,0" HorizontalAlignment="Center" Foreground="White" TextWrapping="WrapWithOverflow" FontSize="160" Text="{Binding Time, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+        <TextBlock Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="1" Grid.RowSpan="3"  Margin="0, 90,0,0" HorizontalAlignment="Center" Foreground="White" TextWrapping="WrapWithOverflow" FontSize="130" Text="{Binding Time, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
         
         <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="90" Text="{Binding BlueTeamName, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
         </Grid>
         <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="50" Text="{Binding CurrentBlueFighter, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="70" Text="{Binding CurrentBlueFighter, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
         </Grid>
         <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="6" HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#8a78e3" FontWeight="Bold" FontSize="560" Text="{Binding BlueScore, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
         </Grid>
         <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="5" HorizontalAlignment="Center" VerticalAlignment="Center">
             <StackPanel Orientation="Horizontal">
-                <!--<TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="70" Text="Готовится: "></TextBlock>-->
-                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="70" Text="{Binding NextBlueFighter, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="50" Text="Готовятся:     "></TextBlock>
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="50" Text="{Binding NextBlueFighter, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
             </StackPanel>
         </Grid>
 
@@ -69,15 +69,15 @@
             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="90" Text="{Binding RedTeamName, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
         </Grid>
         <Grid Grid.Column="3" Grid.ColumnSpan="2" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="50" Text="{Binding CurrentRedFighter, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="70" Text="{Binding CurrentRedFighter, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
         </Grid>
         <Grid Grid.Column="3" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="6" HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#ef5757" FontWeight="Bold" FontSize="560" Text="{Binding RedScore, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
         </Grid>
         <Grid Grid.Column="3" Grid.ColumnSpan="2" Grid.Row="5" HorizontalAlignment="Center" VerticalAlignment="Center">
             <StackPanel Orientation="Horizontal">
-                <!--<TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="70" Text="Готовится: "></TextBlock>-->
-                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="70" Text="{Binding NextRedFighter, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+                <!--<TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="50" Text="Готовится: "></TextBlock>-->
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="50" Text="{Binding NextRedFighter, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
             </StackPanel>
         </Grid>
 
