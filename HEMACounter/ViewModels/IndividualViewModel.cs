@@ -593,7 +593,7 @@ namespace HEMACounter.ViewModels
             
             var participantScores = _getParticipantsScoreHandler.Execute();
 
-            var generatedPairs = PairGenerator.GenerateBattlePairs(current > 3 ? GenerationMode.Swiss : GenerationMode.Random, 
+            var generatedPairs = PairGenerator.GenerateBattlePairs(current > 4 ? GenerationMode.Swiss : GenerationMode.Random, 
                 restrictedPairs.ToList(), participantScores.ToList());
 
             int i = 1;
