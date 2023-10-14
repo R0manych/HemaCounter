@@ -435,6 +435,8 @@ namespace HEMACounter.ViewModels
                 _writeBattleResultHandler.Execute(winnerResult);
                 _writeBattleResultHandler.Execute(loserResult);
                 UpdateParam(currentBattlePair.LooserName, 2);
+                var winnerName = currentBattlePair.LooserName == currentBattlePair.FighterBlueName ? currentBattlePair.FighterRedName : currentBattlePair.FighterBlueName;
+                UpdateParam(winnerName, 1);
             }
         }
 

@@ -12,7 +12,7 @@ namespace TournamentBuilderLib {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.5.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.7.0.0")]
     internal sealed partial class GoogleSheet : global::System.Configuration.ApplicationSettingsBase {
         
         private static GoogleSheet defaultInstance = ((GoogleSheet)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new GoogleSheet())));
@@ -25,7 +25,7 @@ namespace TournamentBuilderLib {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1Q7oySMjF3tiB-dlPkiIur9dyyqyGQz7qd3SKtarqS2Q")]
+        [global::System.Configuration.DefaultSettingValueAttribute("1vY3Yibc_09a7h7Q8YkHj0axat510h0zkyI34UCn3c-c")]
         public string SHEET_ID {
             get {
                 return ((string)(this["SHEET_ID"]));
