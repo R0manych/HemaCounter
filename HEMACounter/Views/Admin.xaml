@@ -1,0 +1,21 @@
+﻿<Window x:Class="HEMACounter.Views.Admin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HEMACounter.Views"
+        mc:Ignorable="d"
+        Title="Администрирование" Height="350" Width="450">
+    <Grid Margin="30">
+        <TextBlock Text="Внимание! Действия в этом окне могут иметь максимально фатальные результаты для ПО турнира, поэтому, пожалуйста, не нажимайте здесь ничего, если вы на 100% не уверены в том, что знаете, что делаете. И да, кнопка 'Галя отмена' здесь не поможет" 
+            TextWrapping="Wrap" Foreground="Red" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontSize="20"/>
+        <Label Content="Раунд" HorizontalAlignment="Left" Margin="10,219,0,0" VerticalAlignment="Top" FontSize="20"/>
+        <ComboBox HorizontalAlignment="Left" Margin="79,221,0,0" VerticalAlignment="Top" Width="79" FontSize="20"
+            ItemsSource="{Binding Stages, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Id"
+            SelectedItem="{Binding CurrentStage, UpdateSourceTrigger=PropertyChanged}">
+        </ComboBox>
+        <Button Content="Сгенерировать" HorizontalAlignment="Left" Margin="176,221,0,0" VerticalAlignment="Top" FontSize="22" Width="183"
+            Command="{Binding GenerateStageNCommand}"/>
+
+    </Grid>
+</Window>

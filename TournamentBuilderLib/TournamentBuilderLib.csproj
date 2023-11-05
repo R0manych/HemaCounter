@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ExcelLib\ExcelLib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="GoogleSheet.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>GoogleSheet.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="GoogleSheet.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>GoogleSheet.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+</Project>

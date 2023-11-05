@@ -1,8 +1,8 @@
 ﻿<Application x:Class="HEMACounter.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:HEMACounter">
+             xmlns:local="clr-namespace:HEMACounter" xmlns:local1="clr-namespace:HEMACounter.ViewModels">
     <Application.Resources>
-        <local:TeamViewModel x:Key="CommonViewModel" />
+        <local1:TeamViewModel x:Key="CommonViewModel" />
     </Application.Resources>
 </Application>

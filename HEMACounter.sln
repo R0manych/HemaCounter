@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HEMACounter", "HEMACounter\HEMACounter.csproj", "{F38BE2CE-FE6F-4F11-9EC7-261E82C5E98D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HEMACounter", "HEMACounter\HEMACounter.csproj", "{F38BE2CE-FE6F-4F11-9EC7-261E82C5E98D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelLib", "ExcelLib\ExcelLib.csproj", "{438A6B3D-C39F-493C-8A42-60BCF48466DE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentBuilderLib", "TournamentBuilderLib\TournamentBuilderLib.csproj", "{819092C7-59DC-4723-AA85-2B605DB4F59F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{F38BE2CE-FE6F-4F11-9EC7-261E82C5E98D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F38BE2CE-FE6F-4F11-9EC7-261E82C5E98D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F38BE2CE-FE6F-4F11-9EC7-261E82C5E98D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{438A6B3D-C39F-493C-8A42-60BCF48466DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{438A6B3D-C39F-493C-8A42-60BCF48466DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{438A6B3D-C39F-493C-8A42-60BCF48466DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{438A6B3D-C39F-493C-8A42-60BCF48466DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{819092C7-59DC-4723-AA85-2B605DB4F59F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{819092C7-59DC-4723-AA85-2B605DB4F59F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{819092C7-59DC-4723-AA85-2B605DB4F59F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{819092C7-59DC-4723-AA85-2B605DB4F59F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

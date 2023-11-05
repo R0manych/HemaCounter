@@ -1,16 +1,19 @@
-﻿using System;
+﻿using HEMACounter.Models;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Reflection;
 using System.Timers;
 using System.Windows;
 using System.Windows.Input;
+using TournamentBuilderLib.Handlers;
+using TournamentBuilderLib.Models;
+using TournamentBuilderLib.Utils;
 
-namespace HEMACounter
+namespace HEMACounter.ViewModels
 {
     internal class IndividualViewModel : INotifyPropertyChanged
     {
@@ -19,36 +22,45 @@ namespace HEMACounter
         private int backupRedScore;
         private int backupBlueScore;
         private int backupDoubles;
-        private int currentRoundIndex = 0;
 
-        private List<(int, int)> matches = new List<(int, int)>() { (3,6), (1,5), (2,4), (1,6), (3,4), (2,5), (1,4), (2,6), (3,5) };
-        private Dictionary<int, string> currentBlueTeam = new Dictionary<int, string>();
-        private Dictionary<int, string> currentRedTeam = new Dictionary<int, string>();
+        private IEnumerable<IParticipant> participants = new List<IParticipant>();
 
-        private ObservableCollection<Round> rounds = new ObservableCollection<Round>();
-        public ObservableCollection<Round> Rounds
+        private ObservableCollection<BattlePair> battlePairs = new ObservableCollection<BattlePair>();
+        public ObservableCollection<BattlePair> BattlePairs
         {
-            get => rounds;
+            get => battlePairs;
             set
             {
-                rounds = value;
+                battlePairs = value;
                 if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("Rounds"));
+                    propertyChanged(this, new PropertyChangedEventArgs("BattlePairs"));
             }
         }
 
-        private ObservableCollection<string> fighters = new ObservableCollection<string>();
-        public ObservableCollection<string> Fighters
+        private BattlePair? selectedBattlePair;
+        public BattlePair? SelectedBattlePair
         {
-            get => fighters;
+            get => selectedBattlePair;
             set
             {
-                fighters = value;
+                selectedBattlePair = value;
                 if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("Fighters"));
+                    propertyChanged(this, new PropertyChangedEventArgs("SelectedBattlePair"));
             }
         }
 
+        private BattlePair? currentBattlePair;
+        public BattlePair? CurrentBattlePair
+        {
+            get => currentBattlePair;
+            set
+            {
+                currentBattlePair = value;
+                CurrentRedFighter = value?.FighterRedName;
+                CurrentBlueFighter = value?.FighterBlueName;
+            }
+        }
+        
         private string startButtonText;
         public string StartButtonText
         {
@@ -61,43 +73,71 @@ namespace HEMACounter
             }
         }
 
-        private string selectedBlueFighter;
-        public string SelectedBlueFighter
+        private string? currentRedFighter;
+        public string? CurrentRedFighter
         {
-            get => selectedBlueFighter;
+            get { return currentRedFighter; }
             set
             {
-                selectedBlueFighter = value;
+                currentRedFighter = value;
                 if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("SelectedBlueFighter"));
-
-                NextTeamBlue = selectedBlueFighter;
+                    propertyChanged(this, new PropertyChangedEventArgs(nameof(CurrentRedFighter)));
             }
         }
 
-        private string selectedRedFighter;
-        public string SelectedRedFighter
+        private string? currentBlueFighter;
+        public string? CurrentBlueFighter
         {
-            get => selectedRedFighter;
+            get { return currentBlueFighter; }
             set
             {
-                selectedRedFighter = value;
+                currentBlueFighter = value;
                 if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("SelectedRedFighter"));
-
-                NextTeamRed = selectedRedFighter;
+                    propertyChanged(this, new PropertyChangedEventArgs(nameof(CurrentBlueFighter)));
             }
         }
 
-        private bool isTeamCompetition;
-        public bool IsTeamCompetition
+        private string? nextRedFighter;
+        public string? NextRedFighter
         {
-            get => isTeamCompetition;
+            get { return nextRedFighter; }
             set
             {
-                isTeamCompetition = value;
+                nextRedFighter = value;
                 if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("IsTeamCompetition"));
+                    propertyChanged(this, new PropertyChangedEventArgs(nameof(NextRedFighter)));
+            }
+        }
+
+        private string? nextBlueFighter;
+        public string? NextBlueFighter
+        {
+            get { return nextBlueFighter; }
+            set
+            {
+                nextBlueFighter = value;
+                if (propertyChanged != null)
+                    propertyChanged(this, new PropertyChangedEventArgs(nameof(NextBlueFighter)));
+            }
+        }
+
+        private BattlePair? nextBattlePair;
+        public BattlePair? NextBattlePair
+        {
+            get => nextBattlePair;
+            set
+            {
+                nextBattlePair = value;
+                NextRedFighter = value?.FighterRedName;
+                NextBlueFighter = value?.FighterBlueName;
+                if (propertyChanged != null)
+                {
+                    propertyChanged(this, new PropertyChangedEventArgs("NextBattlePair.FighterBlueName"));
+                    propertyChanged(this, new PropertyChangedEventArgs("NextBattlePair.FighterRedName"));
+                    propertyChanged(this, new PropertyChangedEventArgs("NextBattlePairCaption"));
+                    propertyChanged(this, new PropertyChangedEventArgs("NextRedFighter"));
+                    propertyChanged(this, new PropertyChangedEventArgs("NextBlueFighter"));
+                }
             }
         }
 
@@ -110,30 +150,6 @@ namespace HEMACounter
                 isCovered = value;
                 if (propertyChanged != null)
                     propertyChanged(this, new PropertyChangedEventArgs("IsCovered"));
-            }
-        }
-
-        private string blueTeamName;
-        public string BlueTeamName
-        {
-            get => blueTeamName; 
-            set 
-            { 
-                blueTeamName = value; 
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("BlueTeamName")); 
-            }
-        }
-
-        private string redTeamName;
-        public string RedTeamName
-        {
-            get => redTeamName;
-            set
-            {
-                redTeamName = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("RedTeamName"));
             }
         }
 
@@ -161,53 +177,11 @@ namespace HEMACounter
             }
         }
 
-        private string currentRedFighter;
-        public string CurrentRedFighter
-        {
-            get => currentRedFighter;
-            set
-            {
-                currentRedFighter = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("CurrentRedFighter"));
-            }
-        }
-
-        private string currentBlueFighter;
-        public string CurrentBlueFighter
-        {
-            get => currentBlueFighter;
-            set
-            {
-                currentBlueFighter = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("CurrentBlueFighter"));
-            }
-        }
-
-        private string nextRedFighter;
-        public string NextRedFighter
-        {
-            get => nextRedFighter;
-            set
-            {
-                nextRedFighter = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextRedFighter"));
-            }
-        }
-
-        private string nextBlueFighter;
-        public string NextBlueFighter
-        {
-            get => nextBlueFighter;
-            set
-            {
-                nextBlueFighter = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextBlueFighter"));
-            }
-        }
+        private int blueParam;
+        public string BlueParam => $"{blueParam}";
+       
+        private int redParam;
+        public string RedParam => $"{redParam}";
 
         private string time;
         public string Time
@@ -229,118 +203,57 @@ namespace HEMACounter
             {
                 doubles = value;
                 if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("Doubles"));
+                    propertyChanged(this, new PropertyChangedEventArgs("DoublesCaption"));
             }
         }
 
-        private string nextTeamRed;
-        public string NextTeamRed
+        public string DoublesCaption => $"{doubles} / {currentStage.MaxDoubles}";
+
+        private Stage currentStage;
+        public Stage CurrentStage
         {
-            get => nextTeamRed;
+            get => currentStage;
             set
             {
-                nextTeamRed = value;
+                currentStage = value;
                 if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextTeamRed"));
+                {
+                    propertyChanged(this, new PropertyChangedEventArgs("CurrentStage"));
+                    propertyChanged(this, new PropertyChangedEventArgs("StageCaption"));
+                    propertyChanged(this, new PropertyChangedEventArgs("MaxScoreCaption"));
+                    propertyChanged(this, new PropertyChangedEventArgs("DurationCaption"));
+                    propertyChanged(this, new PropertyChangedEventArgs("MaxDoublesCaption"));
+                }
             }
         }
 
-        private string nextTeamBlue;
-        public string NextTeamBlue
-        {
-            get => nextTeamBlue;
-            set
-            {
-                nextTeamBlue = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextTeamBlue"));
-            }
-        }
+        public string StageCaption => $"Круг: {currentStage.Id}";
 
-        private string nextFighter1;
-        public string NextFighter1
-        {
-            get => nextFighter1;
-            set
-            {
-                nextFighter1 = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextFighter1"));
-            }
-        }
-        private string nextFighter2;
-        public string NextFighter2
-        {
-            get => nextFighter2;
-            set
-            {
-                nextFighter2 = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextFighter2"));
-            }
-        }
-        private string nextFighter3;
-        public string NextFighter3
-        {
-            get => nextFighter3;
-            set
-            {
-                nextFighter3 = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextFighter3"));
-            }
-        }
-        private string nextFighter4;
-        public string NextFighter4
-        {
-            get => nextFighter4;
-            set
-            {
-                nextFighter4 = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextFighter4"));
-            }
-        }
-        private string nextFighter5;
-        public string NextFighter5
-        {
-            get => nextFighter5;
-            set
-            {
-                nextFighter5 = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextFighter5"));
-            }
-        }
-        private string nextFighter6;
-        public string NextFighter6
-        {
-            get => nextFighter6;
-            set
-            {
-                nextFighter6 = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextFighter6"));
-            }
-        }
+        public string MaxScoreCaption => $"Макс. баллов: {currentStage.MaxScore}";
 
-        private int scorePerRound;
-        public int ScorePerRound
+        public string MaxDoublesCaption => $"Макс. обоюдок: {currentStage.MaxDoubles}";
+
+        public string DurationCaption => $"Время боя: " + currentStage.Duration.ToString(@"mm\:ss");
+
+        public string? NextBattlePairCaption => nextBattlePair?.Caption;
+
+        private ObservableCollection<Stage> stages = new ObservableCollection<Stage>();
+        public ObservableCollection<Stage> Stages
         {
-            get => scorePerRound;
+            get => stages;
             set
             {
-                scorePerRound = value;
+                stages = value;
                 if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("ScorePerRound"));
+                    propertyChanged(this, new PropertyChangedEventArgs("Stages"));
             }
         }
 
         private PropertyChangedEventHandler? propertyChanged;
         event PropertyChangedEventHandler? INotifyPropertyChanged.PropertyChanged
         {
-            add { this.propertyChanged += value; }
-            remove { this.propertyChanged -= value; }
+            add { propertyChanged += value; }
+            remove { propertyChanged -= value; }
         }
 
         #endregion
@@ -350,7 +263,7 @@ namespace HEMACounter
         private TimeSpan elapsedTime;
         private void OnTimedEvent(object? sender, ElapsedEventArgs e)
         {
-            elapsedTime = elapsedTime.Add(TimeSpan.FromSeconds(1));
+            elapsedTime = elapsedTime.Add(TimeSpan.FromSeconds(-1));
             Time = elapsedTime.ToString(@"mm\:ss");
         }
 
@@ -359,119 +272,98 @@ namespace HEMACounter
         #region Commands
 
         private ICommand startStopCommand;
-        public ICommand StartStopCommand
-        {
-            get
-            {
-                return startStopCommand ?? (startStopCommand = new CommandHandler(() => StartStopTimer(), () => { return true; })); ;
-            }
-        }
+        public ICommand StartStopCommand => startStopCommand ??= new CommandHandler(StartStopTimer, () => true);
 
         private ICommand newFightCommand;
-        public ICommand NewFightCommand
-        {
-            get
-            {
-                return newFightCommand ?? (newFightCommand = new CommandHandler(() => NewFight(), () => { return true; })); ;
-            }
-        }
+        public ICommand NewFightCommand => newFightCommand ??= new CommandHandler(NewFight, () => true);
 
         private ICommand plusOneBlueCommand;
-        public ICommand PlusOneBlueCommand
-        {
-            get
-            {
-                return plusOneBlueCommand ?? (plusOneBlueCommand = new CommandHandler(() => PlusOneBlue(), () => { return true; })); ;
-            }
-        }
-        private ICommand minusOneBlueCommand;
-        public ICommand MinusOneBlueCommand
-        {
-            get
-            {
-                return minusOneBlueCommand ?? (minusOneBlueCommand = new CommandHandler(() => MinusOneBlue(), () => { return true; })); ;
-            }
-        }
+        public ICommand PlusOneBlueCommand => plusOneBlueCommand ??= new CommandHandler(PlusOneBlue, () => true);
 
+        private ICommand minusOneBlueCommand;
+        public ICommand MinusOneBlueCommand => minusOneBlueCommand ??= new CommandHandler(MinusOneBlue, () => true);
 
         private ICommand plusOneRedCommand;
-        public ICommand PlusOneRedCommand
-        {
-            get
-            {
-                return plusOneRedCommand ?? (plusOneRedCommand = new CommandHandler(() => PlusOneRed(), () => { return true; })); ;
-            }
-        }
+        public ICommand PlusOneRedCommand => plusOneRedCommand ??= new CommandHandler(PlusOneRed, () => true);
+
         private ICommand minusOneRedCommand;
-        public ICommand MinusOneRedCommand
-        {
-            get
-            {
-                return minusOneRedCommand ?? (minusOneRedCommand = new CommandHandler(() => MinusOneRed(), () => { return true; })); ;
-            }
-        }
+        public ICommand MinusOneRedCommand =>  minusOneRedCommand ??= new CommandHandler(MinusOneRed, () => true);
 
         private ICommand plusOneDoubleCommand;
-        public ICommand PlusOneDoubleCommand
-        {
-            get
-            {
-                return plusOneDoubleCommand ?? (plusOneDoubleCommand = new CommandHandler(() => PlusOneDouble(), () => { return true; })); ;
-            }
-        }
+        public ICommand PlusOneDoubleCommand => plusOneDoubleCommand ??= new CommandHandler(PlusOneDouble, () => true);
 
         private ICommand minusOneDoubleCommand;
-        public ICommand MinusOneDoubleCommand
-        {
-            get
-            {
-                return minusOneDoubleCommand ?? (minusOneDoubleCommand = new CommandHandler(() => MinusOneDouble(), () => { return true; })); ;
-            }
-        }
+        public ICommand MinusOneDoubleCommand =>  minusOneDoubleCommand ??= new CommandHandler(MinusOneDouble, () => true);
 
         private ICommand cancelCommand;
-        public ICommand CancelCommand
-        {
-            get
-            {
-                return cancelCommand ?? (cancelCommand = new CommandHandler(() => Cancel(), () => { return true; })); ;
-            }
-        }
+        public ICommand CancelCommand => cancelCommand ??= new CommandHandler(Cancel, () => true);
 
         private ICommand coverCommand;
-        public ICommand CoverCommand
-        {
-            get
-            {
-                return coverCommand ?? (coverCommand = new CommandHandler(() => Cover(), () => { return true; })); ;
-            }
-        }
+        public ICommand CoverCommand => coverCommand ??= new CommandHandler(Cover, () => true);
 
         private ICommand getReadyCommand;
-        public ICommand GetReadyCommand
-        {
-            get
-            {
-                return getReadyCommand ?? (getReadyCommand = new CommandHandler(() => GetReady(), () => { return true; })); ;
-            }
-        }
+        public ICommand GetReadyCommand => getReadyCommand ??= new CommandHandler(GetReady, () => true);
+
+        private ICommand generateStageNCommand;
+        public ICommand GenerateStageNCommand => generateStageNCommand ??= new CommandHandler(GenerateStageN, () => true);
+
+        private ICommand loadStageNCommand;
+        public ICommand LoadStageNCommand => loadStageNCommand ??= new CommandHandler(ReloadStageN, () => true);
+
+        private ICommand plusOneParamBlueCommand;
+        public ICommand PlusOneParamBlueCommand => plusOneParamBlueCommand ??= new CommandHandler(PlusOneParamBlue, () => true);
+
+        private ICommand minusOneParamBlueCommand;
+        public ICommand MinusOneParamBlueCommand => minusOneParamBlueCommand ??= new CommandHandler(MinusOneParamBlue, () => true);
+
+        private ICommand plusOneParamRedCommand;
+        public ICommand PlusOneParamRedCommand => plusOneParamRedCommand ??= new CommandHandler(PlusOneParamRed, () => true);
+
+        private ICommand minusOneParamRedCommand;
+        public ICommand MinusOneParamRedCommand => minusOneParamRedCommand ??= new CommandHandler(MinusOneParamRed, () => true);
 
         #endregion
 
-
+        private readonly IGetBattlePairsHandler _getBattlePairsHandler = new GetBattlePairsHandler();
+        private readonly IGetParticipantsHandler _getParticipantsHandler = new GetParticipantsHandler();
+        private readonly IWriteBattlePairHandler _writeBattlePairHandler = new WriteBattlePairHandler();
+        private readonly IBattleResultBuilder _battleResultBuilder = new BattleResultBuilder();
+        private readonly IWriteBattleResultHandler _writeBattleResultHandler = new WriteBattleResultHandler();
+        private readonly IGetParticipantsScoreHandler _getParticipantsScoreHandler = new GetParticipantsScoreHandler();
+        private readonly IGetParamHandler _getParamHandler = new GetParamHandler();
+        private readonly IUpdateParamHandler _updateParamHandler = new UpdateParamHandler();
 
         public IndividualViewModel()
         {
-            Fighters = new ObservableCollection<string>(ParticipantsExport.ExportIndividuals());
+            Initialize();
+        }
+
+        private void Initialize()
+        {
+            participants = _getParticipantsHandler.Execute();
+
             IsCovered = true;
-            IsTeamCompetition = false;
-            ScorePerRound = 7;
             elapsedTime = new TimeSpan();
             timer = new System.Timers.Timer();
             timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
             timer.Interval = 1000;
             Time = elapsedTime.ToString(@"mm\:ss");
             StartButtonText = timer.Enabled ? "Стоп" : "Старт";
+
+            GenerateDanteStages();
+            currentStage = Stages.First();
+        }
+
+        private void GenerateDanteStages()
+        {
+            Stages.Clear();
+            Enumerable.Range(1, 9).Select(x => new Stage()
+            {
+                Id = x,
+                MaxScore = 12 - x,
+                MaxDoubles = (9 - x) / 3,
+                Duration = TimeSpan.FromSeconds(60 + (9-x)*5)
+            }).ToList().ForEach(Stages.Add);
         }
 
         public void StartStopTimer()
@@ -481,125 +373,241 @@ namespace HEMACounter
             else
                 timer.Start();
 
+            StartButtonText = timer.Enabled ? "Стоп" : "Старт";
+
             if (!timer.Enabled)
             {
                 backupBlueScore = BlueScore;
                 backupRedScore = RedScore;
                 backupDoubles = Doubles;
             }
-
-            StartButtonText = timer.Enabled ? "Стоп" : "Старт";
-
-        }
-
-        public void SetRound(int roundIndex)
-        {
-            if (roundIndex >= Rounds.Count || roundIndex < 0) 
-                return;
-
-            elapsedTime = new TimeSpan();
-            timer.Stop();
-            timer = new System.Timers.Timer();
-            timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
-            timer.Interval = 1000;
-            Time = elapsedTime.ToString(@"mm\:ss");
-
-            foreach (var round in Rounds)
-                round.IsCurrent = false;
-
-            Rounds[roundIndex].IsCurrent = true;
-            
-            CurrentBlueFighter = Rounds[roundIndex].BlueFighter;
-            CurrentRedFighter = Rounds[roundIndex].RedFighter;
-
-            if (roundIndex + 1 < Rounds.Count)
-            {
-                NextBlueFighter = Rounds[roundIndex + 1].BlueFighter;
-                NextRedFighter = Rounds[roundIndex + 1].RedFighter;
-            }
-            else 
-            {
-                NextBlueFighter = "";
-                NextRedFighter = "";
-            }
-
-            StartButtonText = timer.Enabled ? "Стоп" : "Старт";
-
         }
 
         public void NewFight()
         {
-            if (MessageBox.Show("Вы действительно хотите завершить текущий бой и начать новый?", "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Hand, MessageBoxResult.No) == MessageBoxResult.No) return;
+            if (currentBattlePair is not null)
+            {
+                if (MessageBox.Show("Вы действительно хотите завершить текущий бой и начать новый?",
+                    "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.No) 
+                    return;
 
+                if (doubles > currentStage.MaxDoubles)
+                {
+                    if (MessageBox.Show("Счётчик обоюдных поражений превышает допустимое значение! \n Бой будет завершён техническим поражение обоих бойцов! \n Продолжить?",
+                        "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Hand, MessageBoxResult.No) == MessageBoxResult.No)
+                        return;
+                }
+
+                FinishFight();
+            }
+            SetRound();
+        }
+
+        private void FinishFight()
+        {
+            currentBattlePair!.FighterRedScore = RedScore;
+            currentBattlePair!.FighterBlueScore = BlueScore;
+
+            //Запись в файл текущего круга
+            _writeBattlePairHandler.Execute(currentBattlePair);
+
+
+            if (doubles > currentStage.MaxDoubles) //техническое поражение обоим
+            {
+                var (resultRed, resultBlue) = _battleResultBuilder.BuildTechnicalDefeat(currentBattlePair, participants, currentStage.Id);
+                _writeBattleResultHandler.Execute(resultRed);
+                _writeBattleResultHandler.Execute(resultBlue);
+                UpdateParam(currentBattlePair.FighterBlueName, 2);
+                UpdateParam(currentBattlePair.FighterRedName, 2);
+            }
+            else if (currentBattlePair.IsDraw)
+            {
+                var (resultRed, resultBlue) = _battleResultBuilder.BuildDraws(currentBattlePair, participants, currentStage.Id);
+                _writeBattleResultHandler.Execute(resultRed);
+                _writeBattleResultHandler.Execute(resultBlue);
+                UpdateParam(currentBattlePair.FighterBlueName, 1);
+                UpdateParam(currentBattlePair.FighterRedName, 1);
+            }
+            else 
+            { 
+                var winnerResult = _battleResultBuilder.BuildWinner(currentBattlePair, participants, currentStage.Id);
+                var loserResult = _battleResultBuilder.BuildLoser(currentBattlePair, participants, currentStage.Id);
+                _writeBattleResultHandler.Execute(winnerResult);
+                _writeBattleResultHandler.Execute(loserResult);
+                UpdateParam(currentBattlePair.LooserName, 2);
+                var winnerName = currentBattlePair.LooserName == currentBattlePair.FighterBlueName ? currentBattlePair.FighterRedName : currentBattlePair.FighterBlueName;
+                UpdateParam(winnerName, 1);
+            }
+        }
+
+        private void UpdateParam(string? fighterName, int diff)
+        {
+            if (fighterName is null)
+                return;
+
+            var participant = participants.FirstOrDefault(p => p.Name == fighterName);
+            if (participant is not null)
+            {
+                _updateParamHandler.Execute(participant, diff);
+            }
+
+            ReloadParams();
+        }
+
+        private void ReloadParams()
+        {
+            if (currentBattlePair is null)
+                return;
+
+            var participantBlue = participants.FirstOrDefault(p => p.Name == currentBattlePair.FighterBlueName);
+            if (participantBlue is not null)
+            {
+                blueParam = _getParamHandler.Execute(participantBlue);
+                if (propertyChanged != null)
+                    propertyChanged(this, new PropertyChangedEventArgs("BlueParam"));
+            }
+
+            var participantRed = participants.FirstOrDefault(p => p.Name == currentBattlePair.FighterRedName);
+            if (participantRed is not null)
+            {
+                redParam = _getParamHandler.Execute(participantRed);
+                if (propertyChanged != null)
+                    propertyChanged(this, new PropertyChangedEventArgs("RedParam"));
+            }
+        }
+
+        public void SetRound()
+        {
+            ReloadStageN();
+
+            ClearScore();
+            backupRedScore = 0;
+            backupBlueScore = 0;
+            backupDoubles = 0;
+
+            elapsedTime = CurrentStage.Duration;
             timer.Stop();
+            timer = new Timer();
+            timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
+            timer.Interval = 1000;
+            Time = elapsedTime.ToString(@"mm\:ss");
 
-            currentRoundIndex = 0;
+            CurrentBattlePair = nextBattlePair;
+            NextBattlePair = null;
 
-            BlueTeamName = nextTeamBlue;
-            RedTeamName = nextTeamRed;
+            StartButtonText = timer.Enabled ? "Стоп" : "Старт";
 
-            currentRedTeam = new Dictionary<int, string>();
-            currentRedTeam.Add(1, nextFighter1);
-            currentRedTeam.Add(2, nextFighter2);
-            currentRedTeam.Add(3, nextFighter3);
+            ReloadParams();
+        }
 
-            currentBlueTeam = new Dictionary<int, string>();
-            currentBlueTeam.Add(4, nextFighter4);
-            currentBlueTeam.Add(5, nextFighter5);
-            currentBlueTeam.Add(6, nextFighter6);
-
-            Rounds = new ObservableCollection<Round>(matches.Select((x, i) => new Round(currentRedTeam[x.Item1], currentBlueTeam[x.Item2], (i + 1) * ScorePerRound, $"({x.Item1} - {x.Item2})")));
-
+        private void ClearScore()
+        {
             RedScore = 0;
             BlueScore = 0;
             Doubles = 0;
-
-            backupBlueScore = 0;
-            backupRedScore = 0;
-            backupDoubles = 0;
-
-            SetRound(currentRoundIndex);
         }
 
-        public void PlusOneBlue()
-        {
-            BlueScore++;
+        public void PlusOneBlue() => BlueScore++;
+
+        public void MinusOneBlue() => BlueScore--;
+
+        public void PlusOneRed() => RedScore++;
+
+        public void MinusOneRed() => RedScore--;
+
+        public void PlusOneDouble() => Doubles++;
+        
+        public void MinusOneDouble() => Doubles--;
+
+        public void PlusOneParamBlue()
+        { 
+            if (MessageBox.Show("Обычно мы не добавляем индульгенции таким образом. Вы уверены?", 
+                "Подтвердите действие", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                UpdateParam(currentBattlePair?.FighterBlueName, 1);
         }
-        public void MinusOneBlue()
+
+        public void MinusOneParamBlue() => UpdateParam(currentBattlePair?.FighterBlueName, -1);
+
+        public void PlusOneParamRed()
         {
-            BlueScore--;
+            if (MessageBox.Show("Обычно мы не добавляем индульгенции таким образом. Вы уверены?",
+                "Подтвердите действие", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                UpdateParam(currentBattlePair?.FighterRedName, 1);
         }
-        public void PlusOneRed()
-        {
-            RedScore++;
-        }
-        public void MinusOneRed()
-        {
-            RedScore--;
-        }
-        public void PlusOneDouble()
-        {
-            Doubles++;
-        }
-        public void MinusOneDouble()
-        {
-            Doubles--;
-        }
+
+        public void MinusOneParamRed() => UpdateParam(currentBattlePair?.FighterRedName, -1);
+
+        public void Cover() => IsCovered = !IsCovered;
+
+        //Это супер кнопка "Галя, отмена!"
         public void Cancel()
         {
             RedScore = backupRedScore;
             BlueScore = backupBlueScore;
             Doubles = backupDoubles;
         }
-        public void Cover()
-        {
-            IsCovered = !IsCovered;
-        }
 
         public void GetReady()
         {
-            NextRedFighter = NextTeamRed;
-            NextBlueFighter = NextTeamBlue;
+            if (NextBattlePair is not null)
+            {
+                NextBattlePair.IsStarted = false;
+                _writeBattlePairHandler.Execute(NextBattlePair);
+            }
+
+            NextBattlePair = selectedBattlePair;
+            SelectedBattlePair = null;
+
+            if (NextBattlePair is null) 
+                return;
+
+            NextBattlePair.IsStarted = true;
+            _writeBattlePairHandler.Execute(NextBattlePair);
+        }
+
+        public void ReloadStageN()
+        {
+            var current = currentStage.Id;
+            var currentPairs = _getBattlePairsHandler.Execute($"Круг {current}", participants.Count())
+                .Where(x => !x.IsStarted).ToList();
+
+            BattlePairs.Clear();
+            currentPairs.ForEach(BattlePairs.Add);
+        }
+
+        public void GenerateStageN()
+        {
+            var current = currentStage.Id;
+
+            if (_getBattlePairsHandler.Execute($"Круг {current}", participants.Count())
+                .Where(x => x.IsStarted).Any())
+            {
+                MessageBox.Show("Круг уже начался!");
+                return;
+            }
+
+            var restrictedPairs = new List<BattlePair>();
+
+            for (int turn = 1; turn < current; turn++)
+            {
+                restrictedPairs.AddRange(_getBattlePairsHandler.Execute($"Круг {turn}", participants.Count()));
+            }
+            
+            var participantScores = _getParticipantsScoreHandler.Execute();
+
+            var generatedPairs = PairGenerator.GenerateBattlePairs(current > 4 ? GenerationMode.Swiss : GenerationMode.Random, 
+                restrictedPairs.ToList(), participantScores.ToList());
+
+            int i = 1;
+            foreach (var pair in generatedPairs)
+            {
+                pair.Range = $"Круг {current}!D{i}:H{i}";
+                _writeBattlePairHandler.Execute(pair);
+                i++;
+            }
+
+            BattlePairs.Clear();
+            generatedPairs.ForEach(BattlePairs.Add);
         }
     }
 }
