@@ -25,7 +25,7 @@ namespace TournamentBuilderLib {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1vY3Yibc_09a7h7Q8YkHj0axat510h0zkyI34UCn3c-c")]
+        [global::System.Configuration.DefaultSettingValueAttribute("10rtldCjVJG1tEgzYo5EzFMkCSNtei81yhncvAhl6rn0")]
         public string SHEET_ID {
             get {
                 return ((string)(this["SHEET_ID"]));
