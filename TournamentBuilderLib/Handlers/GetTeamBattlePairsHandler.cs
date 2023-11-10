@@ -31,7 +31,7 @@ public class GetTeamBattlePairsHandler : IGetTeamBattlePairsHandler
                 FighterBlueScore = string.IsNullOrEmpty(value[2].ToString()) ? 0 : Convert.ToInt32(value[2]),
                 FighterBlueName = value[3]?.ToString(),
                 IsStarted = value[4]?.ToString() == "1",
-                Range = $"{sheetName}!D{i}:H{i}",
+                Range = $"{sheetName}!A{i}:E{i}",
             };
             battlePairs.Add(item);
             i++;

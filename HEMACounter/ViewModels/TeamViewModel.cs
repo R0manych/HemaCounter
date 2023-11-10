@@ -480,6 +480,12 @@ internal class TeamViewModel : INotifyPropertyChanged
         }
     }
 
+    private ICommand loadStageNCommand;
+    public ICommand LoadStageNCommand => loadStageNCommand ??= new CommandHandler(ReloadStageN, () => true);
+
+    private ICommand getReadyCommand;
+    public ICommand GetReadyCommand => getReadyCommand ??= new CommandHandler(GetReady, () => true);
+
     #endregion
 
     //TODO: Рефакторинг
@@ -548,8 +554,6 @@ internal class TeamViewModel : INotifyPropertyChanged
         set
         {
             currentBattlePair = value;
-            CurrentRedFighter = value?.FighterRedName;
-            CurrentBlueFighter = value?.FighterBlueName;
         }
     }
 
@@ -636,6 +640,55 @@ internal class TeamViewModel : INotifyPropertyChanged
         SetRound(currentRoundIndex);
     }
 
+    private void SetTeamRound()
+    {
+        ReloadStageN();
+        ClearScore();
+        backupRedScore = 0;
+        backupBlueScore = 0;
+        backupDoubles = 0;
+
+        elapsedTime = CurrentStage.Duration;
+        timer.Stop();
+        timer = new Timer();
+        timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
+        Time = elapsedTime.ToString(@"mm\:ss");
+
+        CurrentBattlePair = nextBattlePair;
+        NextBattlePair = null;
+
+        StartButtonText = timer.Enabled ? "Стоп" : "Старт";
+
+        timer.Stop();
+
+        SelectedRedTeam = _participants.Where(p => p.Name == CurrentBattlePair?.FighterRedName).FirstOrDefault();
+        SelectedBlueTeam = _participants.Where(p => p.Name == CurrentBattlePair?.FighterBlueName).FirstOrDefault();
+        if (SelectedRedTeam is null || SelectedBlueTeam is null) return;//Exception?
+
+        BlueTeamName = SelectedBlueTeam.Name;
+        RedTeamName = SelectedRedTeam.Name;
+
+        currentRedTeam = new Dictionary<int, string>
+        {
+            { 1, SelectedRedTeam.Fighters[0] },
+            { 2, SelectedRedTeam.Fighters[1] },
+            { 3, SelectedRedTeam.Fighters[2] }
+        };
+
+        currentBlueTeam = new Dictionary<int, string>
+        {
+            { 4, SelectedBlueTeam.Fighters[0] },
+            { 5, SelectedBlueTeam.Fighters[1] },
+            { 6, SelectedBlueTeam.Fighters[2] }
+        };
+
+        Rounds = new ObservableCollection<Round>(matches.Select((x, i) => new Round(currentRedTeam[x.Item1], currentBlueTeam[x.Item2], (i + 1) * ScorePerRound, $"({x.Item1} - {x.Item2})")));
+
+        currentRoundIndex = 0;
+        SetRound(currentRoundIndex);
+    }
+
+
     public void SetRound(int roundIndex)
     {
         if (roundIndex >= Rounds.Count || roundIndex < 0)
@@ -671,40 +724,22 @@ internal class TeamViewModel : INotifyPropertyChanged
 
     public void NewFight()
     {
-        if (MessageBox.Show("Вы действительно хотите завершить текущий бой и начать новый?", "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Hand, MessageBoxResult.No) == MessageBoxResult.No) return;
-
-        timer.Stop();
-
-        currentRoundIndex = 0;
-
-        BlueTeamName = nextTeamBlue;
-        RedTeamName = nextTeamRed;
-
-        currentRedTeam = new Dictionary<int, string>
+        if (currentBattlePair is not null)
         {
-            { 1, nextFighter1 },
-            { 2, nextFighter2 },
-            { 3, nextFighter3 }
-        };
+            if (MessageBox.Show("Вы действительно хотите завершить текущий бой и начать новый?",
+                "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.No)
+                return;
 
-        currentBlueTeam = new Dictionary<int, string>
-        {
-            { 4, nextFighter4 },
-            { 5, nextFighter5 },
-            { 6, nextFighter6 }
-        };
+            if (doubles > currentStage.MaxDoubles)
+            {
+                if (MessageBox.Show("Счётчик обоюдных поражений превышает допустимое значение! \n Бой будет завершён техническим поражение обоих бойцов! \n Продолжить?",
+                    "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Hand, MessageBoxResult.No) == MessageBoxResult.No)
+                    return;
+            }
 
-        Rounds = new ObservableCollection<Round>(matches.Select((x, i) => new Round(currentRedTeam[x.Item1], currentBlueTeam[x.Item2], (i + 1) * ScorePerRound, $"({x.Item1} - {x.Item2})")));
-
-        RedScore = 0;
-        BlueScore = 0;
-        Doubles = 0;
-
-        backupBlueScore = 0;
-        backupRedScore = 0;
-        backupDoubles = 0;
-
-        SetRound(currentRoundIndex);
+            FinishFight();
+        }
+        SetTeamRound();
     }
 
     private void FinishFight()
@@ -820,5 +855,40 @@ internal class TeamViewModel : INotifyPropertyChanged
             MaxDoubles = x * 2,
             Duration = TimeSpan.FromSeconds(60)
         }).ToList().ForEach(Stages.Add);
+    }
+
+    public void ReloadStageN()
+    {
+        var current = currentStage.Id;
+        var currentPairs = _getBattlePairsHandler.Execute($"Круг {current}", _participants.Count())
+            .Where(x => !x.IsStarted).ToList();
+
+        BattlePairs.Clear();
+        currentPairs.ForEach(BattlePairs.Add);
+    }
+
+    private void ClearScore()
+    {
+        RedScore = 0;
+        BlueScore = 0;
+        Doubles = 0;
+    }
+
+    public void GetReady()
+    {
+        if (NextBattlePair is not null)
+        {
+            NextBattlePair.IsStarted = false;
+            _writeBattlePairHandler.Execute(NextBattlePair);
+        }
+
+        NextBattlePair = selectedBattlePair;
+        SelectedBattlePair = null;
+
+        if (NextBattlePair is null)
+            return;
+
+        NextBattlePair.IsStarted = true;
+        _writeBattlePairHandler.Execute(NextBattlePair);
     }
 }

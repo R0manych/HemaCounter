@@ -112,9 +112,13 @@
 
 
         <StackPanel Grid.Column="6" Grid.ColumnSpan="2" Grid.Row="1" Grid.RowSpan="6" HorizontalAlignment="Stretch" VerticalAlignment="Top"  Orientation="Vertical" Margin="0,0,30,0">
+
+            <ComboBox Grid.ColumnSpan="2"  HorizontalAlignment="Stretch" VerticalAlignment="Center"  FontSize="18" Margin="15,7" ItemsSource="{Binding BattlePairs, UpdateSourceTrigger=PropertyChanged}" 
+              DisplayMemberPath="Caption" SelectedItem="{Binding SelectedBattlePair, UpdateSourceTrigger=PropertyChanged}">
+            </ComboBox>
+            <Button Margin="15" FontSize="18" Command="{Binding GetReadyCommand}">Приготовиться</Button>
+
             <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"  FontSize="40" Margin="15,7" Foreground="#ef5757" Text="Красная команда:"></TextBlock>
-            <ComboBox Grid.ColumnSpan="2"  HorizontalAlignment="Stretch" VerticalAlignment="Center"  FontSize="30" Margin="15,7" ItemsSource="{Binding Teams, UpdateSourceTrigger=PropertyChanged}" 
-                          SelectedItem="{Binding SelectedRedTeam, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Name"></ComboBox>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -152,8 +156,6 @@
             </Rectangle>
 
             <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"  FontSize="40" Margin="15,7" Foreground="#7057ef" Text="Синяя команда:"></TextBlock>
-            <ComboBox Grid.ColumnSpan="2"  HorizontalAlignment="Stretch" VerticalAlignment="Center"  FontSize="30" Margin="15,7" ItemsSource="{Binding Teams, UpdateSourceTrigger=PropertyChanged}" 
-                          SelectedItem="{Binding SelectedBlueTeam, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Name"></ComboBox>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -190,6 +192,16 @@
 
             <Rectangle Height="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="15,7" Fill="#242424">
             </Rectangle>
+
+
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Раунд" HorizontalAlignment="Left" Margin="15" VerticalAlignment="Top" FontSize="18"/>
+                <ComboBox HorizontalAlignment="Left" Margin="15" VerticalAlignment="Top" Width="79" FontSize="18"
+                    ItemsSource="{Binding Stages, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Id"
+                    SelectedItem="{Binding CurrentStage, UpdateSourceTrigger=PropertyChanged}"></ComboBox>
+                <Button Content="Загрузить" HorizontalAlignment="Left" Margin="15" VerticalAlignment="Top" FontSize="22" Width="183"
+                    Command="{Binding LoadStageNCommand}"/>
+            </StackPanel>
 
         </StackPanel>
 
