@@ -1,4 +1,5 @@
 ﻿using HEMACounter.Models;
+using HEMACounter.ViewModels.Base;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,22 +10,19 @@ using System.Windows;
 using System.Windows.Input;
 using TournamentBuilderLib.Handlers;
 using TournamentBuilderLib.Models;
-using TournamentBuilderLib.Utils;
 
 namespace HEMACounter.ViewModels;
 
-internal class TeamViewModel : INotifyPropertyChanged
+internal class TeamViewModel : BaseSwissViewModel
 {
     #region Parameters
-
-    private int backupRedScore;
-    private int backupBlueScore;
-    private int backupDoubles;
-    private int currentRoundIndex = 0;
 
     private List<(int, int)> matches = new List<(int, int)>() { (3, 6), (1, 5), (2, 4), (1, 6), (3, 4), (2, 5), (1, 4), (2, 6), (3, 5) };
     private Dictionary<int, string> currentBlueTeam = new Dictionary<int, string>();
     private Dictionary<int, string> currentRedTeam = new Dictionary<int, string>();
+    private int currentRoundIndex = 0;
+
+    public new IEnumerable<TeamParticipant> participants = new List<TeamParticipant>();
 
     private ObservableCollection<Round> rounds = new ObservableCollection<Round>();
     public ObservableCollection<Round> Rounds
@@ -47,18 +45,6 @@ internal class TeamViewModel : INotifyPropertyChanged
             teams = value;
             if (propertyChanged != null)
                 propertyChanged(this, new PropertyChangedEventArgs("Teams"));
-        }
-    }
-
-    private string startButtonText;
-    public string StartButtonText
-    {
-        get => startButtonText;
-        set
-        {
-            startButtonText = value;
-            if (propertyChanged != null)
-                propertyChanged(this, new PropertyChangedEventArgs("StartButtonText"));
         }
     }
 
@@ -103,30 +89,6 @@ internal class TeamViewModel : INotifyPropertyChanged
         }
     }
 
-    private bool isTeamCompetition;
-    public bool IsTeamCompetition
-    {
-        get => isTeamCompetition;
-        set
-        {
-            isTeamCompetition = value;
-            if (propertyChanged != null)
-                propertyChanged(this, new PropertyChangedEventArgs("IsTeamCompetition"));
-        }
-    }
-
-    private bool isCovered;
-    public bool IsCovered
-    {
-        get => isCovered;
-        set
-        {
-            isCovered = value;
-            if (propertyChanged != null)
-                propertyChanged(this, new PropertyChangedEventArgs("IsCovered"));
-        }
-    }
-
     private string blueTeamName;
     public string BlueTeamName
     {
@@ -148,102 +110,6 @@ internal class TeamViewModel : INotifyPropertyChanged
             redTeamName = value;
             if (propertyChanged != null)
                 propertyChanged(this, new PropertyChangedEventArgs("RedTeamName"));
-        }
-    }
-
-    private int blueScore;
-    public int BlueScore
-    {
-        get => blueScore;
-        set
-        {
-            blueScore = value;
-            if (propertyChanged != null)
-                propertyChanged(this, new PropertyChangedEventArgs("BlueScore"));
-        }
-    }
-
-    private int redScore;
-    public int RedScore
-    {
-        get => redScore;
-        set
-        {
-            redScore = value;
-            if (propertyChanged != null)
-                propertyChanged(this, new PropertyChangedEventArgs("RedScore"));
-        }
-    }
-
-    private string currentRedFighter;
-    public string CurrentRedFighter
-    {
-        get => currentRedFighter;
-        set
-        {
-            currentRedFighter = value;
-            if (propertyChanged != null)
-                propertyChanged(this, new PropertyChangedEventArgs("CurrentRedFighter"));
-        }
-    }
-
-    private string currentBlueFighter;
-    public string CurrentBlueFighter
-    {
-        get => currentBlueFighter;
-        set
-        {
-            currentBlueFighter = value;
-            if (propertyChanged != null)
-                propertyChanged(this, new PropertyChangedEventArgs("CurrentBlueFighter"));
-        }
-    }
-
-    private string nextRedFighter;
-    public string NextRedFighter
-    {
-        get => nextRedFighter;
-        set
-        {
-            nextRedFighter = value;
-            if (propertyChanged != null)
-                propertyChanged(this, new PropertyChangedEventArgs("NextRedFighter"));
-        }
-    }
-
-    private string nextBlueFighter;
-    public string NextBlueFighter
-    {
-        get => nextBlueFighter;
-        set
-        {
-            nextBlueFighter = value;
-            if (propertyChanged != null)
-                propertyChanged(this, new PropertyChangedEventArgs("NextBlueFighter"));
-        }
-    }
-
-    private string time;
-    public string Time
-    {
-        get => time;
-        set
-        {
-            time = value;
-            if (propertyChanged != null)
-                propertyChanged(this, new PropertyChangedEventArgs("Time"));
-        }
-    }
-
-    private int doubles;
-    public int Doubles
-    {
-        get => doubles;
-        set
-        {
-            doubles = value;
-            if (propertyChanged != null)
-                propertyChanged(this, new PropertyChangedEventArgs("Doubles"));
         }
     }
 
@@ -350,108 +216,9 @@ internal class TeamViewModel : INotifyPropertyChanged
         }
     }
 
-    private PropertyChangedEventHandler? propertyChanged;
-    event PropertyChangedEventHandler? INotifyPropertyChanged.PropertyChanged
-    {
-        add { propertyChanged += value; }
-        remove { propertyChanged -= value; }
-    }
-
-    #endregion
-
-    #region Timer
-
-    private static System.Timers.Timer timer;
-    private TimeSpan elapsedTime;
-    private void OnTimedEvent(object? sender, ElapsedEventArgs e)
-    {
-        elapsedTime = elapsedTime.Add(TimeSpan.FromSeconds(1));
-        Time = elapsedTime.ToString(@"mm\:ss");
-    }
-
     #endregion
 
     #region Commands
-
-    private ICommand startStopCommand;
-    public ICommand StartStopCommand
-    {
-        get
-        {
-            return startStopCommand ?? (startStopCommand = new CommandHandler(() => StartStopTimer(), () => { return true; })); ;
-        }
-    }
-
-    private ICommand newFightCommand;
-    public ICommand NewFightCommand
-    {
-        get
-        {
-            return newFightCommand ?? (newFightCommand = new CommandHandler(() => NewFight(), () => { return true; })); ;
-        }
-    }
-
-    private ICommand plusOneBlueCommand;
-    public ICommand PlusOneBlueCommand
-    {
-        get
-        {
-            return plusOneBlueCommand ?? (plusOneBlueCommand = new CommandHandler(() => PlusOneBlue(), () => { return true; })); ;
-        }
-    }
-    private ICommand minusOneBlueCommand;
-    public ICommand MinusOneBlueCommand
-    {
-        get
-        {
-            return minusOneBlueCommand ?? (minusOneBlueCommand = new CommandHandler(() => MinusOneBlue(), () => { return true; })); ;
-        }
-    }
-
-
-    private ICommand plusOneRedCommand;
-    public ICommand PlusOneRedCommand
-    {
-        get
-        {
-            return plusOneRedCommand ?? (plusOneRedCommand = new CommandHandler(() => PlusOneRed(), () => { return true; })); ;
-        }
-    }
-    private ICommand minusOneRedCommand;
-    public ICommand MinusOneRedCommand
-    {
-        get
-        {
-            return minusOneRedCommand ?? (minusOneRedCommand = new CommandHandler(() => MinusOneRed(), () => { return true; })); ;
-        }
-    }
-
-    private ICommand plusOneDoubleCommand;
-    public ICommand PlusOneDoubleCommand
-    {
-        get
-        {
-            return plusOneDoubleCommand ?? (plusOneDoubleCommand = new CommandHandler(() => PlusOneDouble(), () => { return true; })); ;
-        }
-    }
-
-    private ICommand minusOneDoubleCommand;
-    public ICommand MinusOneDoubleCommand
-    {
-        get
-        {
-            return minusOneDoubleCommand ?? (minusOneDoubleCommand = new CommandHandler(() => MinusOneDouble(), () => { return true; })); ;
-        }
-    }
-
-    private ICommand cancelCommand;
-    public ICommand CancelCommand
-    {
-        get
-        {
-            return cancelCommand ?? (cancelCommand = new CommandHandler(() => Cancel(), () => { return true; })); ;
-        }
-    }
 
     private ICommand nextPairCommand;
     public ICommand NextPairCommand
@@ -471,124 +238,10 @@ internal class TeamViewModel : INotifyPropertyChanged
         }
     }
 
-    private ICommand coverCommand;
-    public ICommand CoverCommand
-    {
-        get
-        {
-            return coverCommand ?? (coverCommand = new CommandHandler(() => Cover(), () => { return true; })); ;
-        }
-    }
-
-    private ICommand loadStageNCommand;
-    public ICommand LoadStageNCommand => loadStageNCommand ??= new CommandHandler(ReloadStageN, () => true);
-
-    private ICommand getReadyCommand;
-    public ICommand GetReadyCommand => getReadyCommand ??= new CommandHandler(GetReady, () => true);
-
     #endregion
 
-    //TODO: Рефакторинг
-    #region NEW
-
-    private Stage currentStage;
-    public Stage CurrentStage
-    {
-        get => currentStage;
-        set
-        {
-            currentStage = value;
-            if (propertyChanged != null)
-            {
-                propertyChanged(this, new PropertyChangedEventArgs("CurrentStage"));
-                propertyChanged(this, new PropertyChangedEventArgs("StageCaption"));
-                propertyChanged(this, new PropertyChangedEventArgs("MaxScoreCaption"));
-                propertyChanged(this, new PropertyChangedEventArgs("DurationCaption"));
-                propertyChanged(this, new PropertyChangedEventArgs("MaxDoublesCaption"));
-            }
-        }
-    }
-
-    private IEnumerable<TeamParticipant> _participants = new List<TeamParticipant>();
-
-    private ObservableCollection<BattlePair> battlePairs = new ObservableCollection<BattlePair>();
-    public ObservableCollection<BattlePair> BattlePairs
-    {
-        get => battlePairs;
-        set
-        {
-            battlePairs = value;
-            if (propertyChanged != null)
-                propertyChanged(this, new PropertyChangedEventArgs("BattlePairs"));
-        }
-    }
-
-    private ObservableCollection<Stage> stages = new ObservableCollection<Stage>();
-    public ObservableCollection<Stage> Stages
-    {
-        get => stages;
-        set
-        {
-            stages = value;
-            if (propertyChanged != null)
-                propertyChanged(this, new PropertyChangedEventArgs("Stages"));
-        }
-    }
-
-    private BattlePair? selectedBattlePair;
-    public BattlePair? SelectedBattlePair
-    {
-        get => selectedBattlePair;
-        set
-        {
-            selectedBattlePair = value;
-            if (propertyChanged != null)
-                propertyChanged(this, new PropertyChangedEventArgs("SelectedBattlePair"));
-        }
-    }
-
-    private BattlePair? currentBattlePair;
-    public BattlePair? CurrentBattlePair
-    {
-        get => currentBattlePair;
-        set
-        {
-            currentBattlePair = value;
-        }
-    }
-
-    private BattlePair? nextBattlePair;
-    public BattlePair? NextBattlePair
-    {
-        get => nextBattlePair;
-        set
-        {
-            nextBattlePair = value;
-            NextRedFighter = value?.FighterRedName;
-            NextBlueFighter = value?.FighterBlueName;
-            if (propertyChanged != null)
-            {
-                propertyChanged(this, new PropertyChangedEventArgs("NextBattlePair.FighterBlueName"));
-                propertyChanged(this, new PropertyChangedEventArgs("NextBattlePair.FighterRedName"));
-                propertyChanged(this, new PropertyChangedEventArgs("NextBattlePairCaption"));
-                propertyChanged(this, new PropertyChangedEventArgs("NextRedFighter"));
-                propertyChanged(this, new PropertyChangedEventArgs("NextBlueFighter"));
-            }
-        }
-    }
-
-    #endregion
-
+    //TODO: рефакторинг
     private readonly GetTeamParticipantsHandler _getTeamParticipantsHandler = new();
-
-    private readonly IGetTeamBattlePairsHandler _getBattlePairsHandler = new GetTeamBattlePairsHandler();
-    private readonly IGetParticipantsHandler _getParticipantsHandler = new GetParticipantsHandler();
-    private readonly IWriteBattlePairHandler _writeBattlePairHandler = new WriteBattlePairHandler();
-    private readonly IBattleResultBuilder _battleResultBuilder = new BattleResultBuilder();
-    private readonly IWriteBattleResultHandler _writeBattleResultHandler = new WriteBattleResultHandler();
-    private readonly IGetParticipantsScoreHandler _getParticipantsScoreHandler = new GetParticipantsScoreHandler();
-    private readonly IGetParamHandler _getParamHandler = new GetParamHandler();
-    private readonly IUpdateParamHandler _updateParamHandler = new UpdateParamHandler();
 
     public TeamViewModel()
     {
@@ -598,55 +251,35 @@ internal class TeamViewModel : INotifyPropertyChanged
     private void Initialize()
     {
         IsCovered = true;
-        IsTeamCompetition = true;
         ScorePerRound = 7;
         elapsedTime = new TimeSpan();
         timer = new System.Timers.Timer();
         timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
         timer.Interval = 1000;
         Time = elapsedTime.ToString(@"mm\:ss");
-        _participants = _getTeamParticipantsHandler.Execute();
-        Teams = new ObservableCollection<TeamParticipant>(_participants);
+        participants = _getTeamParticipantsHandler.Execute();
+        Teams = new ObservableCollection<TeamParticipant>(participants);
         StartButtonText = timer.Enabled ? "Стоп" : "Старт";
         GenerateStages();
-        currentStage = Stages.First();
-        GenerateStageN();
-    }
-
-    public void StartStopTimer()
-    {
-        if (timer.Enabled)
-            timer.Stop();
-        else
-            timer.Start();
-
-        if (!timer.Enabled)
-        {
-            backupBlueScore = BlueScore;
-            backupRedScore = RedScore;
-            backupDoubles = Doubles;
-        }
-        StartButtonText = timer.Enabled ? "Стоп" : "Старт";
+        CurrentStage = Stages.First();
     }
 
     public void NextPair()
     {
         currentRoundIndex++;
-        SetRound(currentRoundIndex);
+        SetRoundInTeamFight(currentRoundIndex);
     }
     public void PreviousPair()
     {
         currentRoundIndex--;
-        SetRound(currentRoundIndex);
+        SetRoundInTeamFight(currentRoundIndex);
     }
 
-    private void SetTeamRound()
+    public void SetTeamRound()
     {
         ReloadStageN();
         ClearScore();
-        backupRedScore = 0;
-        backupBlueScore = 0;
-        backupDoubles = 0;
+        ClearBackup();
 
         elapsedTime = CurrentStage.Duration;
         timer.Stop();
@@ -654,15 +287,15 @@ internal class TeamViewModel : INotifyPropertyChanged
         timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
         Time = elapsedTime.ToString(@"mm\:ss");
 
-        CurrentBattlePair = nextBattlePair;
+        CurrentBattlePair = NextBattlePair;
         NextBattlePair = null;
 
         StartButtonText = timer.Enabled ? "Стоп" : "Старт";
 
         timer.Stop();
 
-        SelectedRedTeam = _participants.Where(p => p.Name == CurrentBattlePair?.FighterRedName).FirstOrDefault();
-        SelectedBlueTeam = _participants.Where(p => p.Name == CurrentBattlePair?.FighterBlueName).FirstOrDefault();
+        SelectedRedTeam = participants.Where(p => p.Name == CurrentBattlePair?.FighterRedName).FirstOrDefault();
+        SelectedBlueTeam = participants.Where(p => p.Name == CurrentBattlePair?.FighterBlueName).FirstOrDefault();
         if (SelectedRedTeam is null || SelectedBlueTeam is null) return;//Exception?
 
         BlueTeamName = SelectedBlueTeam.Name;
@@ -685,11 +318,11 @@ internal class TeamViewModel : INotifyPropertyChanged
         Rounds = new ObservableCollection<Round>(matches.Select((x, i) => new Round(currentRedTeam[x.Item1], currentBlueTeam[x.Item2], (i + 1) * ScorePerRound, $"({x.Item1} - {x.Item2})")));
 
         currentRoundIndex = 0;
-        SetRound(currentRoundIndex);
+        SetRoundInTeamFight(currentRoundIndex);
     }
 
 
-    public void SetRound(int roundIndex)
+    public void SetRoundInTeamFight(int roundIndex)
     {
         if (roundIndex >= Rounds.Count || roundIndex < 0)
             return;
@@ -722,15 +355,15 @@ internal class TeamViewModel : INotifyPropertyChanged
         StartButtonText = timer.Enabled ? "Стоп" : "Старт";
     }
 
-    public void NewFight()
+    public override void NewFight()
     {
-        if (currentBattlePair is not null)
+        if (CurrentBattlePair is not null)
         {
             if (MessageBox.Show("Вы действительно хотите завершить текущий бой и начать новый?",
                 "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.No)
                 return;
 
-            if (doubles > currentStage.MaxDoubles)
+            if (Doubles > CurrentStage.MaxDoubles)
             {
                 if (MessageBox.Show("Счётчик обоюдных поражений превышает допустимое значение! \n Бой будет завершён техническим поражение обоих бойцов! \n Продолжить?",
                     "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Hand, MessageBoxResult.No) == MessageBoxResult.No)
@@ -742,153 +375,14 @@ internal class TeamViewModel : INotifyPropertyChanged
         SetTeamRound();
     }
 
-    private void FinishFight()
+    //TODO: пока так из-за того что здесь переопределены participants
+    public override void ReloadStageN()
     {
-        currentBattlePair!.FighterRedScore = RedScore;
-        currentBattlePair!.FighterBlueScore = BlueScore;
-
-        //Запись в файл текущего круга
-        _writeBattlePairHandler.Execute(currentBattlePair);
-
-        if (doubles > currentStage.MaxDoubles) //техническое поражение обоим
-        {
-            var (resultRed, resultBlue) = _battleResultBuilder
-                .BuildTechnicalDefeat(currentBattlePair, _participants, currentStage.Id);
-            _writeBattleResultHandler.Execute(resultRed);
-            _writeBattleResultHandler.Execute(resultBlue);
-        }
-        else if (currentBattlePair.IsDraw)
-        {
-            var (resultRed, resultBlue) = _battleResultBuilder
-                .BuildDraws(currentBattlePair, _participants, currentStage.Id);
-            _writeBattleResultHandler.Execute(resultRed);
-            _writeBattleResultHandler.Execute(resultBlue);
-        }
-        else
-        {
-            var winnerResult = _battleResultBuilder
-                .BuildWinner(currentBattlePair, _participants, currentStage.Id);
-            var loserResult = _battleResultBuilder
-                .BuildLoser(currentBattlePair, _participants, currentStage.Id);
-            _writeBattleResultHandler.Execute(winnerResult);
-            _writeBattleResultHandler.Execute(loserResult);
-        }
-    }
-
-    public void PlusOneBlue()
-    {
-        BlueScore++;
-    }
-    public void MinusOneBlue()
-    {
-        BlueScore--;
-    }
-    public void PlusOneRed()
-    {
-        RedScore++;
-    }
-    public void MinusOneRed()
-    {
-        RedScore--;
-    }
-    public void PlusOneDouble()
-    {
-        Doubles++;
-    }
-    public void MinusOneDouble()
-    {
-        Doubles--;
-    }
-    public void Cancel()
-    {
-        RedScore = backupRedScore;
-        BlueScore = backupBlueScore;
-        Doubles = backupDoubles;
-    }
-    public void Cover()
-    {
-        IsCovered = !IsCovered;
-    }
-
-    public void GenerateStageN()
-    {
-        var current = currentStage.Id;
-
-        if (_getBattlePairsHandler.Execute($"Круг {current}", _participants.Count())
-            .Where(x => x.IsStarted).Any())
-        {
-            MessageBox.Show("Круг уже начался!");
-            return;
-        }
-
-        var restrictedPairs = new List<BattlePair>();
-
-        for (int turn = 1; turn < current; turn++)
-        {
-            restrictedPairs.AddRange(_getBattlePairsHandler.Execute($"Круг {turn}", _participants.Count()));
-        }
-
-        var participantScores = _getParticipantsScoreHandler.Execute();
-
-        var generatedPairs = PairGenerator.GenerateBattlePairs(GenerationMode.Swiss,
-            restrictedPairs.ToList(), participantScores.ToList());
-
-        int i = 1;
-        foreach (var pair in generatedPairs)
-        {
-            pair.Range = $"Круг {current}!A{i}:E{i}";
-            _writeBattlePairHandler.Execute(pair);
-            i++;
-        }
-
-        BattlePairs.Clear();
-        generatedPairs.ForEach(BattlePairs.Add);
-    }
-
-    private void GenerateStages()
-    {
-        Stages.Clear();
-        Enumerable.Range(1, 5).Select(x => new Stage()
-        {
-            Id = x,
-            MaxScore = 7 * x,
-            MaxDoubles = x * 2,
-            Duration = TimeSpan.FromSeconds(60)
-        }).ToList().ForEach(Stages.Add);
-    }
-
-    public void ReloadStageN()
-    {
-        var current = currentStage.Id;
-        var currentPairs = _getBattlePairsHandler.Execute($"Круг {current}", _participants.Count())
+        var current = CurrentStage.Id;
+        var currentPairs = _getBattlePairsHandler.Execute($"Круг {current}", participants.Count())
             .Where(x => !x.IsStarted).ToList();
 
         BattlePairs.Clear();
         currentPairs.ForEach(BattlePairs.Add);
-    }
-
-    private void ClearScore()
-    {
-        RedScore = 0;
-        BlueScore = 0;
-        Doubles = 0;
-    }
-
-    public void GetReady()
-    {
-        if (NextBattlePair is not null)
-        {
-            NextBattlePair.IsStarted = false;
-            _writeBattlePairHandler.Execute(NextBattlePair);
-        }
-
-        NextBattlePair = selectedBattlePair;
-        SelectedBattlePair = null;
-
-        if (NextBattlePair is null)
-            return;
-
-        NextBattlePair.IsStarted = true;
-        _writeBattlePairHandler.Execute(NextBattlePair);
     }
 }

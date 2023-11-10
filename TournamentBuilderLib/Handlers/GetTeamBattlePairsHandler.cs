@@ -8,6 +8,7 @@ public interface IGetTeamBattlePairsHandler
     public IEnumerable<BattlePair> Execute(string sheetName, int participantsCount);
 }
 
+[Obsolete]
 public class GetTeamBattlePairsHandler : IGetTeamBattlePairsHandler
 {
     private readonly string SHEET_ID = GoogleSheet.Default.SHEET_ID;
