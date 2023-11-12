@@ -9,15 +9,17 @@ public interface IGetTeamBattlePairsHandler
 }
 
 [Obsolete]
-public class GetTeamBattlePairsHandler : IGetTeamBattlePairsHandler
+public class GetTeamBattlePairsHandler : BaseHandler, IGetTeamBattlePairsHandler
 {
-    private readonly string SHEET_ID = GoogleSheet.Default.SHEET_ID;
+    public GetTeamBattlePairsHandler(string sheetId) : base(sheetId)
+    {
+    }
 
     public IEnumerable<BattlePair> Execute(string sheetName, int participantsCount)
     {
         var range = $"{sheetName}!A1:E{participantsCount/2}";
 
-        var values = ExcelReader.Read(SHEET_ID, range);
+        var values = ExcelReader.Read(_sheetId, range);
         if (values == null)
             return new List<BattlePair>();
 

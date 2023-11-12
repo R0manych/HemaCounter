@@ -67,6 +67,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Views\Startup.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
     <Page Update="Views\DisplayEggs.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>

@@ -9,15 +9,18 @@ namespace TournamentBuilderLib.Handlers
         IEnumerable<ParticipantScore> Execute();
     }
 
-    public class GetParticipantsScoreHandler : IGetParticipantsScoreHandler
+    public class GetParticipantsScoreHandler : BaseHandler, IGetParticipantsScoreHandler
     {
-        private readonly string SHEET_ID = GoogleSheet.Default.SHEET_ID;
-        private readonly string SHEET_NAME = GoogleSheet.Default.SCORE_SHEET_NAME;
+        private readonly string _sheetName = GoogleSheet.Default.SCORE_SHEET_NAME;
+
+        public GetParticipantsScoreHandler(string sheetId) : base(sheetId)
+        {
+        }
 
         public IEnumerable<ParticipantScore> Execute()
         {
-            var range = $"{SHEET_NAME}";
-            var values = ExcelReader.Read(SHEET_ID, range);
+            var range = $"{_sheetName}";
+            var values = ExcelReader.Read(_sheetId, range);
             var participantScores = new List<ParticipantScore>();
             foreach (var value in values)
             {

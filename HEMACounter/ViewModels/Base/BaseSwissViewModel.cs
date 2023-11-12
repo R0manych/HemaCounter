@@ -10,14 +10,14 @@ using TournamentBuilderLib.Utils;
 
 namespace HEMACounter.ViewModels.Base
 {
-    public class BaseSwissViewModel : BaseViewModel
+    public class BaseSwissViewModel<T> : BaseViewModel<T> where T : IParticipant
     {
-        protected readonly IWriteBattlePairHandler _writeBattlePairHandler = new WriteBattlePairHandler();
+        protected readonly IWriteBattlePairHandler _writeBattlePairHandler = new WriteBattlePairHandler(Settings.CurrentSheetId);
         protected readonly IBattleResultBuilder _battleResultBuilder = new BattleResultBuilder();
-        protected readonly IWriteBattleResultHandler _writeBattleResultHandler = new WriteBattleResultHandler();
-        protected readonly IGetBattlePairsHandler _getBattlePairsHandler = new GetBattlePairsHandler();
-        protected readonly IGetParticipantsScoreHandler _getParticipantsScoreHandler = new GetParticipantsScoreHandler();
-        protected readonly IGetParticipantsHandler _getParticipantsHandler = new GetParticipantsHandler();
+        protected readonly IWriteBattleResultHandler _writeBattleResultHandler = new WriteBattleResultHandler(Settings.CurrentSheetId);
+        protected readonly IGetBattlePairsHandler _getBattlePairsHandler = new GetBattlePairsHandler(Settings.CurrentSheetId);
+        protected readonly IGetParticipantsScoreHandler _getParticipantsScoreHandler = new GetParticipantsScoreHandler(Settings.CurrentSheetId);
+        protected readonly IGetParticipantsHandler _getParticipantsHandler = new GetParticipantsHandler(Settings.CurrentSheetId);
 
         public override void FinishFight()
         {
@@ -29,20 +29,20 @@ namespace HEMACounter.ViewModels.Base
 
             if (Doubles > CurrentStage.MaxDoubles) //техническое поражение обоим
             {
-                var (resultRed, resultBlue) = _battleResultBuilder.BuildTechnicalDefeat(CurrentBattlePair, participants, CurrentStage.Id);
+                var (resultRed, resultBlue) = _battleResultBuilder.BuildTechnicalDefeat(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id);
                 _writeBattleResultHandler.Execute(resultRed);
                 _writeBattleResultHandler.Execute(resultBlue);
             }
             else if (CurrentBattlePair.IsDraw)
             {
-                var (resultRed, resultBlue) = _battleResultBuilder.BuildDraws(CurrentBattlePair, participants, CurrentStage.Id);
+                var (resultRed, resultBlue) = _battleResultBuilder.BuildDraws(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id);
                 _writeBattleResultHandler.Execute(resultRed);
                 _writeBattleResultHandler.Execute(resultBlue);
             }
             else
             {
-                var winnerResult = _battleResultBuilder.BuildWinner(CurrentBattlePair, participants, CurrentStage.Id);
-                var loserResult = _battleResultBuilder.BuildLoser(CurrentBattlePair, participants, CurrentStage.Id);
+                var winnerResult = _battleResultBuilder.BuildWinner(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id);
+                var loserResult = _battleResultBuilder.BuildLoser(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id);
                 _writeBattleResultHandler.Execute(winnerResult);
                 _writeBattleResultHandler.Execute(loserResult);
             }
@@ -83,7 +83,7 @@ namespace HEMACounter.ViewModels.Base
         {
             var current = CurrentStage.Id;
             var currentPairs = _getBattlePairsHandler.Execute($"Круг {current}", participants.Count())
-                .Where(x => !x.IsStarted).ToList();
+                .Where(x => !x.IsStarted || LoadAll).ToList();
 
             BattlePairs.Clear();
             currentPairs.ForEach(BattlePairs.Add);

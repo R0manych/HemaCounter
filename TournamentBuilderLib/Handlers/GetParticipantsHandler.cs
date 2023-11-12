@@ -5,23 +5,21 @@ namespace TournamentBuilderLib.Handlers;
 
 public interface IGetParticipantsHandler
 {
-    public IEnumerable<IParticipant> Execute();
+    public IEnumerable<ParticipantWithClub> Execute();
 }
 
-public class GetParticipantsHandler : IGetParticipantsHandler
+public class GetParticipantsHandler : BaseHandler, IGetParticipantsHandler
 {
-    private const string SHEET_NAME = "Список участников";
-    private string SHEET_ID = GoogleSheet.Default.SHEET_ID;
+    private const string _sheetName = "Список участников";
 
-    public GetParticipantsHandler()
+    public GetParticipantsHandler(string sheetId) : base(sheetId)
     {
-
     }
 
-    public IEnumerable<IParticipant> Execute()
+    public IEnumerable<ParticipantWithClub> Execute()
     {
-        var range = $"{SHEET_NAME}";
-        var values = ExcelReader.Read(SHEET_ID, range);
+        var range = $"{_sheetName}";
+        var values = ExcelReader.Read(_sheetId, range);
         var participants = new List<ParticipantWithClub>();
         foreach (var value in values)
         {

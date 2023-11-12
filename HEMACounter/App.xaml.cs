@@ -13,11 +13,13 @@ namespace HEMACounter
         protected override void OnStartup(StartupEventArgs e) 
         {
             base.OnStartup(e);
-            _startupView = new Startup(RunTournament);
+            _startupView = new Startup();
+            var startupContext = new StartupViewModel(RunTournament);
+            _startupView.DataContext = startupContext;
             _startupView.Show();
         }
 
-        private void RunTournament(TournamentType type)
+        private void RunTournament(TournamentType type, bool withAdmin)
         { 
             switch (type)
             {
@@ -31,6 +33,13 @@ namespace HEMACounter
                     var control = new TeamControl();
                     control.DataContext = commonContext;
                     control.Show();
+
+                    if (withAdmin)
+                    {
+                        var admin = new Admin();
+                        admin.DataContext = commonContext;
+                        admin.Show();
+                    }
                     break;
                 }
                 case TournamentType.RubilnikIndividual:
@@ -43,6 +52,14 @@ namespace HEMACounter
                     var control = new IndividualControl();
                     control.DataContext = commonContext;
                     control.Show();
+
+                    if (withAdmin)
+                    {
+                        var admin = new Admin();
+                        admin.DataContext = commonContext;
+                        admin.Show();
+                    }
+
                     break;
                 }
                 case TournamentType.Stahlkugeln:

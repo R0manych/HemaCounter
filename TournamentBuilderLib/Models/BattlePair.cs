@@ -2,6 +2,11 @@
 
 public class BattlePair
 {
+    /// <summary>
+    /// Это команда в командной номинации или участник в индивидуальной
+    /// </summary>
+    /// <param name="fighter1Name"></param>
+    /// <param name="fighter2Name"></param>
     public BattlePair(string fighter1Name, string fighter2Name)
     {
         if (DateTime.Now.Ticks % 2 == 0)

@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using TournamentBuilderLib.Handlers;
 
 namespace HEMACounter.Views
 {
@@ -19,31 +20,9 @@ namespace HEMACounter.Views
     /// </summary>
     public partial class Startup : Window
     {
-        private Action<TournamentType> _callback;
-        public Startup(Action<TournamentType> callback)
+        public Startup()
         {
             InitializeComponent();
-            _callback = callback;
-        }
-
-        private void Button_Click_RubTeam(object sender, RoutedEventArgs e)
-        {
-            _callback(TournamentType.RubilnikTeam);
-        }
-
-        private void Button_Click_RubInd(object sender, RoutedEventArgs e)
-        {
-            _callback(TournamentType.RubilnikIndividual);
-        }
-
-        private void Button_Click_Stahlkugeln(object sender, RoutedEventArgs e)
-        {
-            _callback(TournamentType.Stahlkugeln);
-        }
-
-        private void Button_Click_Dante(object sender, RoutedEventArgs e)
-        {
-            _callback(TournamentType.Dante);
         }
     }
 }

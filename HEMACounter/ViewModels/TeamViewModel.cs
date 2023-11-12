@@ -13,7 +13,7 @@ using TournamentBuilderLib.Models;
 
 namespace HEMACounter.ViewModels;
 
-internal class TeamViewModel : BaseSwissViewModel
+internal class TeamViewModel : BaseSwissViewModel<TeamParticipant>
 {
     #region Parameters
 
@@ -21,8 +21,6 @@ internal class TeamViewModel : BaseSwissViewModel
     private Dictionary<int, string> currentBlueTeam = new Dictionary<int, string>();
     private Dictionary<int, string> currentRedTeam = new Dictionary<int, string>();
     private int currentRoundIndex = 0;
-
-    public new IEnumerable<TeamParticipant> participants = new List<TeamParticipant>();
 
     private ObservableCollection<Round> rounds = new ObservableCollection<Round>();
     public ObservableCollection<Round> Rounds
@@ -241,7 +239,7 @@ internal class TeamViewModel : BaseSwissViewModel
     #endregion
 
     //TODO: рефакторинг
-    private readonly GetTeamParticipantsHandler _getTeamParticipantsHandler = new();
+    private readonly GetTeamParticipantsHandler _getTeamParticipantsHandler = new(Settings.CurrentSheetId);
 
     public TeamViewModel()
     {
@@ -251,7 +249,7 @@ internal class TeamViewModel : BaseSwissViewModel
     private void Initialize()
     {
         IsCovered = true;
-        ScorePerRound = 7;
+        ScorePerRound = 6;
         elapsedTime = new TimeSpan();
         timer = new System.Timers.Timer();
         timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
@@ -294,8 +292,9 @@ internal class TeamViewModel : BaseSwissViewModel
 
         timer.Stop();
 
-        SelectedRedTeam = participants.Where(p => p.Name == CurrentBattlePair?.FighterRedName).FirstOrDefault();
-        SelectedBlueTeam = participants.Where(p => p.Name == CurrentBattlePair?.FighterBlueName).FirstOrDefault();
+        SelectedRedTeam = participants.FirstOrDefault(p => p.Name == CurrentBattlePair?.FighterRedName);
+        SelectedBlueTeam = participants.FirstOrDefault(p => p.Name == CurrentBattlePair?.FighterBlueName);
+
         if (SelectedRedTeam is null || SelectedBlueTeam is null) return;//Exception?
 
         BlueTeamName = SelectedBlueTeam.Name;
@@ -355,6 +354,24 @@ internal class TeamViewModel : BaseSwissViewModel
         StartButtonText = timer.Enabled ? "Стоп" : "Старт";
     }
 
+    public override void GetReady()
+    {
+        base.GetReady();
+
+        NextTeamRed = NextBattlePair.FighterRedName;
+        NextTeamBlue = NextBattlePair.FighterBlueName;
+
+        var nextRedTeam = participants.FirstOrDefault(p => p.Name == NextTeamRed);
+        var nextBlueTeam = participants.FirstOrDefault(p => p.Name == NextTeamBlue);
+        NextFighter1 = nextRedTeam.Fighters[0];
+        NextFighter2 = nextRedTeam.Fighters[1];
+        NextFighter3 = nextRedTeam.Fighters[2];
+
+        NextFighter4 = nextBlueTeam.Fighters[0];
+        NextFighter5 = nextBlueTeam.Fighters[1];
+        NextFighter6 = nextBlueTeam.Fighters[2];
+    }
+
     public override void NewFight()
     {
         if (CurrentBattlePair is not null)
@@ -363,26 +380,15 @@ internal class TeamViewModel : BaseSwissViewModel
                 "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.No)
                 return;
 
-            if (Doubles > CurrentStage.MaxDoubles)
-            {
-                if (MessageBox.Show("Счётчик обоюдных поражений превышает допустимое значение! \n Бой будет завершён техническим поражение обоих бойцов! \n Продолжить?",
-                    "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Hand, MessageBoxResult.No) == MessageBoxResult.No)
-                    return;
-            }
+            //if (Doubles > CurrentStage.MaxDoubles)
+            //{
+            //    if (MessageBox.Show("Счётчик обоюдных поражений превышает допустимое значение! \n Бой будет завершён техническим поражение обоих бойцов! \n Продолжить?",
+            //        "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Hand, MessageBoxResult.No) == MessageBoxResult.No)
+            //        return;
+            //}
 
             FinishFight();
         }
         SetTeamRound();
-    }
-
-    //TODO: пока так из-за того что здесь переопределены participants
-    public override void ReloadStageN()
-    {
-        var current = CurrentStage.Id;
-        var currentPairs = _getBattlePairsHandler.Execute($"Круг {current}", participants.Count())
-            .Where(x => !x.IsStarted).ToList();
-
-        BattlePairs.Clear();
-        currentPairs.ForEach(BattlePairs.Add);
     }
 }

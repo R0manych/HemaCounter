@@ -8,22 +8,32 @@
         Title="Startup" Height="360" Width="500">
 
     <Grid>
-        <Label Content="Привет! Ну что у нас сегодня?" FontSize="20" Height="61" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+        <Grid.RowDefinitions>
+            <RowDefinition Height="34"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="60"></RowDefinition>
+        </Grid.RowDefinitions>
+        
+        <Label Content="Привет! Ну что у нас сегодня?" FontSize="20" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
                VerticalAlignment="Top"/>
-        <Button HorizontalAlignment="Stretch" Height="50" Margin="40,50,40,0"  VerticalAlignment="Top" Click="Button_Click_RubTeam">
-            <Label Content="Рубильник (командные)" FontSize="20"/>
-        </Button>
 
-        <Button HorizontalAlignment="Stretch" Height="50" Margin="40,120,40,0"  VerticalAlignment="Top" Click="Button_Click_RubInd">
-            <Label Content="Рубильник (индивидуальные)" FontSize="20"/>
-        </Button>
+        <ListView Margin="15,7" Grid.Row="1" ItemsSource="{Binding Tournaments, UpdateSourceTrigger=PropertyChanged}" 
+            SelectedItem="{Binding SelectedTournament, UpdateSourceTrigger=PropertyChanged}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=Name}">Название</GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=Weapon}">Оружие</GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=Gender}">Пол</GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=Type}">Тип</GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
 
-        <Button HorizontalAlignment="Stretch" Height="50" Margin="40,190,40,0"  VerticalAlignment="Top" Click="Button_Click_Stahlkugeln">
-            <Label Content="Stahlkugeln" FontSize="20"/>
-        </Button>
-
-        <Button HorizontalAlignment="Stretch" Height="50" Margin="40,260,40,0"  VerticalAlignment="Top" Click="Button_Click_Dante">
-            <Label Content="Божественная комедия" FontSize="20"/>
+        <CheckBox Grid.Row="2" Margin="15,7" IsChecked="{Binding WithAdmin, UpdateSourceTrigger=PropertyChanged}" Content="С панелью администрирования для генерации кругов"/>
+        
+        <Button HorizontalAlignment="Stretch" Grid.Row="3" Margin="15,7,15,15" VerticalAlignment="Top" Command="{Binding RunCommand}">
+            <Label Content="Поехали!" FontSize="20"/>
         </Button>
     </Grid>
 </Window>

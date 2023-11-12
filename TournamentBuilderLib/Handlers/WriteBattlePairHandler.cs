@@ -8,9 +8,11 @@ public interface IWriteBattlePairHandler
     void Execute(BattlePair battlePair);
 }
 
-public class WriteBattlePairHandler : IWriteBattlePairHandler
+public class WriteBattlePairHandler : BaseHandler, IWriteBattlePairHandler
 {
-    private readonly string SHEET_ID = GoogleSheet.Default.SHEET_ID;
+    public WriteBattlePairHandler(string sheetId) : base(sheetId)
+    {
+    }
 
     public void Execute(BattlePair battlePair)
     {
@@ -23,6 +25,6 @@ public class WriteBattlePairHandler : IWriteBattlePairHandler
             battlePair.IsStarted ? 1 : 0
         };
         var rangeData = new List<IList<object>> { objectList };
-        ExcelWriter.Write(SHEET_ID, battlePair.Range, rangeData);
+        ExcelWriter.Write(_sheetId, battlePair.Range, rangeData);
     }
 }

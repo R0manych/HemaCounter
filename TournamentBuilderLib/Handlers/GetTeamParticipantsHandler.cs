@@ -3,20 +3,18 @@ using TournamentBuilderLib.Models;
 
 namespace TournamentBuilderLib.Handlers;
 
-public class GetTeamParticipantsHandler
+public class GetTeamParticipantsHandler: BaseHandler
 {
-    private const string SHEET_NAME = "Участники";
-    private string SHEET_ID = GoogleSheet.Default.SHEET_ID;
+    private const string _sheetName = "Участники";
 
-    public GetTeamParticipantsHandler()
+    public GetTeamParticipantsHandler(string sheetId) : base(sheetId)
     {
-
     }
 
     public IEnumerable<TeamParticipant> Execute()
     {
-        var range = $"{SHEET_NAME}";
-        var values = ExcelReader.Read(SHEET_ID, range);
+        var range = $"{_sheetName}";
+        var values = ExcelReader.Read(_sheetId, range);
         var participants = new List<TeamParticipant>();
         foreach (var value in values)
         {
@@ -28,6 +26,9 @@ public class GetTeamParticipantsHandler
             item.Fighters.Add(value[2].ToString());
             item.Fighters.Add(value[3].ToString());
             item.Fighters.Add(value[4].ToString());
+            item.Fighters.Add(value[5].ToString());
+            item.Fighters.Add(value[6].ToString());
+            item.Fighters.Add(value[7].ToString());
             participants.Add(item);
         }
         return participants;

@@ -324,14 +324,14 @@ namespace HEMACounter.ViewModels
 
         #endregion
 
-        private readonly IGetBattlePairsHandler _getBattlePairsHandler = new GetBattlePairsHandler();
-        private readonly IGetParticipantsHandler _getParticipantsHandler = new GetParticipantsHandler();
-        private readonly IWriteBattlePairHandler _writeBattlePairHandler = new WriteBattlePairHandler();
+        private readonly IGetBattlePairsHandler _getBattlePairsHandler = new GetBattlePairsHandler(Settings.CurrentSheetId);
+        private readonly IGetParticipantsHandler _getParticipantsHandler = new GetParticipantsHandler(Settings.CurrentSheetId);
+        private readonly IWriteBattlePairHandler _writeBattlePairHandler = new WriteBattlePairHandler(Settings.CurrentSheetId);
         private readonly IBattleResultBuilder _battleResultBuilder = new BattleResultBuilder();
-        private readonly IWriteBattleResultHandler _writeBattleResultHandler = new WriteBattleResultHandler();
-        private readonly IGetParticipantsScoreHandler _getParticipantsScoreHandler = new GetParticipantsScoreHandler();
-        private readonly IGetParamHandler _getParamHandler = new GetParamHandler();
-        private readonly IUpdateParamHandler _updateParamHandler = new UpdateParamHandler();
+        private readonly IWriteBattleResultHandler _writeBattleResultHandler = new WriteBattleResultHandler(Settings.CurrentSheetId);
+        private readonly IGetParticipantsScoreHandler _getParticipantsScoreHandler = new GetParticipantsScoreHandler(Settings.CurrentSheetId);
+        private readonly IGetParamHandler _getParamHandler = new GetParamHandler(Settings.CurrentSheetId);
+        private readonly IUpdateParamHandler _updateParamHandler = new UpdateParamHandler(Settings.CurrentSheetId);
 
         public ComedyViewModel()
         {

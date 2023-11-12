@@ -5,72 +5,66 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HEMACounter"
         mc:Ignorable="d"
-        Title="MainWindow" Width="1920" Height="1080"
+        Title="MainWindow" Width="1280" Height="720"
         Closing="Window_Closing"
         >
     <Window.Resources>
         <ResourceDictionary>
-
-            <Style TargetType="TextBlock">
-                <Setter Property="FontSize" Value="40" />
-                <Setter Property="Foreground" Value="#242424" />
-            </Style>
-            
-            <Style TargetType="Button">
-                <Setter Property="FontSize" Value="40" />
-            </Style>
-            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="StylesControl.xaml" />
+            </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="150"/>
-            <ColumnDefinition Width="150"/>
-            <ColumnDefinition Width="150"/>
-            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="110"/>
+            <ColumnDefinition Width="110"/>
+            <ColumnDefinition Width="110"/>
+            <ColumnDefinition Width="110"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="50"/>
-            <ColumnDefinition Width="650"/>
+            <ColumnDefinition Width="450"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="100"/>
-            <RowDefinition Height="150"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="100"/>
-            <RowDefinition Height="150"/>
             <RowDefinition Height="80"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="65"/>
+            <RowDefinition Height="100"/>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="40"/>
             <RowDefinition Height="80"/>
         </Grid.RowDefinitions>
 
-        <Button Command="{Binding CoverCommand}" FontSize="25" Margin="15">Заставка</Button>
-        <TextBlock Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" Text="Включена" Visibility="{Binding IsCovered, Converter={StaticResource BooleanToVisibilityConverter}}" FontSize="25" />
+        <Button Command="{Binding CoverCommand}" FontSize="18" Margin="15">Заставка</Button>
+        <TextBlock Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" Text="Включена" Visibility="{Binding IsCovered, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
 
 
-        <TextBlock Grid.Column="0" Grid.ColumnSpan="5" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"  FontSize="60" Text="Текущий бой"></TextBlock>
+        <TextBlock Grid.Column="0" Grid.ColumnSpan="5" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"  FontSize="30" Text="Текущий бой"></TextBlock>
 
 
-        <TextBlock Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"  FontSize="100" Text="{Binding Time, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+        <TextBlock Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"  FontSize="50" Text="{Binding Time, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
 
         <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#ef5757" FontWeight="Bold" FontSize="200" Text="{Binding RedScore, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
         <TextBlock Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#7057ef" FontWeight="Bold" FontSize="200" Text="{Binding BlueScore, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
 
-        <Button Grid.Column="0" Grid.Row="3" Command="{Binding MinusOneRedCommand}" Margin="15,15,15,8">-1</Button>
-        <Button Grid.Column="1" Grid.Row="3" Command="{Binding PlusOneRedCommand}" Margin="15,15,15,8">+1</Button>
-        <Button Grid.Column="2" Grid.Row="3" Command="{Binding MinusOneBlueCommand}" Margin="15,15,15,8">-1</Button>
-        <Button Grid.Column="3" Grid.Row="3" Command="{Binding PlusOneBlueCommand}" Margin="15,15,15,8">+1</Button>
+        <Button Grid.Column="0" Grid.Row="3" Command="{Binding MinusOneRedCommand}" Margin="15,7,7,7" Style="{StaticResource ResourceKey=ButtonRed}">-1</Button>
+        <Button Grid.Column="1" Grid.Row="3" Command="{Binding PlusOneRedCommand}" Margin="7" Style="{StaticResource ResourceKey=ButtonRed}">+1</Button>
+        <Button Grid.Column="2" Grid.Row="3" Command="{Binding MinusOneBlueCommand}" Margin="7" Style="{StaticResource ResourceKey=ButtonBlue}">-1</Button>
+        <Button Grid.Column="3" Grid.Row="3" Command="{Binding PlusOneBlueCommand}" Margin="7,7,15,7" Style="{StaticResource ResourceKey=ButtonBlue}">+1</Button>
 
-        <Button Grid.ColumnSpan="4" Grid.Row="4" Command="{Binding StartStopCommand}" Margin="15" Content="{Binding StartButtonText, UpdateSourceTrigger=PropertyChanged}"></Button>
+        <Button Grid.ColumnSpan="4" Grid.Row="4" Command="{Binding StartStopCommand}" Margin="15,7" Content="{Binding StartButtonText, UpdateSourceTrigger=PropertyChanged}"></Button>
 
-        <Button Grid.Column="0" Grid.Row="5" Command="{Binding MinusOneDoubleCommand}" FontSize="25" Margin="15">-1 Об.</Button>
-        <Button Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="5" Command="{Binding PlusOneDoubleCommand}" FontSize="25" Margin="15">+1 Обоюдное</Button>
-        <TextBlock Grid.Column="3" Grid.Row="5" HorizontalAlignment="Center" VerticalAlignment="Center"  FontSize="50" Text="{Binding Doubles, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+        <Button Grid.Column="0" Grid.Row="5" Command="{Binding MinusOneDoubleCommand}" Margin="15,7,7,7">-1 Об.</Button>
+        <Button Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="5" Command="{Binding PlusOneDoubleCommand}" Margin="7">+1 Обоюдное</Button>
+        <TextBlock Grid.Column="3" Grid.Row="5" HorizontalAlignment="Center" VerticalAlignment="Center"  FontSize="30" Text="{Binding DoublesCaption, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
 
-        <Button Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="6" Command="{Binding CancelCommand}" FontSize="25" Margin="15">Галя, отмена!</Button>
+        <Button Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="7" Command="{Binding CancelCommand}" Margin="7,7,7,15">Галя, отмена!</Button>
 
         <Rectangle Grid.Column="4" Grid.Row="1"  Grid.RowSpan="7" Width="3" HorizontalAlignment="Left" Fill="#242424"></Rectangle>
 
-        <ListView Grid.Column="4" Grid.ColumnSpan="2" Grid.Row="1" Grid.RowSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="15,7" 
+        <ListView Grid.Column="4" Grid.ColumnSpan="2" Grid.Row="1" Grid.RowSpan="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="15,7" 
                   ItemsSource="{Binding Rounds, UpdateSourceTrigger=PropertyChanged}">
             <ListView.ItemTemplate>
                 <DataTemplate>
@@ -100,119 +94,52 @@
             </ListView.ItemTemplate>
         </ListView>
 
-        <Button Grid.Column="4"  Grid.ColumnSpan="2" Grid.Row="4" Command="{Binding NextPairCommand}" Margin="15">Следующая пара</Button>
-        <Button Grid.Column="4"  Grid.ColumnSpan="2" Grid.Row="5" Command="{Binding PreviousPairCommand}" Margin="15,7" FontSize="25">Предыдущая пара</Button>
+        <Button Grid.Column="4"  Grid.ColumnSpan="2" Grid.Row="5" Command="{Binding NextPairCommand}" Margin="15,7">Следующая пара</Button>
+        <Button Grid.Column="4"  Grid.ColumnSpan="2" Grid.Row="6" Command="{Binding PreviousPairCommand}" Margin="15,7" FontSize="15">Предыдущая пара</Button>
 
-        <Button Grid.Column="4" Grid.ColumnSpan="2" Grid.Row="6" Margin="15,7" FontSize="25" Command="{Binding NewFightCommand}">Начать следующий бой</Button>
+        <Button Grid.Column="4" Grid.ColumnSpan="2" Grid.Row="7" Margin="15,7,15,15" Command="{Binding NewFightCommand}">Начать следующий бой</Button>
 
-        <Rectangle Grid.Column="6" Grid.Row="0"  Grid.RowSpan="7" Width="3" HorizontalAlignment="Left" Fill="#242424">
+        <Rectangle Grid.Column="6" Grid.Row="0"  Grid.RowSpan="8" Width="3" HorizontalAlignment="Left" Fill="#242424">
         </Rectangle>
         
-        <TextBlock Grid.Column="6" Grid.ColumnSpan="2" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"  FontSize="60" Text="Следующий бой"></TextBlock>
+        <TextBlock Grid.Column="6" Grid.ColumnSpan="2" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"  FontSize="30" Text="Следующий бой"></TextBlock>
 
 
-        <StackPanel Grid.Column="6" Grid.ColumnSpan="2" Grid.Row="1" Grid.RowSpan="6" HorizontalAlignment="Stretch" VerticalAlignment="Top"  Orientation="Vertical" Margin="0,0,30,0">
+        <StackPanel Grid.Column="6" Grid.ColumnSpan="2" Grid.Row="1" Grid.RowSpan="6" HorizontalAlignment="Stretch" VerticalAlignment="Top"  Orientation="Vertical" Margin="0">
 
             <ComboBox Grid.ColumnSpan="2"  HorizontalAlignment="Stretch" VerticalAlignment="Center"  FontSize="18" Margin="15,7" ItemsSource="{Binding BattlePairs, UpdateSourceTrigger=PropertyChanged}" 
               DisplayMemberPath="Caption" SelectedItem="{Binding SelectedBattlePair, UpdateSourceTrigger=PropertyChanged}">
             </ComboBox>
             <Button Margin="15" FontSize="18" Command="{Binding GetReadyCommand}">Приготовиться</Button>
 
-            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"  FontSize="40" Margin="15,7" Foreground="#ef5757" Text="Красная команда:"></TextBlock>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="400"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"  FontSize="30" Margin="35,15" Text="Название:"></TextBlock>
-                <TextBox Grid.Column="1"  HorizontalAlignment="Stretch" VerticalAlignment="Center"  FontSize="30" Margin="15,7" Text="{Binding NextTeamRed, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-            </Grid>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="400"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"  FontSize="30" Margin="35,15" Text="Боец #1:"></TextBlock>
-                <TextBox Grid.Column="1"  HorizontalAlignment="Stretch" VerticalAlignment="Center"  FontSize="30" Margin="15,7" Text="{Binding NextFighter1, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-            </Grid>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="400"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"  FontSize="30" Margin="35,15" Text="Боец #2:"></TextBlock>
-                <TextBox Grid.Column="1"  HorizontalAlignment="Stretch" VerticalAlignment="Center"  FontSize="30" Margin="15,7" Text="{Binding NextFighter2, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-            </Grid>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="400"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"  FontSize="30" Margin="35,15" Text="Боец #3"></TextBlock>
-                <TextBox Grid.Column="1"  HorizontalAlignment="Stretch" VerticalAlignment="Center"  FontSize="30" Margin="15,7" Text="{Binding NextFighter3, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-            </Grid>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"  FontSize="20" Margin="15,0" Text="Красная команда: " Foreground="#ef5757"></TextBlock>
+                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"  FontSize="20" Margin="15,0" Text="{Binding NextTeamRed, UpdateSourceTrigger=PropertyChanged}" Foreground="#242424"></TextBlock>
+            </StackPanel>
+            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"  FontSize="20" Margin="15,0" Text="{Binding NextFighter1, UpdateSourceTrigger=PropertyChanged}" Foreground="#242424"></TextBlock>
+            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"  FontSize="20" Margin="15,0" Text="{Binding NextFighter2, UpdateSourceTrigger=PropertyChanged}" Foreground="#242424"></TextBlock>
+            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"  FontSize="20" Margin="15,0" Text="{Binding NextFighter3, UpdateSourceTrigger=PropertyChanged}" Foreground="#242424"></TextBlock>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"  FontSize="20" Margin="15,0" Text="Синяя команда: " Foreground="#7057ef"></TextBlock>
+                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"  FontSize="20" Margin="15,0" Text="{Binding NextTeamBlue, UpdateSourceTrigger=PropertyChanged}" Foreground="#242424"></TextBlock>
+            </StackPanel>
+            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"  FontSize="20" Margin="15,0" Text="{Binding NextFighter4, UpdateSourceTrigger=PropertyChanged}" Foreground="#242424"></TextBlock>
+            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"  FontSize="20" Margin="15,0" Text="{Binding NextFighter5, UpdateSourceTrigger=PropertyChanged}" Foreground="#242424"></TextBlock>
+            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"  FontSize="20" Margin="15,0" Text="{Binding NextFighter6, UpdateSourceTrigger=PropertyChanged}" Foreground="#242424"></TextBlock>
 
             <Rectangle Height="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="15,7" Fill="#242424">
             </Rectangle>
-
-            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"  FontSize="40" Margin="15,7" Foreground="#7057ef" Text="Синяя команда:"></TextBlock>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="400"/>
-                </Grid.ColumnDefinitions>
-                
-                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"  FontSize="30" Margin="35,15" Text="Название:"></TextBlock>
-                <TextBox Grid.Column="1"  HorizontalAlignment="Stretch" VerticalAlignment="Center"  FontSize="30" Margin="15,7" Text="{Binding NextTeamBlue, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-            </Grid>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="400"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"  FontSize="30" Margin="35,15" Text="Боец #4:"></TextBlock>
-                <TextBox Grid.Column="1"  HorizontalAlignment="Stretch" VerticalAlignment="Center"  FontSize="30" Margin="15,7" Text="{Binding NextFighter4, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-            </Grid>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="400"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"  FontSize="30" Margin="35,15" Text="Боец #5:"></TextBlock>
-                <TextBox Grid.Column="1"  HorizontalAlignment="Stretch" VerticalAlignment="Center"  FontSize="30" Margin="15,7" Text="{Binding NextFighter5, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-            </Grid>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="400"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"  FontSize="30" Margin="35,15" Text="Боец #6"></TextBlock>
-                <TextBox Grid.Column="1"  HorizontalAlignment="Stretch" VerticalAlignment="Center"  FontSize="30" Margin="15,7" Text="{Binding NextFighter6, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-            </Grid>
-
-            <Rectangle Height="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="15,7" Fill="#242424">
-            </Rectangle>
-
 
             <StackPanel Orientation="Horizontal">
-                <Label Content="Раунд" HorizontalAlignment="Left" Margin="15" VerticalAlignment="Top" FontSize="18"/>
-                <ComboBox HorizontalAlignment="Left" Margin="15" VerticalAlignment="Top" Width="79" FontSize="18"
+                <Label Content="Круг" HorizontalAlignment="Left" Margin="15" VerticalAlignment="Top" FontSize="20"/>
+                <ComboBox HorizontalAlignment="Left" Margin="15" VerticalAlignment="Top" Width="79" FontSize="20"
                     ItemsSource="{Binding Stages, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Id"
                     SelectedItem="{Binding CurrentStage, UpdateSourceTrigger=PropertyChanged}"></ComboBox>
                 <Button Content="Загрузить" HorizontalAlignment="Left" Margin="15" VerticalAlignment="Top" FontSize="22" Width="183"
                     Command="{Binding LoadStageNCommand}"/>
+                <CheckBox IsChecked="{Binding LoadAll, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"></CheckBox>
             </StackPanel>
 
         </StackPanel>
-
-        <Grid Grid.Column="6" Grid.ColumnSpan="2" Grid.Row="6"  Margin="0,0,30,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="100"/>
-            </Grid.ColumnDefinitions>
-            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"  FontSize="30" Margin="35,15" Text="Количество очков на раунд: "></TextBlock>
-            <TextBox Grid.Column="1"  HorizontalAlignment="Stretch" VerticalAlignment="Center"  FontSize="30" Margin="15,7" Text="{Binding ScorePerRound, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-        </Grid>
-
     </Grid>
 </Window>

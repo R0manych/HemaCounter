@@ -10,7 +10,7 @@ using TournamentBuilderLib.Models;
 
 namespace HEMACounter.ViewModels.Base
 {
-    public abstract class BaseViewModel : INotifyPropertyChanged
+    public abstract class BaseViewModel<T> : INotifyPropertyChanged where T : IParticipant
     {
         #region Parameters
 
@@ -18,7 +18,7 @@ namespace HEMACounter.ViewModels.Base
         private int backupBlueScore;
         private int backupDoubles;
 
-        protected IEnumerable<IParticipant> participants = new List<IParticipant>();
+        protected IEnumerable<T> participants = new List<T>();
 
         private ObservableCollection<BattlePair> battlePairs = new();
         public ObservableCollection<BattlePair> BattlePairs
@@ -196,6 +196,18 @@ namespace HEMACounter.ViewModels.Base
             }
         }
 
+        private bool loadAll;
+        public bool LoadAll
+        {
+            get => loadAll;
+            set
+            {
+                loadAll = value;
+                if (propertyChanged != null)
+                    propertyChanged(this, new PropertyChangedEventArgs("LoadAll"));
+            }
+        }
+
         public string DoublesCaption => $"{doubles} / {currentStage.MaxDoubles}";
 
         private Stage currentStage;
@@ -224,6 +236,8 @@ namespace HEMACounter.ViewModels.Base
 
         public string DurationCaption => $"Время боя: " + currentStage.Duration.ToString(@"mm\:ss");
 
+        public string CoverImagePath => $"/Images/{Settings.Current["COVER_FILENAME"]}";
+        
         public string? NextBattlePairCaption => nextBattlePair?.Caption;
 
         private ObservableCollection<Stage> stages = new ObservableCollection<Stage>();

@@ -2,10 +2,11 @@
 using System.Linq;
 using System.Timers;
 using System;
+using TournamentBuilderLib.Models;
 
 namespace HEMACounter.ViewModels;
 
-internal class IndividualViewModel : BaseSwissViewModel
+internal class IndividualViewModel : BaseSwissViewModel<ParticipantWithClub>
 {
     public IndividualViewModel()
     {
