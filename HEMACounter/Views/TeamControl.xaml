@@ -131,14 +131,21 @@
             </Rectangle>
 
             <StackPanel Orientation="Horizontal">
-                <Label Content="Круг" HorizontalAlignment="Left" Margin="15" VerticalAlignment="Top" FontSize="20"/>
-                <ComboBox HorizontalAlignment="Left" Margin="15" VerticalAlignment="Top" Width="79" FontSize="20"
+                <Label Content="Круг" HorizontalAlignment="Left" Margin="15,7" VerticalAlignment="Top" FontSize="20"/>
+                <ComboBox HorizontalAlignment="Left" Margin="15,7" VerticalAlignment="Top" Width="79" FontSize="20"
                     ItemsSource="{Binding Stages, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Id"
                     SelectedItem="{Binding CurrentStage, UpdateSourceTrigger=PropertyChanged}"></ComboBox>
-                <Button Content="Загрузить" HorizontalAlignment="Left" Margin="15" VerticalAlignment="Top" FontSize="22" Width="183"
+                <Button Content="Загрузить" HorizontalAlignment="Left" Margin="15,7" VerticalAlignment="Top" FontSize="22" Width="183"
                     Command="{Binding LoadStageNCommand}"/>
                 <CheckBox IsChecked="{Binding LoadAll, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"></CheckBox>
             </StackPanel>
+
+            <Rectangle Height="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="15,7" Fill="#242424">
+            </Rectangle>
+            
+            <Button Content="Обновить список участников" HorizontalAlignment="Stretch" Margin="15,7" VerticalAlignment="Top" FontSize="20"
+                    Command="{Binding ReloadParticipants}"/>
+
 
         </StackPanel>
     </Grid>

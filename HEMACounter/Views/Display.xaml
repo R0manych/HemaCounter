@@ -44,7 +44,7 @@
             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="80" Text="{Binding CurrentBlueFighter, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
         </Grid>
         <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="50" Text="{Binding BlueTeamName, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray" FontSize="50" Text="{Binding BlueTeamName, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
         </Grid>
         <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="6" HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#8a78e3" FontWeight="Bold" FontSize="560" Text="{Binding BlueScore, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
@@ -67,7 +67,7 @@
             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="80" Text="{Binding CurrentRedFighter, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
         </Grid>
         <Grid Grid.Column="3" Grid.ColumnSpan="2" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="50" Text="{Binding RedTeamName, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray" FontSize="50" Text="{Binding RedTeamName, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
         </Grid>
 
         <Grid Grid.Column="3" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="6" HorizontalAlignment="Center" VerticalAlignment="Center">

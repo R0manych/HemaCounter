@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Dynamic;
 using System.Timers;
 using System.Windows;
 using System.Windows.Input;
@@ -236,7 +237,7 @@ namespace HEMACounter.ViewModels.Base
 
         public string DurationCaption => $"Время боя: " + currentStage.Duration.ToString(@"mm\:ss");
 
-        public string CoverImagePath => $"/Images/{Settings.Current["COVER_FILENAME"]}";
+        public string CoverImagePath => $"/Images/{Settings.CoverFileName}";
         
         public string? NextBattlePairCaption => nextBattlePair?.Caption;
 
@@ -314,6 +315,9 @@ namespace HEMACounter.ViewModels.Base
         private ICommand loadStageNCommand;
         public ICommand LoadStageNCommand => loadStageNCommand ??= new CommandHandler(ReloadStageN, () => true);
 
+        private ICommand reloadParticipantsCommand;
+        public ICommand ReloadParticipantsCommand => reloadParticipantsCommand ??= new CommandHandler(ReloadParticipants, () => true);
+
         #endregion
 
         public void StartStopTimer()
@@ -379,9 +383,12 @@ namespace HEMACounter.ViewModels.Base
 
                 if (doubles > currentStage.MaxDoubles)
                 {
-                    if (MessageBox.Show("Счётчик обоюдных поражений превышает допустимое значение! \n Бой будет завершён техническим поражение обоих бойцов! \n Продолжить?",
-                        "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Hand, MessageBoxResult.No) == MessageBoxResult.No)
-                        return;
+                    if (Settings.TechDefeatByDoublesEnabled)
+                    {
+                        if (MessageBox.Show("Счётчик обоюдных поражений превышает допустимое значение! \n Бой будет завершён техническим поражение обоих бойцов! \n Продолжить?",
+                            "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Hand, MessageBoxResult.No) == MessageBoxResult.No)
+                            return;
+                    }
                 }
 
                 FinishFight();
@@ -418,5 +425,7 @@ namespace HEMACounter.ViewModels.Base
         public abstract void FinishFight();
 
         public abstract void GenerateStages();
+
+        public abstract void ReloadParticipants();
     }
 }

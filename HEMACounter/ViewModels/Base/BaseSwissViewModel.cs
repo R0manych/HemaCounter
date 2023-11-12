@@ -12,12 +12,12 @@ namespace HEMACounter.ViewModels.Base
 {
     public class BaseSwissViewModel<T> : BaseViewModel<T> where T : IParticipant
     {
-        protected readonly IWriteBattlePairHandler _writeBattlePairHandler = new WriteBattlePairHandler(Settings.CurrentSheetId);
+        protected readonly IWriteBattlePairHandler _writeBattlePairHandler = new WriteBattlePairHandler(Settings.SheetId);
         protected readonly IBattleResultBuilder _battleResultBuilder = new BattleResultBuilder();
-        protected readonly IWriteBattleResultHandler _writeBattleResultHandler = new WriteBattleResultHandler(Settings.CurrentSheetId);
-        protected readonly IGetBattlePairsHandler _getBattlePairsHandler = new GetBattlePairsHandler(Settings.CurrentSheetId);
-        protected readonly IGetParticipantsScoreHandler _getParticipantsScoreHandler = new GetParticipantsScoreHandler(Settings.CurrentSheetId);
-        protected readonly IGetParticipantsHandler _getParticipantsHandler = new GetParticipantsHandler(Settings.CurrentSheetId);
+        protected readonly IWriteBattleResultHandler _writeBattleResultHandler = new WriteBattleResultHandler(Settings.SheetId);
+        protected readonly IGetBattlePairsHandler _getBattlePairsHandler = new GetBattlePairsHandler(Settings.SheetId);
+        protected readonly IGetParticipantsScoreHandler _getParticipantsScoreHandler = new GetParticipantsScoreHandler(Settings.SheetId);
+        protected readonly IGetParticipantsHandler _getParticipantsHandler = new GetParticipantsHandler(Settings.SheetId);
 
         public override void FinishFight()
         {
@@ -27,22 +27,22 @@ namespace HEMACounter.ViewModels.Base
             //Запись в файл текущего круга
             _writeBattlePairHandler.Execute(CurrentBattlePair);
 
-            if (Doubles > CurrentStage.MaxDoubles) //техническое поражение обоим
+            if (Doubles > CurrentStage.MaxDoubles && Settings.TechDefeatByDoublesEnabled) //техническое поражение обоим
             {
-                var (resultRed, resultBlue) = _battleResultBuilder.BuildTechnicalDefeat(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id);
+                var (resultRed, resultBlue) = _battleResultBuilder.BuildTechnicalDefeat(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id, Doubles > CurrentStage.MaxDoubles);
                 _writeBattleResultHandler.Execute(resultRed);
                 _writeBattleResultHandler.Execute(resultBlue);
             }
             else if (CurrentBattlePair.IsDraw)
             {
-                var (resultRed, resultBlue) = _battleResultBuilder.BuildDraws(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id);
+                var (resultRed, resultBlue) = _battleResultBuilder.BuildDraws(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id, Doubles > CurrentStage.MaxDoubles);
                 _writeBattleResultHandler.Execute(resultRed);
                 _writeBattleResultHandler.Execute(resultBlue);
             }
             else
             {
-                var winnerResult = _battleResultBuilder.BuildWinner(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id);
-                var loserResult = _battleResultBuilder.BuildLoser(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id);
+                var winnerResult = _battleResultBuilder.BuildWinner(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id, Doubles > CurrentStage.MaxDoubles);
+                var loserResult = _battleResultBuilder.BuildLoser(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id, Doubles > CurrentStage.MaxDoubles);
                 _writeBattleResultHandler.Execute(winnerResult);
                 _writeBattleResultHandler.Execute(loserResult);
             }
@@ -51,13 +51,13 @@ namespace HEMACounter.ViewModels.Base
         public override void GenerateStages()
         {
             Stages.Clear();
-            //TODO: вынести это число в конфиг.
-            Enumerable.Range(1, 5).Select(x => new Stage()
+
+            Enumerable.Range(1, Settings.StagesCount ?? 6).Select(x => new Stage()
             {
                 Id = x,
-                MaxScore = 7 * x,
-                MaxDoubles = x * 2,
-                Duration = TimeSpan.FromSeconds(60)
+                MaxScore = x * (Settings.ScoresPerRound ?? -1),
+                MaxDoubles = Settings.MaxDoubles ?? -1,
+                Duration = Settings.RoundTime ?? TimeSpan.FromSeconds(120)
             }).ToList().ForEach(Stages.Add);
         }
 
@@ -122,6 +122,11 @@ namespace HEMACounter.ViewModels.Base
 
             BattlePairs.Clear();
             generatedPairs.ForEach(BattlePairs.Add);
+        }
+
+        public override void ReloadParticipants()
+        {
+            throw new NotImplementedException();
         }
     }
 }

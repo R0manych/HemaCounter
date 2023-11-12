@@ -239,7 +239,7 @@ internal class TeamViewModel : BaseSwissViewModel<TeamParticipant>
     #endregion
 
     //TODO: рефакторинг
-    private readonly GetTeamParticipantsHandler _getTeamParticipantsHandler = new(Settings.CurrentSheetId);
+    private readonly GetTeamParticipantsHandler _getTeamParticipantsHandler = new(Settings.SheetId);
 
     public TeamViewModel()
     {
@@ -249,17 +249,22 @@ internal class TeamViewModel : BaseSwissViewModel<TeamParticipant>
     private void Initialize()
     {
         IsCovered = true;
-        ScorePerRound = 6;
+        ScorePerRound = Settings.ScoresPerRound ?? 6;
         elapsedTime = new TimeSpan();
         timer = new System.Timers.Timer();
         timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
         timer.Interval = 1000;
         Time = elapsedTime.ToString(@"mm\:ss");
-        participants = _getTeamParticipantsHandler.Execute();
+        ReloadParticipants();
         Teams = new ObservableCollection<TeamParticipant>(participants);
         StartButtonText = timer.Enabled ? "Стоп" : "Старт";
         GenerateStages();
         CurrentStage = Stages.First();
+    }
+
+    public override void ReloadParticipants()
+    {
+        participants = _getTeamParticipantsHandler.Execute();
     }
 
     public void NextPair()
@@ -278,6 +283,7 @@ internal class TeamViewModel : BaseSwissViewModel<TeamParticipant>
         ReloadStageN();
         ClearScore();
         ClearBackup();
+        Rounds.Clear();
 
         elapsedTime = CurrentStage.Duration;
         timer.Stop();
@@ -291,6 +297,9 @@ internal class TeamViewModel : BaseSwissViewModel<TeamParticipant>
         StartButtonText = timer.Enabled ? "Стоп" : "Старт";
 
         timer.Stop();
+        
+        if (CurrentBattlePair == null)
+            return;
 
         SelectedRedTeam = participants.FirstOrDefault(p => p.Name == CurrentBattlePair?.FighterRedName);
         SelectedBlueTeam = participants.FirstOrDefault(p => p.Name == CurrentBattlePair?.FighterBlueName);
@@ -318,8 +327,9 @@ internal class TeamViewModel : BaseSwissViewModel<TeamParticipant>
 
         currentRoundIndex = 0;
         SetRoundInTeamFight(currentRoundIndex);
-    }
 
+        NextBattlePair = null;
+    }
 
     public void SetRoundInTeamFight(int roundIndex)
     {
@@ -357,6 +367,8 @@ internal class TeamViewModel : BaseSwissViewModel<TeamParticipant>
     public override void GetReady()
     {
         base.GetReady();
+        if (NextBattlePair == null) 
+            return;
 
         NextTeamRed = NextBattlePair.FighterRedName;
         NextTeamBlue = NextBattlePair.FighterBlueName;
