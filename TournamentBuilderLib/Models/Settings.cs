@@ -24,6 +24,8 @@ namespace HEMACounter
 
         public static bool TechDefeatByDoublesEnabled => Current["DOUBLES_TECHDEFEAT"].Trim().ToLower() == "да";
 
+        public static bool ParamsEnabled => Current["WITH_PARAMS"].Trim().ToLower() == "да";
+
         public static double DoublesPenalty => Current["DOUBLES_PENALTY"].ToNullableDouble() ?? 0;
     }
 

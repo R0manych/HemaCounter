@@ -55,7 +55,7 @@ namespace HEMACounter.ViewModels.Base
             Enumerable.Range(1, Settings.StagesCount ?? 6).Select(x => new Stage()
             {
                 Id = x,
-                MaxScore = x * (Settings.ScoresPerRound ?? -1),
+                MaxScore = Settings.ScoresPerRound ?? 10,
                 MaxDoubles = Settings.MaxDoubles ?? -1,
                 Duration = Settings.RoundTime ?? TimeSpan.FromSeconds(120)
             }).ToList().ForEach(Stages.Add);
@@ -96,12 +96,16 @@ namespace HEMACounter.ViewModels.Base
         {
             var current = CurrentStage.Id;
 
-            if (_getBattlePairsHandler.Execute($"Круг {current}", participants.Count())
-                .Where(x => x.IsStarted).Any())
+            try
             {
-                MessageBox.Show("Круг уже начался!");
-                return;
+                if (_getBattlePairsHandler.Execute($"Круг {current}", participants.Count())
+                    .Where(x => x.IsStarted).Any())
+                {
+                    MessageBox.Show("Круг уже начался!");
+                    return;
+                }
             }
+            catch { }
 
             var restrictedPairs = new List<BattlePair>();
 

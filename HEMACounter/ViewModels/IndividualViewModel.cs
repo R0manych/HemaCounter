@@ -3,6 +3,7 @@ using System.Linq;
 using System.Timers;
 using System;
 using TournamentBuilderLib.Models;
+using TournamentBuilderLib.Handlers;
 
 namespace HEMACounter.ViewModels;
 
@@ -25,5 +26,37 @@ internal class IndividualViewModel : BaseSwissViewModel<ParticipantWithClub>
         StartButtonText = timer.Enabled ? "Стоп" : "Старт";
         GenerateStages();
         CurrentStage = Stages.First();
+    }
+
+    public override void GetReady()
+    {
+        base.GetReady();
+
+        if (NextBattlePair == null)
+            return;
+
+        NextRedFighter = NextBattlePair.FighterRedName;
+        NextBlueFighter = NextBattlePair.FighterBlueName;
+    }
+
+    public override void ReloadParticipants()
+    {
+        participants = _getParticipantsHandler.Execute();
+        ReloadStageN();
+
+        ResetNextFighters();
+    }
+
+    private void ResetNextFighters()
+    {
+        NextBattlePair = null;
+        NextRedFighter = null;
+        NextBlueFighter = null;
+    }
+
+    public override void SetRound()
+    {
+        base.SetRound();
+        ResetNextFighters();
     }
 }

@@ -220,11 +220,14 @@ namespace HEMACounter.ViewModels.Base
                     propertyChanged(this, new PropertyChangedEventArgs("MaxScoreCaption"));
                     propertyChanged(this, new PropertyChangedEventArgs("DurationCaption"));
                     propertyChanged(this, new PropertyChangedEventArgs("MaxDoublesCaption"));
+                    propertyChanged(this, new PropertyChangedEventArgs("IsParamsEnabled"));
                 }
             }
         }
 
         public string StageCaption => $"Круг: {currentStage.Id}";
+
+        public bool IsParamsEnabled => Settings.ParamsEnabled;
 
         public string MaxScoreCaption => $"Макс. баллов: {currentStage.MaxScore}";
 
@@ -263,7 +266,7 @@ namespace HEMACounter.ViewModels.Base
         protected TimeSpan elapsedTime;
         protected void OnTimedEvent(object? sender, ElapsedEventArgs e)
         {
-            elapsedTime = elapsedTime.Add(TimeSpan.FromSeconds(1));
+            elapsedTime = elapsedTime.Add(TimeSpan.FromSeconds(-1));
             Time = elapsedTime.ToString(@"mm\:ss");
         }
 
@@ -400,7 +403,7 @@ namespace HEMACounter.ViewModels.Base
 
             elapsedTime = CurrentStage.Duration;
             timer.Stop();
-            timer = new Timer();
+            timer = new Timer(CurrentStage.Duration);
             timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
             timer.Interval = 1000;
             Time = elapsedTime.ToString(@"mm\:ss");
