@@ -124,15 +124,10 @@ namespace HEMACounter.ViewModels.Base
             set
             {
                 nextBattlePair = value;
-                NextRedFighter = value?.FighterRedName;
-                NextBlueFighter = value?.FighterBlueName;
                 if (propertyChanged != null)
                 {
-                    propertyChanged(this, new PropertyChangedEventArgs("NextBattlePair.FighterBlueName"));
-                    propertyChanged(this, new PropertyChangedEventArgs("NextBattlePair.FighterRedName"));
+                    propertyChanged(this, new PropertyChangedEventArgs("NextBattlePair"));
                     propertyChanged(this, new PropertyChangedEventArgs("NextBattlePairCaption"));
-                    propertyChanged(this, new PropertyChangedEventArgs("NextRedFighter"));
-                    propertyChanged(this, new PropertyChangedEventArgs("NextBlueFighter"));
                 }
             }
         }

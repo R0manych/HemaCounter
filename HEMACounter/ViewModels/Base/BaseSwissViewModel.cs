@@ -81,6 +81,9 @@ namespace HEMACounter.ViewModels.Base
 
         public override void ReloadStageN()
         {
+            if (CurrentStage == null)
+                return;
+
             var current = CurrentStage.Id;
             var currentPairs = _getBattlePairsHandler.Execute($"Круг {current}", participants.Count())
                 .Where(x => !x.IsStarted || LoadAll).ToList();

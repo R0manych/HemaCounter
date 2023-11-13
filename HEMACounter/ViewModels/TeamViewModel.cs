@@ -46,47 +46,6 @@ internal class TeamViewModel : BaseSwissViewModel<TeamParticipant>
         }
     }
 
-    private TeamParticipant selectedBlueTeam;
-    public TeamParticipant SelectedBlueTeam
-    {
-        get => selectedBlueTeam;
-        set
-        {
-            selectedBlueTeam = value;
-            if (propertyChanged != null)
-                propertyChanged(this, new PropertyChangedEventArgs("SelectedBlueTeam"));
-
-
-            if (selectedBlueTeam.Fighters.Count >= 6)
-            {
-                NextTeamBlue = selectedBlueTeam.Name;
-                NextFighter4 = selectedBlueTeam.Fighters[3];
-                NextFighter5 = selectedBlueTeam.Fighters[4];
-                NextFighter6 = selectedBlueTeam.Fighters[5];
-            }
-        }
-    }
-
-    private TeamParticipant selectedRedTeam;
-    public TeamParticipant SelectedRedTeam
-    {
-        get => selectedRedTeam;
-        set
-        {
-            selectedRedTeam = value;
-            if (propertyChanged != null)
-                propertyChanged(this, new PropertyChangedEventArgs("SelectedRedTeam"));
-
-            if (selectedRedTeam.Fighters.Count >= 6)
-            {
-                NextTeamRed = selectedRedTeam.Name;
-                NextFighter1 = selectedRedTeam.Fighters[0];
-                NextFighter2 = selectedRedTeam.Fighters[1];
-                NextFighter3 = selectedRedTeam.Fighters[2];
-            }
-        }
-    }
-
     private string blueTeamName;
     public string BlueTeamName
     {
@@ -265,6 +224,22 @@ internal class TeamViewModel : BaseSwissViewModel<TeamParticipant>
     public override void ReloadParticipants()
     {
         participants = _getTeamParticipantsHandler.Execute();
+        ReloadStageN();
+
+        ResetNextFighters();
+    }
+
+    private void ResetNextFighters()
+    {
+        NextBattlePair = null;
+        NextTeamRed = "";
+        NextTeamBlue = "";
+        NextFighter1 = "";
+        NextFighter2 = "";
+        NextFighter3 = "";
+        NextFighter4 = "";
+        NextFighter5 = "";
+        NextFighter6 = "";
     }
 
     public void NextPair()
@@ -292,7 +267,8 @@ internal class TeamViewModel : BaseSwissViewModel<TeamParticipant>
         Time = elapsedTime.ToString(@"mm\:ss");
 
         CurrentBattlePair = NextBattlePair;
-        NextBattlePair = null;
+
+        ResetNextFighters();
 
         StartButtonText = timer.Enabled ? "Стоп" : "Старт";
 
@@ -301,34 +277,33 @@ internal class TeamViewModel : BaseSwissViewModel<TeamParticipant>
         if (CurrentBattlePair == null)
             return;
 
-        SelectedRedTeam = participants.FirstOrDefault(p => p.Name == CurrentBattlePair?.FighterRedName);
-        SelectedBlueTeam = participants.FirstOrDefault(p => p.Name == CurrentBattlePair?.FighterBlueName);
+        var redTeam = participants.FirstOrDefault(p => p.Name == CurrentBattlePair?.FighterRedName);
+        var blueTeam = participants.FirstOrDefault(p => p.Name == CurrentBattlePair?.FighterBlueName);
 
-        if (SelectedRedTeam is null || SelectedBlueTeam is null) return;//Exception?
+        if (redTeam is null || blueTeam is null) 
+            return;
 
-        BlueTeamName = SelectedBlueTeam.Name;
-        RedTeamName = SelectedRedTeam.Name;
+        BlueTeamName = blueTeam.Name;
+        RedTeamName = redTeam.Name;
 
         currentRedTeam = new Dictionary<int, string>
         {
-            { 1, SelectedRedTeam.Fighters[0] },
-            { 2, SelectedRedTeam.Fighters[1] },
-            { 3, SelectedRedTeam.Fighters[2] }
+            { 1, redTeam.Fighters[0] },
+            { 2, redTeam.Fighters[1] },
+            { 3, redTeam.Fighters[2] }
         };
 
         currentBlueTeam = new Dictionary<int, string>
         {
-            { 4, SelectedBlueTeam.Fighters[0] },
-            { 5, SelectedBlueTeam.Fighters[1] },
-            { 6, SelectedBlueTeam.Fighters[2] }
+            { 4, blueTeam.Fighters[3] },
+            { 5, blueTeam.Fighters[4] },
+            { 6, blueTeam.Fighters[5] }
         };
 
         Rounds = new ObservableCollection<Round>(matches.Select((x, i) => new Round(currentRedTeam[x.Item1], currentBlueTeam[x.Item2], (i + 1) * ScorePerRound, $"({x.Item1} - {x.Item2})")));
 
         currentRoundIndex = 0;
         SetRoundInTeamFight(currentRoundIndex);
-
-        NextBattlePair = null;
     }
 
     public void SetRoundInTeamFight(int roundIndex)
@@ -379,9 +354,9 @@ internal class TeamViewModel : BaseSwissViewModel<TeamParticipant>
         NextFighter2 = nextRedTeam.Fighters[1];
         NextFighter3 = nextRedTeam.Fighters[2];
 
-        NextFighter4 = nextBlueTeam.Fighters[0];
-        NextFighter5 = nextBlueTeam.Fighters[1];
-        NextFighter6 = nextBlueTeam.Fighters[2];
+        NextFighter4 = nextBlueTeam.Fighters[3];
+        NextFighter5 = nextBlueTeam.Fighters[4];
+        NextFighter6 = nextBlueTeam.Fighters[5];
     }
 
     public override void NewFight()
@@ -392,12 +367,12 @@ internal class TeamViewModel : BaseSwissViewModel<TeamParticipant>
                 "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.No)
                 return;
 
-            //if (Doubles > CurrentStage.MaxDoubles)
-            //{
-            //    if (MessageBox.Show("Счётчик обоюдных поражений превышает допустимое значение! \n Бой будет завершён техническим поражение обоих бойцов! \n Продолжить?",
-            //        "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Hand, MessageBoxResult.No) == MessageBoxResult.No)
-            //        return;
-            //}
+            if (Doubles > CurrentStage.MaxDoubles && Settings.TechDefeatByDoublesEnabled)
+            {
+                if (MessageBox.Show("Счётчик обоюдных поражений превышает допустимое значение! \n Бой будет завершён техническим поражение обоих бойцов! \n Продолжить?",
+                    "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Hand, MessageBoxResult.No) == MessageBoxResult.No)
+                    return;
+            }
 
             FinishFight();
         }
