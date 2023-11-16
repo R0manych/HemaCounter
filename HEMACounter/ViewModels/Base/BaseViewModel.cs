@@ -407,7 +407,9 @@ namespace HEMACounter.ViewModels.Base
             timer.Stop();
 
             CurrentBattlePair = nextBattlePair;
-            elapsedTime = CurrentStage.Duration.Add(new TimeSpan(0, 0, CurrentBattlePair?.TimeInSeconds ?? 0));
+            elapsedTime = CurrentBattlePair?.TimeInSeconds != 0
+                ? new TimeSpan(0, 0, CurrentBattlePair.TimeInSeconds)
+                : CurrentStage.Duration;
             timer = new Timer(elapsedTime);
             timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
             timer.Interval = 1000;

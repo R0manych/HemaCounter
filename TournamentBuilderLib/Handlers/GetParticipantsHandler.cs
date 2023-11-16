@@ -10,7 +10,7 @@ public interface IGetParticipantsHandler
 
 public class GetParticipantsHandler : BaseHandler, IGetParticipantsHandler
 {
-    private const string _sheetName = "Список участников";
+    private const string _sheetName = "Участники";
 
     public GetParticipantsHandler(string sheetId) : base(sheetId)
     {

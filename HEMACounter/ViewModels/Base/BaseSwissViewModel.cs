@@ -129,7 +129,7 @@ namespace HEMACounter.ViewModels.Base
             int i = 1;
             foreach (var pair in generatedPairs)
             {
-                pair.Range = $"Круг {current}!A{i}:E{i}";
+                pair.Range = $"Круг {current}!A{i}:G{i}";
                 _writeBattlePairHandler.Execute(pair);
                 i++;
             }
