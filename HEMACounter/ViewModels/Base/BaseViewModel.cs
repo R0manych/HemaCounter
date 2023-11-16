@@ -323,10 +323,12 @@ namespace HEMACounter.ViewModels.Base
             if (timer.Enabled)
             {
                 timer.Stop();
-                OnStopTimer();
             }
             else
+            {
                 timer.Start();
+                OnStartTimer();
+            }
 
             StartButtonText = timer.Enabled ? "Стоп" : "Старт";
 
@@ -427,6 +429,6 @@ namespace HEMACounter.ViewModels.Base
 
         public abstract void ReloadParticipants();
 
-        public abstract void OnStopTimer();
+        public abstract void OnStartTimer();
     }
 }

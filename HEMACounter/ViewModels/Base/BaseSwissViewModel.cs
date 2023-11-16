@@ -143,7 +143,7 @@ namespace HEMACounter.ViewModels.Base
             throw new NotImplementedException();
         }
 
-        public override void OnStopTimer()
+        public override void OnStartTimer()
         {
             if (CurrentBattlePair is not null)
             {
