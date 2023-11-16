@@ -253,29 +253,15 @@ internal class TeamViewModel : BaseSwissViewModel<TeamParticipant>
         SetRoundInTeamFight(currentRoundIndex);
     }
 
-    public void SetTeamRound()
+    public override void SetRound()
     {
-        ReloadStageN();
-        ClearScore();
-        ClearBackup();
-        Rounds.Clear();
-
-        elapsedTime = CurrentStage.Duration;
-        timer.Stop();
-        timer = new Timer();
-        timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
-        Time = elapsedTime.ToString(@"mm\:ss");
-
-        CurrentBattlePair = NextBattlePair;
-
-        ResetNextFighters();
-
-        StartButtonText = timer.Enabled ? "Стоп" : "Старт";
-
-        timer.Stop();
+        base.SetRound();
         
         if (CurrentBattlePair == null)
             return;
+
+        Rounds.Clear();
+        ResetNextFighters();
 
         var redTeam = participants.FirstOrDefault(p => p.Name == CurrentBattlePair?.FighterRedName);
         var blueTeam = participants.FirstOrDefault(p => p.Name == CurrentBattlePair?.FighterBlueName);
@@ -311,9 +297,9 @@ internal class TeamViewModel : BaseSwissViewModel<TeamParticipant>
         if (roundIndex >= Rounds.Count || roundIndex < 0)
             return;
 
-        elapsedTime = new TimeSpan();
         timer.Stop();
-        timer = new System.Timers.Timer();
+        elapsedTime = CurrentStage.Duration.Add(new TimeSpan(0, 0, CurrentBattlePair?.TimeInSeconds ?? 0));
+        timer = new System.Timers.Timer(elapsedTime);
         timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
         timer.Interval = 1000;
         Time = elapsedTime.ToString(@"mm\:ss");
@@ -357,25 +343,5 @@ internal class TeamViewModel : BaseSwissViewModel<TeamParticipant>
         NextFighter4 = nextBlueTeam.Fighters[3];
         NextFighter5 = nextBlueTeam.Fighters[4];
         NextFighter6 = nextBlueTeam.Fighters[5];
-    }
-
-    public override void NewFight()
-    {
-        if (CurrentBattlePair is not null)
-        {
-            if (MessageBox.Show("Вы действительно хотите завершить текущий бой и начать новый?",
-                "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.No)
-                return;
-
-            if (Doubles > CurrentStage.MaxDoubles && Settings.TechDefeatByDoublesEnabled)
-            {
-                if (MessageBox.Show("Счётчик обоюдных поражений превышает допустимое значение! \n Бой будет завершён техническим поражение обоих бойцов! \n Продолжить?",
-                    "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Hand, MessageBoxResult.No) == MessageBoxResult.No)
-                    return;
-            }
-
-            FinishFight();
-        }
-        SetTeamRound();
     }
 }

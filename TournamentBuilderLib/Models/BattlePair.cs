@@ -41,4 +41,8 @@ public class BattlePair
     public bool IsDraw => FighterBlueScore == FighterRedScore;
 
     public string? LooserName => IsDraw ? null : FighterBlueScore > FighterRedScore ? FighterRedName : FighterBlueName;
+
+    public int DoublesCount {  get; set; }
+
+    public int TimeInSeconds { get; set; }
 }

@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Timers;
 using System.Windows;
 using TournamentBuilderLib.Handlers;
 using TournamentBuilderLib.Models;
@@ -21,8 +20,7 @@ namespace HEMACounter.ViewModels.Base
 
         public override void FinishFight()
         {
-            CurrentBattlePair!.FighterRedScore = RedScore;
-            CurrentBattlePair!.FighterBlueScore = BlueScore;
+            SetupCurrentBattlePairScore();
 
             //Запись в файл текущего круга
             _writeBattlePairHandler.Execute(CurrentBattlePair);
@@ -46,6 +44,14 @@ namespace HEMACounter.ViewModels.Base
                 _writeBattleResultHandler.Execute(winnerResult);
                 _writeBattleResultHandler.Execute(loserResult);
             }
+        }
+
+        private void SetupCurrentBattlePairScore()
+        {
+            CurrentBattlePair!.FighterRedScore = RedScore;
+            CurrentBattlePair!.FighterBlueScore = BlueScore;
+            CurrentBattlePair!.TimeInSeconds = (int)elapsedTime.TotalSeconds;
+            CurrentBattlePair!.DoublesCount = Doubles;
         }
 
         public override void GenerateStages()
@@ -131,9 +137,19 @@ namespace HEMACounter.ViewModels.Base
             generatedPairs.ForEach(BattlePairs.Add);
         }
 
+
         public override void ReloadParticipants()
         {
             throw new NotImplementedException();
+        }
+
+        public override void OnStopTimer()
+        {
+            if (CurrentBattlePair is not null)
+            {
+                SetupCurrentBattlePairScore();
+                _writeBattlePairHandler.Execute(CurrentBattlePair);
+            }
         }
     }
 }

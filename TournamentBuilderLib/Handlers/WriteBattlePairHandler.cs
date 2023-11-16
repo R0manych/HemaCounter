@@ -22,7 +22,9 @@ public class WriteBattlePairHandler : BaseHandler, IWriteBattlePairHandler
             battlePair.FighterRedScore,
             battlePair.FighterBlueScore,
             battlePair.FighterBlueName,
-            battlePair.IsStarted ? 1 : 0
+            battlePair.IsStarted ? 1 : 0,
+            battlePair.DoublesCount,
+            battlePair.TimeInSeconds
         };
         var rangeData = new List<IList<object>> { objectList };
         ExcelWriter.Write(_sheetId, battlePair.Range, rangeData);

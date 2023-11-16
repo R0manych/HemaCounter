@@ -321,7 +321,10 @@ namespace HEMACounter.ViewModels.Base
         public void StartStopTimer()
         {
             if (timer.Enabled)
+            {
                 timer.Stop();
+                OnStopTimer();
+            }
             else
                 timer.Start();
 
@@ -335,11 +338,11 @@ namespace HEMACounter.ViewModels.Base
             }
         }
 
-        public void ClearScore()
+        public void ReloadScore()
         {
-            RedScore = 0;
-            BlueScore = 0;
-            Doubles = 0;
+            RedScore = CurrentBattlePair?.FighterRedScore ?? 0;
+            BlueScore = CurrentBattlePair?.FighterBlueScore ?? 0;
+            Doubles = CurrentBattlePair?.DoublesCount ?? 0;
         }
 
         public void PlusOneBlue() => BlueScore++;
@@ -397,19 +400,17 @@ namespace HEMACounter.ViewModels.Base
         public virtual void SetRound()
         {
             ReloadStageN();
-
-            ClearScore();
             ClearBackup();
 
-            elapsedTime = CurrentStage.Duration;
             timer.Stop();
-            timer = new Timer(CurrentStage.Duration);
+
+            CurrentBattlePair = nextBattlePair;
+            elapsedTime = CurrentStage.Duration.Add(new TimeSpan(0, 0, CurrentBattlePair?.TimeInSeconds ?? 0));
+            timer = new Timer(elapsedTime);
             timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
             timer.Interval = 1000;
             Time = elapsedTime.ToString(@"mm\:ss");
-
-            CurrentBattlePair = nextBattlePair;
-            NextBattlePair = null;
+            ReloadScore();
 
             StartButtonText = timer.Enabled ? "Стоп" : "Старт";
         }
@@ -425,5 +426,7 @@ namespace HEMACounter.ViewModels.Base
         public abstract void GenerateStages();
 
         public abstract void ReloadParticipants();
+
+        public abstract void OnStopTimer();
     }
 }
