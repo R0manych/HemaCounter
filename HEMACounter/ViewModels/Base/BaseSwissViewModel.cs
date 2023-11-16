@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using TournamentBuilderLib.Handlers;
 using TournamentBuilderLib.Models;
@@ -148,7 +149,11 @@ namespace HEMACounter.ViewModels.Base
             if (CurrentBattlePair is not null)
             {
                 SetupCurrentBattlePairScore();
-                _writeBattlePairHandler.Execute(CurrentBattlePair);
+                new Thread(() =>
+                {
+                    Thread.CurrentThread.IsBackground = true;
+                    _writeBattlePairHandler.Execute(CurrentBattlePair);
+                }).Start();
             }
         }
     }
