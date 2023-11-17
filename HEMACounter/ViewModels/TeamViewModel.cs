@@ -298,9 +298,7 @@ internal class TeamViewModel : BaseSwissViewModel<TeamParticipant>
             return;
 
         timer.Stop();
-        elapsedTime = CurrentBattlePair?.TimeInSeconds != 0
-            ? new TimeSpan(0, 0, CurrentBattlePair.TimeInSeconds)
-            : CurrentStage.Duration;
+        elapsedTime = CurrentStage.Duration;
         timer = new System.Timers.Timer(elapsedTime);
         timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
         timer.Interval = 1000;
