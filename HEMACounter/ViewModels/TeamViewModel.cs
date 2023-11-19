@@ -173,6 +173,8 @@ internal class TeamViewModel : BaseSwissViewModel<TeamParticipant>
         }
     }
 
+    public string CurrentRoundMaxScore => (Rounds.Any() && Rounds.FirstOrDefault() != null) ? $"до {Rounds.First().MaxScore}" : "";
+
     #endregion
 
     #region Commands
@@ -290,6 +292,7 @@ internal class TeamViewModel : BaseSwissViewModel<TeamParticipant>
 
         currentRoundIndex = 0;
         SetRoundInTeamFight(currentRoundIndex);
+        propertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentRoundMaxScore"));
     }
 
     public void SetRoundInTeamFight(int roundIndex)
@@ -323,6 +326,8 @@ internal class TeamViewModel : BaseSwissViewModel<TeamParticipant>
             NextRedFighter = "";
         }
         StartButtonText = timer.Enabled ? "Стоп" : "Старт";
+
+        propertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentRoundMaxScore"));
     }
 
     public override void GetReady()

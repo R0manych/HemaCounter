@@ -65,9 +65,9 @@
     <Resource Include="Images\red3.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-	<Resource Include="Secrets\hemacounterapi-20a1e98718e8.json">
+	<Content Include="Secrets\hemacounterapi-20a1e98718e8.json">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</Resource>
+	</Content>
   </ItemGroup>
 
   <ItemGroup>

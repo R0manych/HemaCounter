@@ -152,7 +152,11 @@ namespace HEMACounter.ViewModels.Base
                 new Thread(() =>
                 {
                     Thread.CurrentThread.IsBackground = true;
-                    _writeBattlePairHandler.Execute(CurrentBattlePair);
+                    try
+                    {
+                        _writeBattlePairHandler.Execute(CurrentBattlePair);
+                    }
+                    catch { }
                 }).Start();
             }
         }

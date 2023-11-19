@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HEMACounter"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800"
+        Title="MainWindow" Height="1080" Width="1920"
         WindowStyle="None"   
         WindowState="Maximized"
         Closing="Window_Closing"
@@ -17,7 +17,7 @@
         </ResourceDictionary>
     </Window.Resources>
 
-    <Grid>
+    <Grid Background="Black">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*"/>
             <ColumnDefinition Width="2*"/>
@@ -34,12 +34,19 @@
             <RowDefinition Height="140"/>
         </Grid.RowDefinitions>
 
-        <Image Grid.ColumnSpan="10" Grid.RowSpan="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Source="/Images/dante_back.png">
-        </Image>
+        <!--<Image Grid.ColumnSpan="10" Grid.RowSpan="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Source="/Images/dante_back.png">
+        </Image>-->
         <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.RowSpan="6" Opacity="0" Background="#242424"></Grid>
         <Grid Grid.Column="3" Grid.ColumnSpan="2" Grid.RowSpan="6" Opacity="0" Background="#242424"></Grid>
 
-        <TextBlock Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="1" Grid.RowSpan="3"  Margin="0, 90,0,0" HorizontalAlignment="Center" Foreground="White" TextWrapping="WrapWithOverflow" FontSize="130" Text="{Binding Time, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+        <Grid Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="2" Grid.RowSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="170"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <TextBlock Margin="0,0,0,0" HorizontalAlignment="Center" Foreground="White" TextWrapping="WrapWithOverflow" FontSize="130" Text="{Binding Time, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+            <TextBlock Grid.Row="1" Margin="0,0,0,0" HorizontalAlignment="Center" Foreground="Gray" TextWrapping="WrapWithOverflow" FontSize="60" Text="{Binding CurrentRoundMaxScore, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+        </Grid>
         <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="80" Text="{Binding CurrentBlueFighter, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
         </Grid>
