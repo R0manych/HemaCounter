@@ -173,7 +173,7 @@ internal class TeamViewModel : BaseSwissViewModel<TeamParticipant>
         }
     }
 
-    public string CurrentRoundMaxScore => (Rounds.Any() && Rounds.FirstOrDefault() != null) ? $"до {Rounds.First().MaxScore}" : "";
+    public string CurrentRoundMaxScore => (Rounds.Any() && Rounds.FirstOrDefault(x => x.IsCurrent) != null) ? $"до {Rounds.First(x => x.IsCurrent).MaxScore}" : "";
 
     #endregion
 
