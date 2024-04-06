@@ -152,7 +152,10 @@ namespace HEMACounter.ViewModels.Base
             {
                 blueScore = value;
                 if (propertyChanged != null)
+                {
                     propertyChanged(this, new PropertyChangedEventArgs("BlueScore"));
+                    OnBlueScoreUpdate();
+                }
             }
         }
 
@@ -164,7 +167,10 @@ namespace HEMACounter.ViewModels.Base
             {
                 redScore = value;
                 if (propertyChanged != null)
+                {
                     propertyChanged(this, new PropertyChangedEventArgs("RedScore"));
+                    OnRedScoreUpdate();
+                }
             }
         }
 
@@ -432,5 +438,15 @@ namespace HEMACounter.ViewModels.Base
         public abstract void ReloadParticipants();
 
         public abstract void OnStartTimer();
+
+        public virtual void OnBlueScoreUpdate()
+        {
+
+        }
+
+        public virtual void OnRedScoreUpdate()
+        {
+
+        }
     }
 }

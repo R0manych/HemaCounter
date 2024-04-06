@@ -3,7 +3,6 @@ using System.Linq;
 using System.Timers;
 using System;
 using TournamentBuilderLib.Models;
-using TournamentBuilderLib.Handlers;
 
 namespace HEMACounter.ViewModels;
 

@@ -45,4 +45,9 @@ public class BattlePair
     public int DoublesCount {  get; set; }
 
     public int TimeInSeconds { get; set; }
+
+    //Переписать в другой классе, нет времени.
+    public string FighterRedRange { get; set; }
+
+    public string FighterBlueRange { get; set; }
 }

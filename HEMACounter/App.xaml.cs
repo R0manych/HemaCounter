@@ -65,6 +65,7 @@ namespace HEMACounter
                 case TournamentType.Stahlkugeln:
                 {
                     var commonContext = new EggsViewModel();
+
                     MainWindow = new DisplayEggs();
                     MainWindow.DataContext = commonContext;
                     MainWindow.Show();

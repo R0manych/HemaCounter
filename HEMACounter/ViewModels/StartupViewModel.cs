@@ -92,20 +92,24 @@ namespace HEMACounter.ViewModels
 
             Settings.Current = SelectedTournament.Settings;
 
-            if (SelectedTournament.Name == "Рубильник" )
+            switch (SelectedTournament.Name)
             {
-                if (SelectedTournament.Type == "Командные")
-                {
-                    _callback(TournamentType.RubilnikTeam, WithAdmin);
-                }
-                else if (SelectedTournament.Type == "Индивидуальные")
-                {
-                    _callback(TournamentType.RubilnikIndividual, WithAdmin);
-                }
-                return;
+                case "Рубильник":
+                    if (SelectedTournament.Type == "Командные")
+                    {
+                        _callback(TournamentType.RubilnikTeam, WithAdmin);
+                    }
+                    else if (SelectedTournament.Type == "Индивидуальные")
+                    {
+                        _callback(TournamentType.RubilnikIndividual, WithAdmin);
+                    }
+                    return;
+                case "Стальные яйца":
+                    _callback(TournamentType.Stahlkugeln, WithAdmin);
+                    return;
+                default:
+                    return;
             }
-
-            //TODO Заимплеменить для других турниров
         }
 
         private Tournament GetTournamentFromSettings(Dictionary<string, string> settings) => 

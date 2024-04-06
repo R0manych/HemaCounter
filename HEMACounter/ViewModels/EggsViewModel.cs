@@ -1,4 +1,5 @@
 ﻿using HEMACounter.Models;
+using HEMACounter.ViewModels.Base;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,506 +11,74 @@ using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
 using System.Windows.Input;
+using TournamentBuilderLib.Handlers;
+using TournamentBuilderLib.Models;
 
 namespace HEMACounter.ViewModels
 {
-    internal class EggsViewModel : INotifyPropertyChanged
+    internal class EggsViewModel : BaseViewModel<ParticipantWithClub>
     {
-        #region Parameters
+        private string _blueImage;
 
-        private int backupRedScore;
-        private int backupBlueScore;
-        private int backupDoubles;
-        private int currentRoundIndex = 0;
-
-        private List<(int, int)> matches = new List<(int, int)>() { (3, 6), (1, 5), (2, 4), (1, 6), (3, 4), (2, 5), (1, 4), (2, 6), (3, 5) };
-        private Dictionary<int, string> currentBlueTeam = new Dictionary<int, string>();
-        private Dictionary<int, string> currentRedTeam = new Dictionary<int, string>();
-
-        private ObservableCollection<Round> rounds = new ObservableCollection<Round>();
-        public ObservableCollection<Round> Rounds
+        public string BlueImage
         {
-            get => rounds;
-            set
+            get => _blueImage;
+            set 
             {
-                rounds = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("Rounds"));
-            }
-        }
-
-        private ObservableCollection<string> fighters = new ObservableCollection<string>();
-        public ObservableCollection<string> Fighters
-        {
-            get => fighters;
-            set
-            {
-                fighters = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("Fighters"));
-            }
-        }
-
-        private string startButtonText;
-        public string StartButtonText
-        {
-            get => startButtonText;
-            set
-            {
-                startButtonText = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("StartButtonText"));
-            }
-        }
-
-        private string selectedBlueFighter;
-        public string SelectedBlueFighter
-        {
-            get => selectedBlueFighter;
-            set
-            {
-                selectedBlueFighter = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("SelectedBlueFighter"));
-
-                NextTeamBlue = selectedBlueFighter;
-            }
-        }
-
-        private string selectedRedFighter;
-        public string SelectedRedFighter
-        {
-            get => selectedRedFighter;
-            set
-            {
-                selectedRedFighter = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("SelectedRedFighter"));
-
-                NextTeamRed = selectedRedFighter;
-            }
-        }
-
-        private bool isTeamCompetition;
-        public bool IsTeamCompetition
-        {
-            get => isTeamCompetition;
-            set
-            {
-                isTeamCompetition = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("IsTeamCompetition"));
-            }
-        }
-
-        private bool isCovered;
-        public bool IsCovered
-        {
-            get => isCovered;
-            set
-            {
-                isCovered = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("IsCovered"));
-            }
-        }
-
-        private string blueTeamName;
-        public string BlueTeamName
-        {
-            get => blueTeamName;
-            set
-            {
-                blueTeamName = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("BlueTeamName"));
-            }
-        }
-
-        private string redTeamName;
-        public string RedTeamName
-        {
-            get => redTeamName;
-            set
-            {
-                redTeamName = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("RedTeamName"));
-            }
-        }
-
-        private int blueScore;
-        public int BlueScore
-        {
-            get => blueScore;
-            set
-            {
-                blueScore = value;
+                _blueImage = value;
                 if (propertyChanged != null)
                 {
-                    propertyChanged(this, new PropertyChangedEventArgs("BlueScore"));
                     propertyChanged(this, new PropertyChangedEventArgs("BlueImage"));
                 }
             }
         }
 
-        private int redScore;
-        public int RedScore
+        private string _redImage;
+
+        public string RedImage
         {
-            get => redScore;
+            get => _redImage;
             set
             {
-                redScore = value;
+                _redImage = value;
                 if (propertyChanged != null)
                 {
-                    propertyChanged(this, new PropertyChangedEventArgs("RedScore"));
                     propertyChanged(this, new PropertyChangedEventArgs("RedImage"));
                 }
             }
         }
 
-        public string BlueImage
-        {
-            get => $"/HEMACounter;component/Images/blue{blueScore}.png";
-        }
+        private readonly GetBattlePairsForEggsTemplateService _getBattlePairsHandler =
+            new GetBattlePairsForEggsTemplateService(Settings.SheetId);
 
-        public string RedImage
-        {
-            get => $"/HEMACounter;component/Images/red{redScore}.png";
-        }
+        private readonly GetBattlePairsForEggsTemplate8Service _getBattlePairsForEggsTemplate8Service = 
+            new GetBattlePairsForEggsTemplate8Service(Settings.SheetId);
 
-        private string currentRedFighter;
-        public string CurrentRedFighter
-        {
-            get => currentRedFighter;
-            set
-            {
-                currentRedFighter = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("CurrentRedFighter"));
-            }
-        }
+        private readonly IWriteBattlePairsHandlerEggsTemplate _writeBattlePairsHandlerEggsTemplate =
+            new WriteBattlePairsHandlerEggsTemplate(Settings.SheetId);
 
-        private string currentBlueFighter;
-        public string CurrentBlueFighter
-        {
-            get => currentBlueFighter;
-            set
-            {
-                currentBlueFighter = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("CurrentBlueFighter"));
-            }
-        }
-
-        private string nextRedFighter;
-        public string NextRedFighter
-        {
-            get => nextRedFighter;
-            set
-            {
-                nextRedFighter = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextRedFighter"));
-            }
-        }
-
-        private string nextBlueFighter;
-        public string NextBlueFighter
-        {
-            get => nextBlueFighter;
-            set
-            {
-                nextBlueFighter = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextBlueFighter"));
-            }
-        }
-
-        private string time;
-        public string Time
-        {
-            get => time;
-            set
-            {
-                time = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("Time"));
-            }
-        }
-
-        private int doubles;
-        public int Doubles
-        {
-            get => doubles;
-            set
-            {
-                doubles = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("Doubles"));
-            }
-        }
-
-        private string nextTeamRed;
-        public string NextTeamRed
-        {
-            get => nextTeamRed;
-            set
-            {
-                nextTeamRed = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextTeamRed"));
-            }
-        }
-
-        private string nextTeamBlue;
-        public string NextTeamBlue
-        {
-            get => nextTeamBlue;
-            set
-            {
-                nextTeamBlue = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextTeamBlue"));
-            }
-        }
-
-        private string nextFighter1;
-        public string NextFighter1
-        {
-            get => nextFighter1;
-            set
-            {
-                nextFighter1 = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextFighter1"));
-            }
-        }
-        private string nextFighter2;
-        public string NextFighter2
-        {
-            get => nextFighter2;
-            set
-            {
-                nextFighter2 = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextFighter2"));
-            }
-        }
-        private string nextFighter3;
-        public string NextFighter3
-        {
-            get => nextFighter3;
-            set
-            {
-                nextFighter3 = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextFighter3"));
-            }
-        }
-        private string nextFighter4;
-        public string NextFighter4
-        {
-            get => nextFighter4;
-            set
-            {
-                nextFighter4 = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextFighter4"));
-            }
-        }
-        private string nextFighter5;
-        public string NextFighter5
-        {
-            get => nextFighter5;
-            set
-            {
-                nextFighter5 = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextFighter5"));
-            }
-        }
-        private string nextFighter6;
-        public string NextFighter6
-        {
-            get => nextFighter6;
-            set
-            {
-                nextFighter6 = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("NextFighter6"));
-            }
-        }
-
-        private int scorePerRound;
-        public int ScorePerRound
-        {
-            get => scorePerRound;
-            set
-            {
-                scorePerRound = value;
-                if (propertyChanged != null)
-                    propertyChanged(this, new PropertyChangedEventArgs("ScorePerRound"));
-            }
-        }
-
-        private PropertyChangedEventHandler? propertyChanged;
-        event PropertyChangedEventHandler? INotifyPropertyChanged.PropertyChanged
-        {
-            add { propertyChanged += value; }
-            remove { propertyChanged -= value; }
-        }
-
-        #endregion
-
-        #region Timer
-        private static System.Timers.Timer timer;
-        private TimeSpan elapsedTime;
-        private void OnTimedEvent(object? sender, ElapsedEventArgs e)
-        {
-            elapsedTime = elapsedTime.Add(TimeSpan.FromSeconds(1));
-            Time = elapsedTime.ToString(@"mm\:ss");
-        }
-
-        #endregion
-
-        #region Commands
-
-        private ICommand startStopCommand;
-        public ICommand StartStopCommand
-        {
-            get
-            {
-                return startStopCommand ?? (startStopCommand = new CommandHandler(() => StartStopTimer(), () => { return true; })); ;
-            }
-        }
-
-        private ICommand newFightCommand;
-        public ICommand NewFightCommand
-        {
-            get
-            {
-                return newFightCommand ?? (newFightCommand = new CommandHandler(() => NewFight(), () => { return true; })); ;
-            }
-        }
-
-        private ICommand plusOneBlueCommand;
-        public ICommand PlusOneBlueCommand
-        {
-            get
-            {
-                return plusOneBlueCommand ?? (plusOneBlueCommand = new CommandHandler(() => PlusOneBlue(), () => { return true; })); ;
-            }
-        }
-        private ICommand minusOneBlueCommand;
-        public ICommand MinusOneBlueCommand
-        {
-            get
-            {
-                return minusOneBlueCommand ?? (minusOneBlueCommand = new CommandHandler(() => MinusOneBlue(), () => { return true; })); ;
-            }
-        }
-
-
-        private ICommand plusOneRedCommand;
-        public ICommand PlusOneRedCommand
-        {
-            get
-            {
-                return plusOneRedCommand ?? (plusOneRedCommand = new CommandHandler(() => PlusOneRed(), () => { return true; })); ;
-            }
-        }
-        private ICommand minusOneRedCommand;
-        public ICommand MinusOneRedCommand
-        {
-            get
-            {
-                return minusOneRedCommand ?? (minusOneRedCommand = new CommandHandler(() => MinusOneRed(), () => { return true; })); ;
-            }
-        }
-
-        private ICommand plusOneDoubleCommand;
-        public ICommand PlusOneDoubleCommand
-        {
-            get
-            {
-                return plusOneDoubleCommand ?? (plusOneDoubleCommand = new CommandHandler(() => PlusOneDouble(), () => { return true; })); ;
-            }
-        }
-
-        private ICommand minusOneDoubleCommand;
-        public ICommand MinusOneDoubleCommand
-        {
-            get
-            {
-                return minusOneDoubleCommand ?? (minusOneDoubleCommand = new CommandHandler(() => MinusOneDouble(), () => { return true; })); ;
-            }
-        }
-
-        private ICommand cancelCommand;
-        public ICommand CancelCommand
-        {
-            get
-            {
-                return cancelCommand ?? (cancelCommand = new CommandHandler(() => Cancel(), () => { return true; })); ;
-            }
-        }
-
-        private ICommand coverCommand;
-        public ICommand CoverCommand
-        {
-            get
-            {
-                return coverCommand ?? (coverCommand = new CommandHandler(() => Cover(), () => { return true; })); ;
-            }
-        }
-
-        private ICommand getReadyCommand;
-        public ICommand GetReadyCommand
-        {
-            get
-            {
-                return getReadyCommand ?? (getReadyCommand = new CommandHandler(() => GetReady(), () => { return true; })); ;
-            }
-        }
-
-        #endregion
-
-
+        private readonly IGetParticipantsHandler _getParticipantsHandler = new GetParticipantsHandler(Settings.SheetId);
 
         public EggsViewModel()
         {
-            Fighters = new ObservableCollection<string>(ParticipantsExport.ExportIndividuals());
+            Initialize();
+        }
+
+        public void Initialize()
+        {
             IsCovered = true;
-            IsTeamCompetition = false;
-            ScorePerRound = 7;
             elapsedTime = new TimeSpan();
             timer = new System.Timers.Timer();
             timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
             timer.Interval = 1000;
             Time = elapsedTime.ToString(@"mm\:ss");
             StartButtonText = timer.Enabled ? "Стоп" : "Старт";
+            GenerateStages();
+            CurrentStage = Stages.First();
+            participants = _getParticipantsHandler.Execute();
         }
 
-        public void StartStopTimer()
-        {
-            if (timer.Enabled)
-                timer.Stop();
-            else
-                timer.Start();
-
-            if (!timer.Enabled)
-            {
-                backupBlueScore = BlueScore;
-                backupRedScore = RedScore;
-                backupDoubles = Doubles;
-            }
-
-            StartButtonText = timer.Enabled ? "Стоп" : "Старт";
-
-        }
-
-        public void SetRound(int roundIndex)
+        /*public void SetRound(int roundIndex)
         {
             if (roundIndex >= Rounds.Count || roundIndex < 0)
                 return;
@@ -541,84 +110,135 @@ namespace HEMACounter.ViewModels
             }
 
             StartButtonText = timer.Enabled ? "Стоп" : "Старт";
+        }*/
 
+        public override void GetReady()
+        {
+            NextBattlePair = SelectedBattlePair;
+            SelectedBattlePair = null;
+
+            if (NextBattlePair is null)
+                return;
+
+            if (NextBattlePair == null)
+                return;
+
+            NextRedFighter = NextBattlePair.FighterRedName;
+            NextBlueFighter = NextBattlePair.FighterBlueName;
         }
 
-        public void NewFight()
+        public override void ReloadStageN()
         {
-            if (MessageBox.Show("Вы действительно хотите завершить текущий бой и начать новый?", "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Hand, MessageBoxResult.No) == MessageBoxResult.No) return;
+            if (CurrentStage == null)
+                return;
 
-            timer.Stop();
+            var current = CurrentStage.Id;
+            var currentPairs = new List<BattlePair>();
+            if (participants.Count() > 8)
+            {
+                switch (current)
+                {
+                    case 1:
+                        currentPairs = _getBattlePairsHandler.GetBattlePairsForFightRound1($"Круг текущий", 28).ToList();
+                        break;
+                    case 2:
+                        currentPairs = _getBattlePairsHandler.GetBattlePairsForFightRound2($"Круг текущий", 28).ToList();
+                        break;
+                    case 3:
+                        currentPairs = _getBattlePairsHandler.GetBattlePairsForFightRound3($"Круг текущий", 28).ToList();
+                        break;
+                    case 4:
+                        currentPairs = _getBattlePairsHandler.GetBattlePairsForFightRound4($"Круг текущий", 28).ToList();
+                        break;
+                    case 5:
+                        currentPairs = _getBattlePairsHandler.GetBattlePairsForFightRound5($"Круг текущий", 28).ToList();
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                switch (current)
+                {
+                    case 1:
+                        currentPairs = _getBattlePairsForEggsTemplate8Service.GetBattlePairsForFightRound1($"Круг текущий", 8).ToList();
+                        break;
+                    case 2:
+                        currentPairs = _getBattlePairsForEggsTemplate8Service.GetBattlePairsForFightRound2($"Круг текущий", 8).ToList();
+                        break;
+                    case 3:
+                        currentPairs = _getBattlePairsForEggsTemplate8Service.GetBattlePairsForFightRound3($"Круг текущий", 8).ToList();
+                        break;
+                    case 4:
+                        currentPairs = _getBattlePairsForEggsTemplate8Service.GetBattlePairsForFightRound4($"Круг текущий", 8).ToList();
+                        break;
+                    default:
+                        break;
+                }
+            }
 
-            currentRoundIndex = 0;
-
-            BlueTeamName = nextTeamBlue;
-            RedTeamName = nextTeamRed;
-
-            currentRedTeam = new Dictionary<int, string>();
-            currentRedTeam.Add(1, nextFighter1);
-            currentRedTeam.Add(2, nextFighter2);
-            currentRedTeam.Add(3, nextFighter3);
-
-            currentBlueTeam = new Dictionary<int, string>();
-            currentBlueTeam.Add(4, nextFighter4);
-            currentBlueTeam.Add(5, nextFighter5);
-            currentBlueTeam.Add(6, nextFighter6);
-
-            Rounds = new ObservableCollection<Round>(matches.Select((x, i) => new Round(currentRedTeam[x.Item1], currentBlueTeam[x.Item2], (i + 1) * ScorePerRound, $"({x.Item1} - {x.Item2})")));
-
-            RedScore = 3;
-            BlueScore = 3;
-            Doubles = 0;
-
-            backupBlueScore = 3;
-            backupRedScore = 3;
-            backupDoubles = 0;
-
-            SetRound(currentRoundIndex);
+            BattlePairs.Clear();
+            currentPairs.ForEach(BattlePairs.Add);
         }
 
-        public void PlusOneBlue()
+        public override void GenerateStages()
         {
-            BlueScore++;
-        }
-        public void MinusOneBlue()
-        {
-            BlueScore--;
-        }
-        public void PlusOneRed()
-        {
-            RedScore++;
-        }
-        public void MinusOneRed()
-        {
-            RedScore--;
-        }
-        public void PlusOneDouble()
-        {
-            Doubles++;
-            BlueScore = 0;
-            RedScore = 0;
-        }
-        public void MinusOneDouble()
-        {
-            Doubles--;
-        }
-        public void Cancel()
-        {
-            RedScore = backupRedScore;
-            BlueScore = backupBlueScore;
-            Doubles = backupDoubles;
-        }
-        public void Cover()
-        {
-            IsCovered = !IsCovered;
+            Stages.Clear();
+
+            Enumerable.Range(1, Settings.StagesCount ?? 6).Select(x => new Stage()
+            {
+                Id = x,
+                MaxScore = Settings.ScoresPerRound ?? 10,
+                MaxDoubles = Settings.MaxDoubles ?? -1,
+                Duration = Settings.RoundTime ?? TimeSpan.FromSeconds(120)
+            }).ToList().ForEach(Stages.Add);
         }
 
-        public void GetReady()
+        public override void FinishFight()
         {
-            NextRedFighter = NextTeamRed;
-            NextBlueFighter = NextTeamBlue;
+            if (CurrentBattlePair is not null)
+            {
+                CurrentBattlePair.FighterRedScore = RedScore;
+                CurrentBattlePair.FighterBlueScore = BlueScore;
+                //Запись в файл текущего круга
+                _writeBattlePairsHandlerEggsTemplate.Execute(CurrentBattlePair);
+            }
+        }
+
+        public override void ReloadParticipants()
+        {
+            //participants = _getParticipantsHandler.Execute();
+            ReloadStageN();
+
+            ResetNextFighters();
+        }
+
+        private void ResetNextFighters()
+        {
+            NextBattlePair = null;
+            NextRedFighter = null;
+            NextBlueFighter = null;
+        }
+
+        public override void OnBlueScoreUpdate()
+        {
+            BlueImage = $"/HEMACounter;component/Images/blue{BlueScore}.png";
+        }
+
+        public override void OnRedScoreUpdate()
+        {
+            RedImage = $"/HEMACounter;component/Images/red{RedScore}.png";
+        }
+
+        protected override void GenerateStageN()
+        {
+            return;//Пока не нужна логика генерации кругов.
+        }
+
+        public override void OnStartTimer()
+        {
+            return;//Пустое действие, здесь пока не нужна эта логика.
         }
     }
 }
