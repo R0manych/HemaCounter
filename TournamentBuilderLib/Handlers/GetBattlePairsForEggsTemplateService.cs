@@ -42,8 +42,8 @@ namespace TournamentBuilderLib.Handlers
 
         public IEnumerable<BattlePair> GetBattlePairsForFightRound2(string sheetName, int participantsCount)
         {
-            var lastStr = participantsCount * 2 - 2 + 9;
             var startIndex = 9;
+            var lastStr = participantsCount * 2 + startIndex;
             var range = $"{sheetName}!J{startIndex}:K{lastStr}";
             var values = ExcelReader.Read(_sheetId, range);
             if (values == null)
@@ -74,7 +74,7 @@ namespace TournamentBuilderLib.Handlers
         public IEnumerable<BattlePair> GetBattlePairsForFightRound3(string sheetName, int participantsCount)
         {
             var startIndex = 11;
-            var lastStr = participantsCount * 2 + startIndex;
+            var lastStr = participantsCount * 2 + 4 + startIndex;
             var range = $"{sheetName}!M{startIndex}:N{lastStr}";
             var values = ExcelReader.Read(_sheetId, range);
             if (values == null)
@@ -105,7 +105,7 @@ namespace TournamentBuilderLib.Handlers
         public IEnumerable<BattlePair> GetBattlePairsForFightRound4(string sheetName, int participantsCount)
         {
             var startIndex = 15;
-            var lastStr = participantsCount * 2 - 2 + startIndex;
+            var lastStr = participantsCount * 2 + 8 + startIndex;
             var range = $"{sheetName}!P{startIndex}:Q{lastStr}";
             var values = ExcelReader.Read(_sheetId, range);
             if (values == null)
@@ -136,7 +136,7 @@ namespace TournamentBuilderLib.Handlers
         public IEnumerable<BattlePair> GetBattlePairsForFightRound5(string sheetName, int participantsCount)
         {
             var startIndex = 23;
-            var lastStr = participantsCount * 2 - 2 + startIndex;
+            var lastStr = participantsCount * 2 + startIndex;
             var range = $"{sheetName}!S{startIndex}:T{lastStr}";
             var values = ExcelReader.Read(_sheetId, range);
             if (values == null)

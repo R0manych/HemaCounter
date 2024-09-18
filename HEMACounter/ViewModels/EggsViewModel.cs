@@ -134,24 +134,25 @@ namespace HEMACounter.ViewModels
 
             var current = CurrentStage.Id;
             var currentPairs = new List<BattlePair>();
-            if (participants.Count() > 8)
+            var participantsCount = participants.Count();
+            if (participantsCount > 8)
             {
                 switch (current)
                 {
                     case 1:
-                        currentPairs = _getBattlePairsHandler.GetBattlePairsForFightRound1($"Круг текущий", 28).ToList();
+                        currentPairs = _getBattlePairsHandler.GetBattlePairsForFightRound1($"Круг текущий", participantsCount).ToList();
                         break;
                     case 2:
-                        currentPairs = _getBattlePairsHandler.GetBattlePairsForFightRound2($"Круг текущий", 28).ToList();
+                        currentPairs = _getBattlePairsHandler.GetBattlePairsForFightRound2($"Круг текущий", participantsCount).ToList();
                         break;
                     case 3:
-                        currentPairs = _getBattlePairsHandler.GetBattlePairsForFightRound3($"Круг текущий", 28).ToList();
+                        currentPairs = _getBattlePairsHandler.GetBattlePairsForFightRound3($"Круг текущий", participantsCount).ToList();
                         break;
                     case 4:
-                        currentPairs = _getBattlePairsHandler.GetBattlePairsForFightRound4($"Круг текущий", 28).ToList();
+                        currentPairs = _getBattlePairsHandler.GetBattlePairsForFightRound4($"Круг текущий", participantsCount).ToList();
                         break;
                     case 5:
-                        currentPairs = _getBattlePairsHandler.GetBattlePairsForFightRound5($"Круг текущий", 28).ToList();
+                        currentPairs = _getBattlePairsHandler.GetBattlePairsForFightRound5($"Круг текущий", participantsCount).ToList();
                         break;
                     default:
                         break;
@@ -162,16 +163,16 @@ namespace HEMACounter.ViewModels
                 switch (current)
                 {
                     case 1:
-                        currentPairs = _getBattlePairsForEggsTemplate8Service.GetBattlePairsForFightRound1($"Круг текущий", 8).ToList();
+                        currentPairs = _getBattlePairsForEggsTemplate8Service.GetBattlePairsForFightRound1($"Круг текущий", participantsCount).ToList();
                         break;
                     case 2:
-                        currentPairs = _getBattlePairsForEggsTemplate8Service.GetBattlePairsForFightRound2($"Круг текущий", 8).ToList();
+                        currentPairs = _getBattlePairsForEggsTemplate8Service.GetBattlePairsForFightRound2($"Круг текущий", participantsCount).ToList();
                         break;
                     case 3:
-                        currentPairs = _getBattlePairsForEggsTemplate8Service.GetBattlePairsForFightRound3($"Круг текущий", 8).ToList();
+                        currentPairs = _getBattlePairsForEggsTemplate8Service.GetBattlePairsForFightRound3($"Круг текущий", participantsCount).ToList();
                         break;
                     case 4:
-                        currentPairs = _getBattlePairsForEggsTemplate8Service.GetBattlePairsForFightRound4($"Круг текущий", 8).ToList();
+                        currentPairs = _getBattlePairsForEggsTemplate8Service.GetBattlePairsForFightRound4($"Круг текущий", participantsCount).ToList();
                         break;
                     default:
                         break;
