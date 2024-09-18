@@ -107,6 +107,8 @@ namespace HEMACounter.ViewModels
                 case "Стальные яйца":
                     _callback(TournamentType.Stahlkugeln, WithAdmin);
                     return;
+                case "Олимпийская":
+                    return;
                 default:
                     return;
             }

@@ -12,6 +12,7 @@ namespace HEMACounter
         RubilnikTeam,
         RubilnikIndividual,
         Stahlkugeln,
-        Dante
+        Dante,
+        Olympic
     }
 }

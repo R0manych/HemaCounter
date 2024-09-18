@@ -313,14 +313,8 @@ namespace HEMACounter.ViewModels.Base
         private ICommand getReadyCommand;
         public ICommand GetReadyCommand => getReadyCommand ??= new CommandHandler(GetReady, () => true);
 
-        private ICommand generateStageNCommand;
-        public ICommand GenerateStageNCommand => generateStageNCommand ??= new CommandHandler(GenerateStageN, () => true);
-
         private ICommand loadStageNCommand;
         public ICommand LoadStageNCommand => loadStageNCommand ??= new CommandHandler(ReloadStageN, () => true);
-
-        private ICommand reloadParticipantsCommand;
-        public ICommand ReloadParticipantsCommand => reloadParticipantsCommand ??= new CommandHandler(ReloadParticipants, () => true);
 
         #endregion
 
@@ -429,13 +423,9 @@ namespace HEMACounter.ViewModels.Base
 
         public abstract void ReloadStageN();
 
-        protected abstract void GenerateStageN();
-
         public abstract void FinishFight();
 
         public abstract void GenerateStages();
-
-        public abstract void ReloadParticipants();
 
         public abstract void OnStartTimer();
 
@@ -447,6 +437,14 @@ namespace HEMACounter.ViewModels.Base
         public virtual void OnRedScoreUpdate()
         {
 
+        }
+
+        protected void SetupCurrentBattlePairScore()
+        {
+            CurrentBattlePair!.FighterRedScore = RedScore;
+            CurrentBattlePair!.FighterBlueScore = BlueScore;
+            CurrentBattlePair!.TimeInSeconds = (int)elapsedTime.TotalSeconds;
+            CurrentBattlePair!.DoublesCount = Doubles;
         }
     }
 }

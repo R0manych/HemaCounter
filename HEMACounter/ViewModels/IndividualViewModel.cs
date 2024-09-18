@@ -38,7 +38,7 @@ internal class IndividualViewModel : BaseSwissViewModel<ParticipantWithClub>
         NextBlueFighter = NextBattlePair.FighterBlueName;
     }
 
-    public override void ReloadParticipants()
+    public void ReloadParticipants()
     {
         participants = _getParticipantsHandler.Execute();
         ReloadStageN();
