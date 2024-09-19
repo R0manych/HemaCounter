@@ -98,7 +98,7 @@ namespace HEMACounter
                     }
                 case TournamentType.Olympic:
                     {
-                        var commonContext = new IndividualViewModel();
+                        var commonContext = new OlympicViewModel();
 
                         MainWindow = new Display();
                         MainWindow.DataContext = commonContext;

@@ -21,18 +21,24 @@ namespace TournamentBuilderLib.Utils
         public void GenerateGroups(IEnumerable<IParticipant> participants)
         {
             var randomArr = new int[participants.Count()];
+            for (var i = 0; i < participants.Count(); i++)
+            {
+                randomArr[i] = i;
+            }
             randomArr.Shuffle();
 
             var leftParticipantsCount = participants.Count();
+            var leftGroupsCount = Settings.StagesCount;
 
             for (var i = 0; i < Settings.StagesCount; i++)
             {
-                var groupParticipnatsCount = leftParticipantsCount % Settings.StagesCount > 0
-                    ? leftParticipantsCount / Settings.StagesCount + 1
-                    : leftParticipantsCount / Settings.StagesCount;
+                var groupParticipnatsCount = leftParticipantsCount % leftGroupsCount > 0
+                    ? leftParticipantsCount / leftGroupsCount + 1
+                    : leftParticipantsCount / leftGroupsCount;
                 var groupParticipantsIds = randomArr.Skip(participants.Count() - leftParticipantsCount)
                     .Take(groupParticipnatsCount.Value);
                 leftParticipantsCount -= groupParticipnatsCount.Value;
+                leftGroupsCount--;
                 var groupParticipants = participants.Where(x => groupParticipantsIds.Contains(x.Id));
                 GenerateGroup(i, groupParticipants);
             }
@@ -52,18 +58,18 @@ namespace TournamentBuilderLib.Utils
                         FighterBlueName = groupParticipants.ElementAt(i).Name,
                         FighterBlueScore = 0,
                         FighterRedName = groupParticipants.ElementAt(j).Name,
-                        FighterBlueRange = $"Группа {groupNum}!B{pairStr}:B{pairStr}",
-                        FighterRedRange = $"Группа {groupNum}!C{pairStr}:C{pairStr}",
+                        FighterBlueRange = $"Группа {groupNum+1}!B{pairStr}:B{pairStr}",
+                        FighterRedRange = $"Группа {groupNum+1}!C{pairStr}:C{pairStr}",
                         FighterRedScore = 0,
                         IsStarted = false,
                         TimeInSeconds = 0,
-                        Range = $"Группа {groupNum}!A{pairStr}:G{pairStr}",
+                        Range = $"Группа {groupNum+1}!A{pairStr}:G{pairStr}",
                     };
                     battlePairs.Add(battlePair);
                     pairStr++;
                 }
             }
-            _writeMultipleBattlePairsHandler.Equals(battlePairs);
+            _writeMultipleBattlePairsHandler.Execute(battlePairs, $"Группа {groupNum + 1}!A{1}:G{pairStr}");
         }
     }
 }

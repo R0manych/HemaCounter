@@ -1,48 +1,66 @@
-﻿using HEMACounter.ViewModels.Base;
+﻿using HEMACounter.Models;
+using HEMACounter.ViewModels.Base;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows.Media.Media3D;
+using TournamentBuilderLib.Handlers;
 using TournamentBuilderLib.Models;
 using TournamentBuilderLib.Utils;
 
 namespace HEMACounter.ViewModels
 {
     public class OlympicViewModel : AdvancedViewModel<ParticipantWithClub>
-    { 
+    {
         public OlympicViewModel() : base()
-        { 
+        {
+            Initialize();
+        }
+
+        private void Initialize()
+        {
+            IsCovered = true;
+            elapsedTime = new TimeSpan();
+            timer = new System.Timers.Timer();
+            timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
+            timer.Interval = 1000;
+            Time = elapsedTime.ToString(@"mm\:ss");
+            StartButtonText = timer.Enabled ? "Стоп" : "Старт";
+
+            _getParticipantsHandler = new GetParticipantsHandler(Settings.SheetId);
+            _getBattlePairsHandler = new GetBattlePairsHandler(Settings.SheetId);
+            _writeBattlePairHandler = new WriteBattlePairHandler(Settings.SheetId);
+            _battleResultBuilder = new BattleResultBuilder();
+            _writeBattleResultHandler = new WriteBattleResultHandler(Settings.SheetId);
+            participants = _getParticipantsHandler.Execute();
+
+            GenerateStages();
+            CurrentStage = Stages.First();
         }
 
         public override void GenerateStages()
         {
-            var randomArr = new int[participants.Count()];
-            randomArr.Shuffle();
+            var groupGenerator = new OlympicGroupGenerator(Settings.SheetId);
+            groupGenerator.GenerateGroups(participants);
 
-            var leftParticipantsCount = participants.Count();
-
-            for (var i = 0; i< Settings.StagesCount; i++)
-            {
-                var groupParticipnatsCount = leftParticipantsCount % Settings.StagesCount > 0
-                    ? leftParticipantsCount / Settings.StagesCount + 1
-                    : leftParticipantsCount / Settings.StagesCount;
-                var groupParticipantsIds = randomArr.Skip(participants.Count() - leftParticipantsCount)
-                    .Take(groupParticipnatsCount.Value);
-                leftParticipantsCount -= groupParticipnatsCount.Value;
-                GenerateGroupN(i, groupParticipantsIds);
-            }
+            base.GenerateStages();
         }
 
         public override void ReloadStageN()
         {
-            //Для олимпийки не нужно перезагружать раунд
-        }
+            if (CurrentStage == null)
+                return;
 
-        private void GenerateGroupN(int groupId, IEnumerable<int> participantIds)
-        {
+            var current = CurrentStage.Id;
+            var currentPairs = _getBattlePairsHandler.Execute($"Группа {current}", participants.Count())
+                .Where(x => !x.IsStarted || LoadAll).ToList();
 
+            BattlePairs.Clear();
+            currentPairs.ForEach(BattlePairs.Add);
         }
     }
 }

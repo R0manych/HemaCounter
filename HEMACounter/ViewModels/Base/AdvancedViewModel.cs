@@ -27,26 +27,6 @@ namespace HEMACounter.ViewModels.Base
 
             //Запись в файл текущего круга
             _writeBattlePairHandler.Execute(CurrentBattlePair);
-
-            if (Doubles > CurrentStage.MaxDoubles && Settings.TechDefeatByDoublesEnabled) //техническое поражение обоим
-            {
-                var (resultRed, resultBlue) = _battleResultBuilder.BuildTechnicalDefeat(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id, Doubles > CurrentStage.MaxDoubles);
-                _writeBattleResultHandler.Execute(resultRed);
-                _writeBattleResultHandler.Execute(resultBlue);
-            }
-            else if (CurrentBattlePair.IsDraw)
-            {
-                var (resultRed, resultBlue) = _battleResultBuilder.BuildDraws(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id, Doubles > CurrentStage.MaxDoubles);
-                _writeBattleResultHandler.Execute(resultRed);
-                _writeBattleResultHandler.Execute(resultBlue);
-            }
-            else
-            {
-                var winnerResult = _battleResultBuilder.BuildWinner(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id, Doubles > CurrentStage.MaxDoubles);
-                var loserResult = _battleResultBuilder.BuildLoser(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id, Doubles > CurrentStage.MaxDoubles);
-                _writeBattleResultHandler.Execute(winnerResult);
-                _writeBattleResultHandler.Execute(loserResult);
-            }
         }
 
         public override void OnStartTimer()
@@ -82,6 +62,19 @@ namespace HEMACounter.ViewModels.Base
 
             NextBattlePair.IsStarted = true;
             _writeBattlePairHandler.Execute(NextBattlePair);
+        }
+
+        public override void GenerateStages()
+        {
+            Stages.Clear();
+
+            Enumerable.Range(1, Settings.StagesCount ?? 6).Select(x => new Stage()
+            {
+                Id = x,
+                MaxScore = Settings.ScoresPerRound ?? 10,
+                MaxDoubles = Settings.MaxDoubles ?? -1,
+                Duration = Settings.RoundTime ?? TimeSpan.FromSeconds(120)
+            }).ToList().ForEach(Stages.Add);
         }
     }
 }

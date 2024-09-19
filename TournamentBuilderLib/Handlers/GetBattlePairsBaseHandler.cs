@@ -19,6 +19,7 @@ namespace TournamentBuilderLib.Handlers
             int i = 1;
             foreach (var value in values)
             {
+                var test = string.Format(rangeTemplate, i, i);
                 BattlePair item = new()
                 {
                     FighterRedName = value[0]?.ToString(),

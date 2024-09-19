@@ -10,7 +10,7 @@ namespace TournamentBuilderLib.Handlers
 {
     public interface IWriteMultipleBattlePairsHandler
     {
-        void Execute(List<BattlePair> battlePairs);
+        void Execute(List<BattlePair> battlePairs, string range);
     }
 
     public class WriteMultipleBattlePairsHandler : BaseHandler, IWriteMultipleBattlePairsHandler
@@ -19,7 +19,7 @@ namespace TournamentBuilderLib.Handlers
         {
         }
 
-        public void Execute(List<BattlePair> battlePairs)
+        public void Execute(List<BattlePair> battlePairs, string range)
         {
             var rangeData = new List<IList<object>>();
             foreach (var battlePair in battlePairs)
@@ -37,12 +37,7 @@ namespace TournamentBuilderLib.Handlers
 
                 rangeData.Add(objectList);
             }
-            ExcelWriter.Write(_sheetId, GetRange(battlePairs), rangeData);
-        }
-
-        private string GetRange(List<BattlePair> battlePairs) 
-        {
-            return $"A1:G{battlePairs.Count + 1}";
+            ExcelWriter.Write(_sheetId, range, rangeData);
         }
     }
 }
