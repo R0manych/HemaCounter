@@ -445,6 +445,7 @@ namespace HEMACounter.ViewModels.Base
             CurrentBattlePair!.FighterBlueScore = BlueScore;
             CurrentBattlePair!.TimeInSeconds = (int)elapsedTime.TotalSeconds;
             CurrentBattlePair!.DoublesCount = Doubles;
+            currentBattlePair!.IsStarted = true;
         }
     }
 }

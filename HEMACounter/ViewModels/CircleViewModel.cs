@@ -51,12 +51,25 @@ namespace HEMACounter.ViewModels
             if (CurrentStage == null)
                 return;
 
+            var pairsCount = Enumerable.Range(1, GetParticipantsCountForStage(participants.Count(), Settings.StagesCount!.Value, CurrentStage.Id) - 1).Sum();
+
             var current = CurrentStage.Id;
-            var currentPairs = _getBattlePairsHandler.Execute($"Группа {current}", participants.Count() / Settings.StagesCount.Value)
+            var currentPairs = _getBattlePairsHandler.Execute($"Группа {current}", pairsCount)
                 .Where(x => !x.IsStarted || LoadAll).ToList();
 
             BattlePairs.Clear();
             currentPairs.ForEach(BattlePairs.Add);
+        }
+
+        private int GetParticipantsCountForStage(int participantsCount, int stagesCount, int stageNumber)
+        {
+            int minimalParticipantsCount = participantsCount / stagesCount;
+            int notFullStages = participantsCount % stagesCount;
+
+            if (notFullStages == 0) 
+                return minimalParticipantsCount;
+
+            return minimalParticipantsCount + (stagesCount - notFullStages >= stageNumber ? 1 : 0);
         }
 
         public void GenerateStageN()
