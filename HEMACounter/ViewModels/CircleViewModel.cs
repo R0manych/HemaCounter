@@ -15,9 +15,12 @@ using TournamentBuilderLib.Utils;
 
 namespace HEMACounter.ViewModels
 {
-    public class OlympicViewModel : AdvancedViewModel<ParticipantWithClub>
+    public class CircleViewModel : AdvancedViewModel<ParticipantWithClub>
     {
-        public OlympicViewModel() : base()
+        private ICommand generateStageNCommand;
+        public ICommand GenerateStageNCommand => generateStageNCommand ??= new CommandHandler(GenerateStageN, () => true);
+
+        public CircleViewModel() : base()
         {
             Initialize();
         }
@@ -49,11 +52,17 @@ namespace HEMACounter.ViewModels
                 return;
 
             var current = CurrentStage.Id;
-            var currentPairs = _getBattlePairsHandler.Execute($"Плейофф", participants.Count())
+            var currentPairs = _getBattlePairsHandler.Execute($"Группа {current}", participants.Count())
                 .Where(x => !x.IsStarted || LoadAll).ToList();
 
             BattlePairs.Clear();
             currentPairs.ForEach(BattlePairs.Add);
+        }
+
+        public void GenerateStageN()
+        {
+            var groupGenerator = new OlympicGroupGenerator(Settings.SheetId);
+            groupGenerator.GenerateGroups(participants);
         }
     }
 }

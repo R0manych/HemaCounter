@@ -107,6 +107,19 @@ namespace HEMACounter
                         var control = new IndividualControl();
                         control.DataContext = commonContext;
                         control.Show();
+                        break;
+                    }
+                case TournamentType.Circle:
+                    {
+                        var commonContext = new CircleViewModel();
+
+                        MainWindow = new Display();
+                        MainWindow.DataContext = commonContext;
+                        MainWindow.Show();
+
+                        var control = new IndividualControl();
+                        control.DataContext = commonContext;
+                        control.Show();
 
                         if (withAdmin)
                         {
