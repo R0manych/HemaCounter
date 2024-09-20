@@ -52,7 +52,7 @@ namespace HEMACounter.ViewModels
                 return;
 
             var current = CurrentStage.Id;
-            var currentPairs = _getBattlePairsHandler.Execute($"Группа {current}", participants.Count())
+            var currentPairs = _getBattlePairsHandler.Execute($"Группа {current}", participants.Count() / Settings.StagesCount.Value)
                 .Where(x => !x.IsStarted || LoadAll).ToList();
 
             BattlePairs.Clear();

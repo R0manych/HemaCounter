@@ -49,11 +49,24 @@ namespace HEMACounter.ViewModels
                 return;
 
             var current = CurrentStage.Id;
-            var currentPairs = _getBattlePairsHandler.Execute($"Плейофф", participants.Count())
+            var currentPairs = _getBattlePairsHandler.Execute($"Плейофф", GetRoundsCount())
                 .Where(x => !x.IsStarted || LoadAll).ToList();
 
             BattlePairs.Clear();
             currentPairs.ForEach(BattlePairs.Add);
+        }
+
+        private int GetRoundsCount()
+        {
+            switch (participants.Count())
+            {
+                case 8:
+                    return 7;
+                case 16:
+                    return 15;
+                default:
+                    return 0;
+            }
         }
     }
 }
