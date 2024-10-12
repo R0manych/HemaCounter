@@ -324,7 +324,7 @@ namespace HEMACounter.ViewModels
 
         #endregion
 
-        private readonly IGetBattlePairsHandler _getBattlePairsHandler = new GetBattlePairsHandler(Settings.SheetId);
+        private readonly IGetBattlePairsHandler _getBattlePairsHandler = new GetBattlePairsComedyHandler(Settings.SheetId);
         private readonly IGetParticipantsHandler _getParticipantsHandler = new GetParticipantsHandler(Settings.SheetId);
         private readonly IWriteBattlePairHandler _writeBattlePairHandler = new WriteBattlePairHandler(Settings.SheetId);
         private readonly IBattleResultBuilder _battleResultBuilder = new BattleResultBuilder();
@@ -600,7 +600,7 @@ namespace HEMACounter.ViewModels
             int i = 1;
             foreach (var pair in generatedPairs)
             {
-                pair.Range = $"Круг {current}!D{i}:H{i}";
+                pair.Range = $"Круг {current}!D{i}:J{i}";
                 _writeBattlePairHandler.Execute(pair);
                 i++;
             }
