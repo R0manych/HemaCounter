@@ -153,6 +153,8 @@ namespace HEMACounter.ViewModels
             }
         }
 
+        public string CoverImagePath => $"/Images/{Settings.CoverFileName}";
+
         private int blueScore;
         public int BlueScore
         {
