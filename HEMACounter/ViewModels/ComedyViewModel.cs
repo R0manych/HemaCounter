@@ -407,6 +407,8 @@ namespace HEMACounter.ViewModels
         {
             currentBattlePair!.FighterRedScore = RedScore;
             currentBattlePair!.FighterBlueScore = BlueScore;
+            currentBattlePair!.DoublesCount = Doubles;
+            currentBattlePair!.TimeInSeconds = (int)elapsedTime.TotalSeconds;
 
             //Запись в файл текущего круга
             _writeBattlePairHandler.Execute(currentBattlePair);
