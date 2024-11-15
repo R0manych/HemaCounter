@@ -10,7 +10,7 @@ public interface IUpdateParamHandler
 
 public class UpdateParamHandler : BaseHandler, IUpdateParamHandler
 {
-    private const string _sheetName = "Список участников";
+    private const string _sheetName = "Участники";
 
     public UpdateParamHandler(string sheetId) : base(sheetId)
     {
