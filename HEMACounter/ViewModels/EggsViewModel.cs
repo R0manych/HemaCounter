@@ -59,6 +59,10 @@ namespace HEMACounter.ViewModels
 
         private readonly IGetParticipantsHandler _getParticipantsHandler = new GetParticipantsHandler(Settings.SheetId);
 
+        private ICommand reloadParticipantsCommand;
+        public ICommand ReloadParticipantsCommand => reloadParticipantsCommand ??= new CommandHandler(ReloadParticipants, () => true);
+
+
         public EggsViewModel()
         {
             Initialize();
@@ -207,7 +211,7 @@ namespace HEMACounter.ViewModels
             }
         }
 
-        public override void ReloadParticipants()
+        public void ReloadParticipants()
         {
             //participants = _getParticipantsHandler.Execute();
             ReloadStageN();
@@ -230,11 +234,6 @@ namespace HEMACounter.ViewModels
         public override void OnRedScoreUpdate()
         {
             RedImage = $"/HEMACounter;component/Images/red{RedScore}.png";
-        }
-
-        protected override void GenerateStageN()
-        {
-            return;//Пока не нужна логика генерации кругов.
         }
 
         public override void OnStartTimer()

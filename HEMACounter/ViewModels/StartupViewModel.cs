@@ -110,6 +110,12 @@ namespace HEMACounter.ViewModels
                 case "Стальные яйца":
                     _callback(TournamentType.Stahlkugeln, WithAdmin);
                     return;
+                case "Турнир Стали":
+                    _callback(TournamentType.Circle, WithAdmin);
+                    return;
+                case "Турнир Стали. Плейофф":
+                    _callback(TournamentType.Olympic, false);
+                    return;
                 default:
                     return;
             }

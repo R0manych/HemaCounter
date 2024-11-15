@@ -4,55 +4,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Windows;
+using System.Windows.Input;
 using TournamentBuilderLib.Handlers;
 using TournamentBuilderLib.Models;
 using TournamentBuilderLib.Utils;
 
 namespace HEMACounter.ViewModels.Base
 {
-    public class BaseSwissViewModel<T> : BaseViewModel<T> where T : IParticipant
+    public class BaseSwissViewModel<T> : AdvancedViewModel<T> where T : IParticipant
     {
-        protected readonly IWriteBattlePairHandler _writeBattlePairHandler = new WriteBattlePairHandler(Settings.SheetId);
-        protected readonly IBattleResultBuilder _battleResultBuilder = new BattleResultBuilder();
-        protected readonly IWriteBattleResultHandler _writeBattleResultHandler = new WriteBattleResultHandler(Settings.SheetId);
-        protected readonly IGetBattlePairsHandler _getBattlePairsHandler = new GetBattlePairsHandler(Settings.SheetId);
-        protected readonly IGetParticipantsScoreHandler _getParticipantsScoreHandler = new GetParticipantsScoreHandler(Settings.SheetId);
-        protected readonly IGetParticipantsHandler _getParticipantsHandler = new GetParticipantsHandler(Settings.SheetId);
+        private ICommand generateStageNCommand;
+        public ICommand GenerateStageNCommand => generateStageNCommand ??= new CommandHandler(GenerateStageN, () => true);
 
-        public override void FinishFight()
+        public BaseSwissViewModel() : base()
         {
-            SetupCurrentBattlePairScore();
-
-            //Запись в файл текущего круга
-            _writeBattlePairHandler.Execute(CurrentBattlePair);
-
-            if (Doubles > CurrentStage.MaxDoubles && Settings.TechDefeatByDoublesEnabled) //техническое поражение обоим
-            {
-                var (resultRed, resultBlue) = _battleResultBuilder.BuildTechnicalDefeat(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id, Doubles > CurrentStage.MaxDoubles);
-                _writeBattleResultHandler.Execute(resultRed);
-                _writeBattleResultHandler.Execute(resultBlue);
-            }
-            else if (CurrentBattlePair.IsDraw)
-            {
-                var (resultRed, resultBlue) = _battleResultBuilder.BuildDraws(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id, Doubles > CurrentStage.MaxDoubles);
-                _writeBattleResultHandler.Execute(resultRed);
-                _writeBattleResultHandler.Execute(resultBlue);
-            }
-            else
-            {
-                var winnerResult = _battleResultBuilder.BuildWinner(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id, Doubles > CurrentStage.MaxDoubles);
-                var loserResult = _battleResultBuilder.BuildLoser(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id, Doubles > CurrentStage.MaxDoubles);
-                _writeBattleResultHandler.Execute(winnerResult);
-                _writeBattleResultHandler.Execute(loserResult);
-            }
-        }
-
-        private void SetupCurrentBattlePairScore()
-        {
-            CurrentBattlePair!.FighterRedScore = RedScore;
-            CurrentBattlePair!.FighterBlueScore = BlueScore;
-            CurrentBattlePair!.TimeInSeconds = (int)elapsedTime.TotalSeconds;
-            CurrentBattlePair!.DoublesCount = Doubles;
+            _writeBattlePairHandler = new WriteBattlePairHandler(Settings.SheetId);
+            _battleResultBuilder = new BattleResultBuilder();
+            _writeBattleResultHandler = new WriteBattleResultHandler(Settings.SheetId);
+            _getBattlePairsHandler = new GetBattlePairsHandler(Settings.SheetId);
+            _getParticipantsScoreHandler = new GetParticipantsScoreHandler(Settings.SheetId);
+            _getParticipantsHandler = new GetParticipantsHandler(Settings.SheetId);
         }
 
         public override void GenerateStages()
@@ -68,44 +39,26 @@ namespace HEMACounter.ViewModels.Base
             }).ToList().ForEach(Stages.Add);
         }
 
-        public override void GetReady()
-        {
-            if (NextBattlePair is not null)
-            {
-                NextBattlePair.IsStarted = false;
-                _writeBattlePairHandler.Execute(NextBattlePair);
-            }
-
-            NextBattlePair = SelectedBattlePair;
-            SelectedBattlePair = null;
-
-            if (NextBattlePair is null)
-                return;
-
-            NextBattlePair.IsStarted = true;
-            _writeBattlePairHandler.Execute(NextBattlePair);
-        }
-
         public override void ReloadStageN()
         {
             if (CurrentStage == null)
                 return;
 
             var current = CurrentStage.Id;
-            var currentPairs = _getBattlePairsHandler.Execute($"Круг {current}", participants.Count())
+            var currentPairs = _getBattlePairsHandler.Execute($"Круг {current}", participants.Count() / 2)
                 .Where(x => !x.IsStarted || LoadAll).ToList();
 
             BattlePairs.Clear();
             currentPairs.ForEach(BattlePairs.Add);
         }
 
-        protected override void GenerateStageN()
+        protected void GenerateStageN()
         {
             var current = CurrentStage.Id;
 
             try
             {
-                if (_getBattlePairsHandler.Execute($"Круг {current}", participants.Count())
+                if (_getBattlePairsHandler.Execute($"Круг {current}", participants.Count() / 2)
                     .Where(x => x.IsStarted).Any())
                 {
                     MessageBox.Show("Круг уже начался!");
@@ -118,7 +71,7 @@ namespace HEMACounter.ViewModels.Base
 
             for (int turn = 1; turn < current; turn++)
             {
-                restrictedPairs.AddRange(_getBattlePairsHandler.Execute($"Круг {turn}", participants.Count()));
+                restrictedPairs.AddRange(_getBattlePairsHandler.Execute($"Круг {turn}", participants.Count() / 2));
             }
 
             var participantScores = _getParticipantsScoreHandler.Execute();
@@ -138,26 +91,28 @@ namespace HEMACounter.ViewModels.Base
             generatedPairs.ForEach(BattlePairs.Add);
         }
 
-
-        public override void ReloadParticipants()
+        public override void FinishFight()
         {
-            throw new NotImplementedException();
-        }
+            base.FinishFight();
 
-        public override void OnStartTimer()
-        {
-            if (CurrentBattlePair is not null)
+            if (Doubles > CurrentStage.MaxDoubles && Settings.TechDefeatByDoublesEnabled) //техническое поражение обоим
             {
-                SetupCurrentBattlePairScore();
-                new Thread(() =>
-                {
-                    Thread.CurrentThread.IsBackground = true;
-                    try
-                    {
-                        _writeBattlePairHandler.Execute(CurrentBattlePair);
-                    }
-                    catch { }
-                }).Start();
+                var (resultRed, resultBlue) = _battleResultBuilder.BuildTechnicalDefeat(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id, Doubles > CurrentStage.MaxDoubles);
+                _writeBattleResultHandler.Execute(resultRed);
+                _writeBattleResultHandler.Execute(resultBlue);
+            }
+            else if (CurrentBattlePair.IsDraw)
+            {
+                var (resultRed, resultBlue) = _battleResultBuilder.BuildDraws(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id, Doubles > CurrentStage.MaxDoubles);
+                _writeBattleResultHandler.Execute(resultRed);
+                _writeBattleResultHandler.Execute(resultBlue);
+            }
+            else
+            {
+                var winnerResult = _battleResultBuilder.BuildWinner(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id, Doubles > CurrentStage.MaxDoubles);
+                var loserResult = _battleResultBuilder.BuildLoser(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id, Doubles > CurrentStage.MaxDoubles);
+                _writeBattleResultHandler.Execute(winnerResult);
+                _writeBattleResultHandler.Execute(loserResult);
             }
         }
     }

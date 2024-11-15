@@ -197,6 +197,9 @@ internal class TeamViewModel : BaseSwissViewModel<TeamParticipant>
         }
     }
 
+    private ICommand reloadParticipantsCommand;
+    public ICommand ReloadParticipantsCommand => reloadParticipantsCommand ??= new CommandHandler(ReloadParticipants, () => true);
+
     #endregion
 
     //TODO: рефакторинг
@@ -223,7 +226,7 @@ internal class TeamViewModel : BaseSwissViewModel<TeamParticipant>
         CurrentStage = Stages.First();
     }
 
-    public override void ReloadParticipants()
+    public void ReloadParticipants()
     {
         participants = _getTeamParticipantsHandler.Execute();
         ReloadStageN();

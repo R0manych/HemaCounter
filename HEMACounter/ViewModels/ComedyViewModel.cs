@@ -569,7 +569,7 @@ namespace HEMACounter.ViewModels
         public void ReloadStageN()
         {
             var current = currentStage.Id;
-            var currentPairs = _getBattlePairsHandler.Execute($"Круг {current}", participants.Count())
+            var currentPairs = _getBattlePairsHandler.Execute($"Круг {current}", participants.Count() / 2)
                 .Where(x => !x.IsStarted).ToList();
 
             BattlePairs.Clear();
@@ -580,7 +580,7 @@ namespace HEMACounter.ViewModels
         {
             var current = currentStage.Id;
 
-            if (_getBattlePairsHandler.Execute($"Круг {current}", participants.Count())
+            if (_getBattlePairsHandler.Execute($"Круг {current}", participants.Count() / 2)
                 .Where(x => x.IsStarted).Any())
             {
                 MessageBox.Show("Круг уже начался!");
@@ -591,7 +591,7 @@ namespace HEMACounter.ViewModels
 
             for (int turn = 1; turn < current; turn++)
             {
-                restrictedPairs.AddRange(_getBattlePairsHandler.Execute($"Круг {turn}", participants.Count()));
+                restrictedPairs.AddRange(_getBattlePairsHandler.Execute($"Круг {turn}", participants.Count() / 2));
             }
             
             var participantScores = _getParticipantsScoreHandler.Execute();
