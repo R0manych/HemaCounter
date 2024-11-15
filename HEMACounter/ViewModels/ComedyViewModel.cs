@@ -153,6 +153,8 @@ namespace HEMACounter.ViewModels
             }
         }
 
+        public string CoverImagePath => $"/Images/{Settings.CoverFileName}";
+
         private int blueScore;
         public int BlueScore
         {
@@ -324,7 +326,7 @@ namespace HEMACounter.ViewModels
 
         #endregion
 
-        private readonly IGetBattlePairsHandler _getBattlePairsHandler = new GetBattlePairsHandler(Settings.SheetId);
+        private readonly IGetBattlePairsHandler _getBattlePairsHandler = new GetBattlePairsComedyHandler(Settings.SheetId);
         private readonly IGetParticipantsHandler _getParticipantsHandler = new GetParticipantsHandler(Settings.SheetId);
         private readonly IWriteBattlePairHandler _writeBattlePairHandler = new WriteBattlePairHandler(Settings.SheetId);
         private readonly IBattleResultBuilder _battleResultBuilder = new BattleResultBuilder();
@@ -407,6 +409,8 @@ namespace HEMACounter.ViewModels
         {
             currentBattlePair!.FighterRedScore = RedScore;
             currentBattlePair!.FighterBlueScore = BlueScore;
+            currentBattlePair!.DoublesCount = Doubles;
+            currentBattlePair!.TimeInSeconds = (int)elapsedTime.TotalSeconds;
 
             //Запись в файл текущего круга
             _writeBattlePairHandler.Execute(currentBattlePair);
@@ -416,8 +420,8 @@ namespace HEMACounter.ViewModels
                 var (resultRed, resultBlue) = _battleResultBuilder.BuildTechnicalDefeat(currentBattlePair, participants, currentStage.Id);
                 _writeBattleResultHandler.Execute(resultRed);
                 _writeBattleResultHandler.Execute(resultBlue);
-                UpdateParam(currentBattlePair.FighterBlueName, 2);
-                UpdateParam(currentBattlePair.FighterRedName, 2);
+                UpdateParam(currentBattlePair.FighterBlueName, 1);
+                UpdateParam(currentBattlePair.FighterRedName, 1);
             }
             else if (currentBattlePair.IsDraw)
             {
@@ -433,9 +437,7 @@ namespace HEMACounter.ViewModels
                 var loserResult = _battleResultBuilder.BuildLoser(currentBattlePair, participants, currentStage.Id);
                 _writeBattleResultHandler.Execute(winnerResult);
                 _writeBattleResultHandler.Execute(loserResult);
-                UpdateParam(currentBattlePair.LooserName, 2);
-                var winnerName = currentBattlePair.LooserName == currentBattlePair.FighterBlueName ? currentBattlePair.FighterRedName : currentBattlePair.FighterBlueName;
-                UpdateParam(winnerName, 1);
+                UpdateParam(currentBattlePair.LooserName, 1);
             }
         }
 
@@ -594,13 +596,13 @@ namespace HEMACounter.ViewModels
             
             var participantScores = _getParticipantsScoreHandler.Execute();
 
-            var generatedPairs = PairGenerator.GenerateBattlePairs(current > 4 ? GenerationMode.Swiss : GenerationMode.Random, 
+            var generatedPairs = PairGenerator.GenerateBattlePairs(current > 5 ? GenerationMode.Swiss : GenerationMode.Random, 
                 restrictedPairs.ToList(), participantScores.ToList());
 
             int i = 1;
             foreach (var pair in generatedPairs)
             {
-                pair.Range = $"Круг {current}!D{i}:H{i}";
+                pair.Range = $"Круг {current}!D{i}:J{i}";
                 _writeBattlePairHandler.Execute(pair);
                 i++;
             }

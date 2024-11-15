@@ -10,7 +10,7 @@ public interface IGetParamHandler
 
 public class GetParamHandler : BaseHandler, IGetParamHandler
 {
-    private const string _sheetName = "Список участников";
+    private const string _sheetName = "Участники";
 
     public GetParamHandler(string sheetId) : base(sheetId)
     {

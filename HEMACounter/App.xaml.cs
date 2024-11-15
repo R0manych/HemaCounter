@@ -76,17 +76,8 @@ namespace HEMACounter
                         break;
                     }
                 case TournamentType.Dante:
-                    {
-                        var commonContext = new IndividualViewModel();
-
-                        MainWindow = new Display();
-                        MainWindow.DataContext = commonContext;
-                        MainWindow.Show();
-
-                        var control = new IndividualControl();
-                        control.DataContext = commonContext;
-                        control.Show();
-
+                { 
+                    var commonContext = new ComedyViewModel();
                         if (withAdmin)
                         {
                             var admin = new Admin();

@@ -104,6 +104,9 @@ namespace HEMACounter.ViewModels
                         _callback(TournamentType.RubilnikIndividual, WithAdmin);
                     }
                     return;
+                case "Божественная комедия":
+                    _callback(TournamentType.Dante, WithAdmin);
+                    return;
                 case "Стальные яйца":
                     _callback(TournamentType.Stahlkugeln, WithAdmin);
                     return;
