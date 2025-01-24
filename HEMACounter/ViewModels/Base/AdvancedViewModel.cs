@@ -1,14 +1,10 @@
 ﻿using HEMACounter.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
+using TournamentBuilderLib.Builders;
 using TournamentBuilderLib.Handlers;
 using TournamentBuilderLib.Models;
-using TournamentBuilderLib.Utils;
 
 namespace HEMACounter.ViewModels.Base
 {
@@ -27,6 +23,26 @@ namespace HEMACounter.ViewModels.Base
 
             //Запись в файл текущего круга
             _writeBattlePairHandler.Execute(CurrentBattlePair);
+
+            if (Doubles > CurrentStage.MaxDoubles && Settings.TechDefeatByDoublesEnabled) //техническое поражение обоим
+            {
+                var (resultRed, resultBlue) = _battleResultBuilder.BuildTechnicalDefeat(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id, Doubles > CurrentStage.MaxDoubles);
+                _writeBattleResultHandler.Execute(resultRed);
+                _writeBattleResultHandler.Execute(resultBlue);
+            }
+            else if (CurrentBattlePair.IsDraw)
+            {
+                var (resultRed, resultBlue) = _battleResultBuilder.BuildDraws(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id, Doubles > CurrentStage.MaxDoubles);
+                _writeBattleResultHandler.Execute(resultRed);
+                _writeBattleResultHandler.Execute(resultBlue);
+            }
+            else
+            {
+                var winnerResult = _battleResultBuilder.BuildWinner(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id, Doubles > CurrentStage.MaxDoubles);
+                var loserResult = _battleResultBuilder.BuildLoser(CurrentBattlePair, participants.Cast<IParticipant>(), CurrentStage.Id, Doubles > CurrentStage.MaxDoubles);
+                _writeBattleResultHandler.Execute(winnerResult);
+                _writeBattleResultHandler.Execute(loserResult);
+            }
         }
 
         public override void OnStartTimer()

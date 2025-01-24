@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Timers;
 using System.Windows;
 using System.Windows.Input;
+using TournamentBuilderLib.Builders;
 using TournamentBuilderLib.Handlers;
 using TournamentBuilderLib.Models;
 using TournamentBuilderLib.Utils;
@@ -329,7 +330,7 @@ namespace HEMACounter.ViewModels
         private readonly IGetBattlePairsHandler _getBattlePairsHandler = new GetBattlePairsComedyHandler(Settings.SheetId);
         private readonly IGetParticipantsHandler _getParticipantsHandler = new GetParticipantsHandler(Settings.SheetId);
         private readonly IWriteBattlePairHandler _writeBattlePairHandler = new WriteBattlePairHandler(Settings.SheetId);
-        private readonly IBattleResultBuilder _battleResultBuilder = new BattleResultBuilder();
+        private readonly IBattleResultBuilder _battleResultBuilder = new DanteBattleResultBuilder();
         private readonly IWriteBattleResultHandler _writeBattleResultHandler = new WriteBattleResultHandler(Settings.SheetId);
         private readonly IGetParticipantsScoreHandler _getParticipantsScoreHandler = new GetParticipantsScoreHandler(Settings.SheetId);
         private readonly IGetParamHandler _getParamHandler = new GetParamHandler(Settings.SheetId);

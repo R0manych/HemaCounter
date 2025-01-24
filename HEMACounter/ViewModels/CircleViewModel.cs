@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
+using TournamentBuilderLib.Builders;
 using TournamentBuilderLib.Handlers;
 using TournamentBuilderLib.Models;
 using TournamentBuilderLib.Utils;
@@ -38,8 +39,8 @@ namespace HEMACounter.ViewModels
             _getParticipantsHandler = new GetParticipantsHandler(Settings.SheetId);
             _getBattlePairsHandler = new GetBattlePairsHandler(Settings.SheetId);
             _writeBattlePairHandler = new WriteBattlePairHandler(Settings.SheetId);
-            _battleResultBuilder = new BattleResultBuilder();
-            _writeBattleResultHandler = new WriteBattleResultHandler(Settings.SheetId);
+            _battleResultBuilder = new CircleBattleResultBuilder();
+            _writeBattleResultHandler = new WriteToExistingBattleResultHandler(Settings.SheetId);
             participants = _getParticipantsHandler.Execute();
 
             GenerateStages();
@@ -51,7 +52,9 @@ namespace HEMACounter.ViewModels
             if (CurrentStage == null)
                 return;
 
-            var pairsCount = Enumerable.Range(1, GetParticipantsCountForStage(participants.Count(), Settings.StagesCount!.Value, CurrentStage.Id) - 1).Sum();
+            var pairsCount = Enumerable.Range(1, 
+                GetParticipantsCountForStage(participants.Count(), Settings.StagesCount!.Value, CurrentStage.Id) 
+                    - 1).Sum();
 
             var current = CurrentStage.Id;
             var currentPairs = _getBattlePairsHandler.Execute($"Группа {current}", pairsCount)

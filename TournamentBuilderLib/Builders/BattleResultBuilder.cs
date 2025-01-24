@@ -2,7 +2,7 @@
 using System;
 using TournamentBuilderLib.Models;
 
-namespace TournamentBuilderLib.Handlers
+namespace TournamentBuilderLib.Builders
 {
     public interface IBattleResultBuilder
     {
@@ -15,8 +15,13 @@ namespace TournamentBuilderLib.Handlers
         (BattleResult, BattleResult) BuildTechnicalDefeat(BattlePair pair, IEnumerable<IParticipant> participantsWithClub, int turn, bool withPenalty = false);
     }
 
-    public class BattleResultBuilder : IBattleResultBuilder
+    public abstract class BattleResultBuilder : IBattleResultBuilder
     {
+        public BattleResultBuilder()
+        {
+            ResultAddressMap = SetResultAddressMap();
+        }
+
         public BattleResult BuildWinner(BattlePair pair, IEnumerable<IParticipant> participantsWithClub, int stage, bool withPenalty = false)
         {
             var winner = pair.FighterRedScore > pair.FighterBlueScore ? pair.FighterRedName : pair.FighterBlueName;
@@ -95,17 +100,9 @@ namespace TournamentBuilderLib.Handlers
             return (resultRed, resultBlue);
         }
 
-        private Dictionary<int, (string, string)> ResultAddressMap = new Dictionary<int, (string, string)>()
-        {
-            { 1, ("B", "C") },
-            { 2, ("D", "E") },
-            { 3, ("F", "G") },
-            { 4, ("H", "I") },
-            { 5, ("J", "K") },
-            { 6, ("L", "M") },
-            { 7, ("N", "O") },
-            { 8, ("P", "Q") },
-            { 9, ("R", "S") },
-        };
+        protected abstract Dictionary<int, (string, string)> SetResultAddressMap();
+
+        private Dictionary<int, (string, string)> ResultAddressMap;
     }
 }
+
