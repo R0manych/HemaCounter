@@ -11,15 +11,13 @@ using TournamentBuilderLib.Models;
 
 namespace HEMACounter.ViewModels.Base
 {
-    public abstract class BaseViewModel<T> : INotifyPropertyChanged where T : IParticipant
+    public abstract class BaseViewModel : INotifyPropertyChanged
     {
         #region Parameters
 
         private int backupRedScore;
         private int backupBlueScore;
         private int backupDoubles;
-
-        protected IEnumerable<T> participants = new List<T>();
 
         private ObservableCollection<BattlePair> battlePairs = new();
         public ObservableCollection<BattlePair> BattlePairs

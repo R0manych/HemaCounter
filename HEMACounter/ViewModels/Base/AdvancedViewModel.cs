@@ -1,5 +1,6 @@
 ﻿using HEMACounter.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using TournamentBuilderLib.Builders;
@@ -8,7 +9,7 @@ using TournamentBuilderLib.Models;
 
 namespace HEMACounter.ViewModels.Base
 {
-    public abstract class AdvancedViewModel<T> : BaseViewModel<T> where T : IParticipant
+    public abstract class AdvancedViewModel<T> : BaseViewModel where T : IParticipant
     {
         protected IWriteBattlePairHandler _writeBattlePairHandler;
         protected IBattleResultBuilder _battleResultBuilder;
@@ -16,6 +17,8 @@ namespace HEMACounter.ViewModels.Base
         protected IGetBattlePairsHandler _getBattlePairsHandler;
         protected IGetParticipantsScoreHandler _getParticipantsScoreHandler;
         protected IGetParticipantsHandler _getParticipantsHandler;
+
+        protected IEnumerable<T> participants = new List<T>();
 
         public override void FinishFight()
         {

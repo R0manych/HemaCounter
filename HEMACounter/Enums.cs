@@ -14,6 +14,7 @@ namespace HEMACounter
         Stahlkugeln,
         Dante,
         Olympic,
-        Circle
+        Circle,
+        Offline
     }
 }

@@ -57,6 +57,18 @@ namespace HEMACounter.ViewModels
             }
         }
 
+        private bool isOnline;
+        public bool IsOnline
+        {
+            get => isOnline;
+            set
+            {
+                isOnline = value;
+                if (propertyChanged != null)
+                    propertyChanged(this, new PropertyChangedEventArgs("IsOnline"));
+            }
+        }
+
         private PropertyChangedEventHandler? propertyChanged;
         event PropertyChangedEventHandler? INotifyPropertyChanged.PropertyChanged
         {
@@ -71,15 +83,18 @@ namespace HEMACounter.ViewModels
         #region Commands
         private ICommand runCommand;
         public ICommand RunCommand => runCommand ??= new CommandHandler(Run, () => true);
+
+        private ICommand loadCommand;
+        public ICommand LoadCommand => loadCommand ??= new CommandHandler(Load, () => true);
+
         #endregion
 
         public StartupViewModel(Action<TournamentType, bool> callback)
         {
-            Initialize();
             _callback = callback;
         }
 
-        private void Initialize()
+        private void Load()
         {
             var settings = _getSettingsHandler.GetSettings();
             Tournaments = new (settings.Select(GetTournamentFromSettings));
@@ -87,8 +102,11 @@ namespace HEMACounter.ViewModels
 
         private void Run()
         {
-            if (SelectedTournament == null)
+            if (SelectedTournament is null)
+            {
+                _callback(TournamentType.Offline, false);
                 return;
+            }
 
             Settings.Current = SelectedTournament.Settings;
 
