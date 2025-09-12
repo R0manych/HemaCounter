@@ -1,17 +1,10 @@
-﻿using HEMACounter.Models;
-using HEMACounter.ViewModels.Base;
+﻿using HEMACounter.ViewModels.Base;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Timers;
-using System.Windows.Input;
-using System.Windows.Media.Media3D;
+using TournamentBuilderLib.Builders;
 using TournamentBuilderLib.Handlers;
 using TournamentBuilderLib.Models;
-using TournamentBuilderLib.Utils;
 
 namespace HEMACounter.ViewModels
 {
@@ -35,7 +28,7 @@ namespace HEMACounter.ViewModels
             _getParticipantsHandler = new GetParticipantsHandler(Settings.SheetId);
             _getBattlePairsHandler = new GetBattlePairsHandler(Settings.SheetId);
             _writeBattlePairHandler = new WriteBattlePairHandler(Settings.SheetId);
-            _battleResultBuilder = new BattleResultBuilder();
+            _battleResultBuilder = new OlympicBattleResultBuilder();
             _writeBattleResultHandler = new WriteBattleResultHandler(Settings.SheetId);
             participants = _getParticipantsHandler.Execute();
 

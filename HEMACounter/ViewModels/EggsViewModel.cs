@@ -16,8 +16,10 @@ using TournamentBuilderLib.Models;
 
 namespace HEMACounter.ViewModels
 {
-    internal class EggsViewModel : BaseViewModel<ParticipantWithClub>
+    internal class EggsViewModel : BaseViewModel
     {
+        protected IEnumerable<ParticipantWithClub> participants = new List<ParticipantWithClub>();
+
         private string _blueImage;
 
         public string BlueImage

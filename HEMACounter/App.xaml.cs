@@ -120,6 +120,18 @@ namespace HEMACounter
                         }
                         break;
                     }
+                case TournamentType.Offline:
+                    {
+                        var commonContext = new OfflineViewModel();
+                        MainWindow = new Display();
+                        MainWindow.DataContext = commonContext;
+                        MainWindow.Show();
+
+                        var control = new Offline();
+                        control.DataContext = commonContext;
+                        control.Show();
+                        break;
+                    }
             }
             _startupView?.Close();
         }

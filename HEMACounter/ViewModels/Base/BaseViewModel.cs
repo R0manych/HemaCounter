@@ -11,15 +11,13 @@ using TournamentBuilderLib.Models;
 
 namespace HEMACounter.ViewModels.Base
 {
-    public abstract class BaseViewModel<T> : INotifyPropertyChanged where T : IParticipant
+    public abstract class BaseViewModel : INotifyPropertyChanged
     {
         #region Parameters
 
         private int backupRedScore;
         private int backupBlueScore;
         private int backupDoubles;
-
-        protected IEnumerable<T> participants = new List<T>();
 
         private ObservableCollection<BattlePair> battlePairs = new();
         public ObservableCollection<BattlePair> BattlePairs
@@ -323,11 +321,11 @@ namespace HEMACounter.ViewModels.Base
             if (timer.Enabled)
             {
                 timer.Stop();
+                OnStartTimer();
             }
             else
             {
                 timer.Start();
-                OnStartTimer();
             }
 
             StartButtonText = timer.Enabled ? "Стоп" : "Старт";
@@ -407,9 +405,7 @@ namespace HEMACounter.ViewModels.Base
             timer.Stop();
 
             CurrentBattlePair = nextBattlePair;
-            elapsedTime = CurrentBattlePair?.TimeInSeconds != 0
-                ? TimeSpan.FromSeconds(CurrentBattlePair?.TimeInSeconds ?? (int)CurrentStage.Duration.TotalSeconds)
-                : CurrentStage.Duration;
+            elapsedTime = CurrentStage.Duration;
             timer = new Timer(elapsedTime);
             timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
             timer.Interval = 1000;
@@ -443,7 +439,7 @@ namespace HEMACounter.ViewModels.Base
         {
             CurrentBattlePair!.FighterRedScore = RedScore;
             CurrentBattlePair!.FighterBlueScore = BlueScore;
-            CurrentBattlePair!.TimeInSeconds = (int)elapsedTime.TotalSeconds;
+            //CurrentBattlePair!.TimeInSeconds = (int)elapsedTime.TotalSeconds;
             CurrentBattlePair!.DoublesCount = Doubles;
             currentBattlePair!.IsStarted = true;
         }
