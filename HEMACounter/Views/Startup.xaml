@@ -33,7 +33,7 @@
 
         <CheckBox Grid.Row="2" Margin="15,7" IsChecked="{Binding WithAdmin, UpdateSourceTrigger=PropertyChanged}" Content="С панелью администрирования для генерации кругов"/>
 
-        <Button Grid.Row="3" Command="{Binding Load}" Margin="15,0,15,15">
+        <Button Grid.Row="3" Command="{Binding LoadCommand}" Margin="15,0,15,15">
             <Label Content="Загрузить" FontSize="10"/>
         </Button>
         
