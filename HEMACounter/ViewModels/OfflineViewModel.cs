@@ -25,7 +25,7 @@ namespace HEMACounter.ViewModels
             {
                 Id = 1,
                 MaxScore = 15,
-                Duration = TimeSpan.FromSeconds(120)
+                Duration = TimeSpan.FromSeconds(0)
             };
         }
 

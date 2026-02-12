@@ -8,7 +8,6 @@
         Title="MainWindow" Height="450" Width="800"
         WindowStyle="None"   
         WindowState="Maximized"
-        Closing="Window_Closing"
         >
 
     <Window.Resources>

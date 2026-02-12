@@ -6,7 +6,6 @@
         xmlns:local="clr-namespace:HEMACounter.Views"
         mc:Ignorable="d"
         Title="Offline" Width="1280" Height="720"
-        Closing="Window_Closing"
         >
     <Window.Resources>
         <ResourceDictionary>

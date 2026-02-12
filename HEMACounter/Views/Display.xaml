@@ -6,9 +6,8 @@
         xmlns:local="clr-namespace:HEMACounter"
         mc:Ignorable="d"
         Title="MainWindow" Height="1080" Width="1920"
-        WindowStyle="None"   
+        WindowStyle="None"
         WindowState="Maximized"
-        Closing="Window_Closing"
         >
 
     <Window.Resources>

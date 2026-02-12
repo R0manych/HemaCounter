@@ -7,7 +7,7 @@ namespace HEMACounter
         public static Dictionary<string, string> Current = new Dictionary<string, string>();
         public static string SheetId => Current["DOC_URL"];
 
-        public static string CoverFileName => Current["COVER_FILENAME"];
+        public static string CoverFileName => Current.TryGetValue("COVER_FILENAME", out var coverFileName) ? coverFileName : "";
 
         public static int? ScoresPerRound => Current["SCORES_PER_ROUND"].ToNullableInt();
 
